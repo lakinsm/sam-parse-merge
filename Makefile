@@ -8,7 +8,7 @@ SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -g -std=c++14 -O3 -msse3 -funroll-loops -march=native -mfpmath=sse
-LIB :=
+LIB := -lstdc++
 INC := -I include
 MKDIR = mkdir -p bin
 
