@@ -8,13 +8,14 @@
 Args::Args(int argc, const char *argv[])
 {
     std::vector< std::string > arg_list(argv, argv+argc);
-    if(argc < 2) {
+    if(argc < 3) {
         std::cerr << std::endl << "Too few arguments." << std::endl;
         _usage();
     }
 
     sam_file_list = _findFullDirPath(arg_list[1]);
     best_genomes = _findFullDirPath(arg_list[2]);
+    threads = std::stoi(arg_list[3].c_str());
 }
 
 

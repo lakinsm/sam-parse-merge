@@ -45,6 +45,7 @@ int main(int argc, const char *argv[]) {
     }
 
     DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1, false);
+    DispatchQueue* job_dispatcher = new DispatchQueue(args.threads - 1, true);
     ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(100000);
 //    output_buffer_dispatcher->dispatch()
 
@@ -65,6 +66,7 @@ int main(int argc, const char *argv[]) {
 
     while(concurrent_q->num_active_jobs > 0) {}
 
+    delete job_dispatcher;
     delete concurrent_q;
     delete output_buffer_dispatcher;
 

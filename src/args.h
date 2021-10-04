@@ -16,6 +16,7 @@ public:
 
     std::string sam_file_list;
     std::string best_genomes;
+    int threads;
 
 private:
     std::string _findFullDirPath(std::string path);
