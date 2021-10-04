@@ -13,8 +13,8 @@ Args::Args(int argc, const char *argv[])
         _usage();
     }
 
-    sam_file_list = _findFullDirPath(argv_list[1]);
-    best_genomes = _findFullDirPath(argv_list[2]);
+    sam_file_list = _findFullDirPath(arg_list[1]);
+    best_genomes = _findFullDirPath(arg_list[2]);
 }
 
 

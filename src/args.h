@@ -7,6 +7,7 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <limits.h>
 
 
 class Args {
@@ -18,6 +19,7 @@ public:
 
 private:
     std::string _findFullDirPath(std::string path);
+    void _usage();
 };
 
 
