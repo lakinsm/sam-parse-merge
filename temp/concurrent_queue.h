@@ -1,7 +1,7 @@
 #ifndef NOCTURNAL_LLAMA_CONCURRENT_QUEUE_H
 #define NOCTURNAL_LLAMA_CONCURRENT_QUEUE_H
 
-#include "dispatch_queue.h"
+#include "../src/dispatch_queue.h"
 #include "gpu_job.h"
 #include "node_gpu_memory.h"
 #include "annotation.h"

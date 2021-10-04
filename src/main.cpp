@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <map>
 #include "args.h"
+#include "dispatch_queue.h"
+#include "concurrent_buffer_queue.h"
 
 
 int main(int argc, const char *argv[]) {
@@ -42,7 +44,8 @@ int main(int argc, const char *argv[]) {
         best_genomes[barcode] = genome;
     }
 
-
+    output_buffer_dispatcher = new DispatchQueue(1);
+//    output_buffer_dispatcher->dispatch()
 
     for(int i = 0; i < sam_files.size(); ++i) {
         std::string this_sam_fp = sam_files[i];
@@ -57,9 +60,9 @@ int main(int argc, const char *argv[]) {
         else {
             this_param_string += "None";
         }
-
-        std::cout << this_param_string << std::endl;
     }
+
+    delete output_buffer_dispatcher;
 
     return 0;
 }
