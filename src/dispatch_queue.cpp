@@ -62,14 +62,32 @@ void DispatchQueue::_dispatch_thread_handler(void)
 	do {
 		_cv.wait(lock, [this]{return (_q.size() || _exit);});
 		if(!_exit && _q.size()) {
-			std::unique_ptr< ParserJob > job = std::move(_q.front());
+			auto op = std::move(_q.front());
 			_q.pop();
 
 			lock.unlock();
-			job->run();
-			job.reset();
+            op();
 			lock.lock();
 		}
 	} while(!_exit);
+}
+
+
+void DispatchQueue::_job_dispatch_thread_handler(void)
+{
+    std::unique_lock<std::mutex> lock(_lock);
+
+    do {
+        _cv.wait(lock, [this]{return (_job_q.size() || _exit);});
+        if(!_exit && _job_q.size()) {
+            std::unique_ptr< ParserJob > job = std::move(_job_q.front());
+            _job_q.pop();
+
+            lock.unlock();
+            job->run();
+            job.reset();
+            lock.lock();
+        }
+    } while(!_exit);
 }
 
