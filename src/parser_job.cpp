@@ -14,7 +14,7 @@ ParserJob::~ParserJob()
 
 void ParserJob::printInfo()
 {
-    
+
 }
 
 

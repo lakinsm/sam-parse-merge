@@ -45,6 +45,7 @@ int main(int argc, const char *argv[]) {
     }
 
     DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1, false);
+    ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(100000);
 //    output_buffer_dispatcher->dispatch()
 
     for(int i = 0; i < sam_files.size(); ++i) {
@@ -62,6 +63,9 @@ int main(int argc, const char *argv[]) {
         }
     }
 
+    while(concurrent_q->num_active_jobs > 0) {}
+
+    delete concurrent_q;
     delete output_buffer_dispatcher;
 
     return 0;

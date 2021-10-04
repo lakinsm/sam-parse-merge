@@ -18,6 +18,7 @@ public:
     bool tryPop(std::string item);
 
     std::atomic< bool > work_completed = ATOMIC_VAR_INIT(false);
+    std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);
 
 private:
     std::queue < std::string > _q;
