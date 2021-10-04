@@ -15,7 +15,8 @@ int main(int argc, const char *argv[]) {
     std::vector< std::string > sam_files;
 
     std::getline(ifs, line);
-    line = line.substr(1, line.size() - 1);
+    line.erase(0, 1);
+    line.erase(line.size() - 1);
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
     ss.str(line);
