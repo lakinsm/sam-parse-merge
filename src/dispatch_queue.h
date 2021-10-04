@@ -21,6 +21,7 @@ public:
 
 	void dispatch(const function_object &op);  // copy
 	void dispatch(function_object &&op); // move
+	void dispatch(std::unique_ptr< ParserJob > job);
 	bool _exit = false;
 
 	DispatchQueue(const DispatchQueue& rhs) = delete;
