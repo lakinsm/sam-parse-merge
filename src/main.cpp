@@ -40,7 +40,15 @@ int main(int argc, const char *argv[]) {
         std::getline(ss2, barcode, '\t');
         std::getline(ss2, genome, '\t');
         best_genomes[barcode] = genome;
-        std::cout << barcode << '\t' << genome << std::endl;
+    }
+
+    for(int i = 0; i < sam_files.size(); ++i) {
+        std::string this_sam_fp = sam_files[i];
+        std::size_t pos1 = this_sam_fp.find_last_of('/');
+        std::string this_filename = this_sam_fp.substr(pos1 + 1);
+        std::size_t pos2 = this_filename.find_first_of('_');
+        std::string this_barcode = this_filename.substr(0, pos2 - 1);
+        std::cout << this_barcode << '\t' << best_genomes.at(this_barcode) << std::endl;
     }
 
     return 0;
