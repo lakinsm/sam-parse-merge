@@ -5,3 +5,9 @@ ConcurrentBufferQueue::ConcurrentBufferQueue(const int &max_elements) : _max_siz
 {
 
 }
+
+
+ConcurrentBufferQueue::~ConcurrentBufferQueue()
+{
+
+}
