@@ -35,7 +35,7 @@ int main(int argc, const char *argv[]) {
 
     std::map< std::string, std::string > best_genomes;
 
-    while(std::getline(ifs1, line)) {
+    while(std::getline(ifs2, line)) {
         ss2.str(line);
         std::getline(ss2, barcode, '\t');
         std::getline(ss2, genome, '\t');
