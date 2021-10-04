@@ -12,7 +12,13 @@ ParserJob::~ParserJob()
 }
 
 
-ParserJob::run()
+void ParserJob::printInfo()
+{
+    
+}
+
+
+void ParserJob::run()
 {
 
 }
