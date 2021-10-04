@@ -16,7 +16,7 @@
 class DispatchQueue {
 	typedef std::function<void(void)> function_object;
 public:
-	DispatchQueue(const size_t &thread_count);
+	DispatchQueue(const size_t &thread_count, const bool &object_queue);
 	~DispatchQueue();
 
 	void dispatch(const function_object &op);  // copy
@@ -31,6 +31,7 @@ public:
 
 private:
 	void _dispatch_thread_handler(void);
+	void _job_dispatch_thread_handler(void);
 
 	std::mutex _lock;
 	std::condition_variable _cv;

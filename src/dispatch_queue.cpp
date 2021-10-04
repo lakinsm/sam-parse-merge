@@ -3,12 +3,19 @@
 
 
 // Public member functions
-DispatchQueue::DispatchQueue(const size_t &thread_count)
+DispatchQueue::DispatchQueue(const size_t &thread_count, const bool &object_queue)
 		: _threads(thread_count)
 {
-	for(size_t i = 0; i < _threads.size(); ++i) {
-		_threads[i] = std::thread(&DispatchQueue::_dispatch_thread_handler, this);
-	}
+    if(object_queue) {
+        for(size_t i = 0; i < _threads.size(); ++i) {
+            _threads[i] = std::thread(&DispatchQueue::_job_dispatch_thread_handler, this);
+        }
+    }
+    else {
+        for(size_t i = 0; i < _threads.size(); ++i) {
+            _threads[i] = std::thread(&DispatchQueue::_dispatch_thread_handler, this);
+        }
+    }
 }
 
 

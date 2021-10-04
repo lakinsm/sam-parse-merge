@@ -44,7 +44,7 @@ int main(int argc, const char *argv[]) {
         best_genomes[barcode] = genome;
     }
 
-    DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1);
+    DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1, false);
 //    output_buffer_dispatcher->dispatch()
 
     for(int i = 0; i < sam_files.size(); ++i) {
