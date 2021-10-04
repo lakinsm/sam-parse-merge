@@ -42,13 +42,23 @@ int main(int argc, const char *argv[]) {
         best_genomes[barcode] = genome;
     }
 
+
+
     for(int i = 0; i < sam_files.size(); ++i) {
         std::string this_sam_fp = sam_files[i];
         std::size_t pos1 = this_sam_fp.find_last_of('/');
         std::string this_filename = this_sam_fp.substr(pos1 + 1);
         std::size_t pos2 = this_filename.find_first_of('_');
         std::string this_barcode = this_filename.substr(0, pos2);
-        std::cout << this_barcode << '\t' << best_genomes.at(this_barcode) << std::endl;
+        std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
+        if(best_genomes.count(this_barcode)) {
+            this_param_string += best_genomes.at(this_barcode);
+        }
+        else {
+            this_param_string += 'None';
+        }
+
+        std::cout << this_param_string << std::endl;
     }
 
     return 0;
