@@ -4,3 +4,9 @@ ParserJob::ParserJob(const std::string &parameter_string)
 {
 
 }
+
+
+ParserJob::~ParserJob()
+{
+
+}
