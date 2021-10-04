@@ -10,3 +10,9 @@ ParserJob::~ParserJob()
 {
 
 }
+
+
+ParserJob::run()
+{
+
+}
