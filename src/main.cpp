@@ -16,10 +16,10 @@ int main(int argc, const char *argv[]) {
 
     std::getline(ifs, line);
     line = line.substr(2, line.size() - 2);
-    std::replace(line.begin(), line.end(), ' ', '');
+    line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
     ss.str(line);
-    while(std::getline(line, sam_filepath, ',')) {
+    while(std::getline(ss, sam_filepath, ',')) {
         sam_files.push_back(sam_filepath);
     }
 
