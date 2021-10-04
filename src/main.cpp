@@ -55,7 +55,7 @@ int main(int argc, const char *argv[]) {
             this_param_string += best_genomes.at(this_barcode);
         }
         else {
-            this_param_string += 'None';
+            this_param_string += "None";
         }
 
         std::cout << this_param_string << std::endl;
