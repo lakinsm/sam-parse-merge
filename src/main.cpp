@@ -47,7 +47,7 @@ int main(int argc, const char *argv[]) {
         std::size_t pos1 = this_sam_fp.find_last_of('/');
         std::string this_filename = this_sam_fp.substr(pos1 + 1);
         std::size_t pos2 = this_filename.find_first_of('_');
-        std::string this_barcode = this_filename.substr(0, pos2 - 1);
+        std::string this_barcode = this_filename.substr(0, pos2);
         std::cout << this_barcode << '\t' << best_genomes.at(this_barcode) << std::endl;
     }
 
