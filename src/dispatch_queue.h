@@ -36,6 +36,7 @@ private:
 	std::condition_variable _cv;
 	std::vector< std::thread > _threads;
 	std::queue< function_object > _q;
+	std::queue< std::unique_ptr< ParserJob > > _job_q;
 };
 
 #endif // ASFFAST_DISPATCH_QUEUE_H

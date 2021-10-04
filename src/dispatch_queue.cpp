@@ -48,7 +48,7 @@ void DispatchQueue::dispatch(function_object &&op)
 void DispatchQueue::dispatch(std::unique_ptr< ParserJob > job)
 {
 	std::unique_lock<std::mutex> lock(_lock);
-	_q.push(std::move(op));
+	_job_q.push(std::move(op));
 	lock.unlock();
 	_cv.notify_all();
 }
