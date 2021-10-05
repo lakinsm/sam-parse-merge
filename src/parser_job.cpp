@@ -96,7 +96,7 @@ void ParserJob::run()
 
 std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
 {
-    std::cout << sam_line << std::endl;
+//    std::cout << sam_line << std::endl;
     std::vector< std::string > ret;
     std::stringstream this_ss;
     this_ss.str(sam_line);
