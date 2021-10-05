@@ -20,6 +20,7 @@ public:
     bool tryPop(std::string item);
 
     std::atomic< bool > all_jobs_enqueued = ATOMIC_VAR_INIT(false);
+    std::atomic< bool > all_jobs_consumed = ATOMIC_VAR_INIT(false);
     std::atomic< bool > work_completed = ATOMIC_VAR_INIT(false);
     std::atomic< bool > headers_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);

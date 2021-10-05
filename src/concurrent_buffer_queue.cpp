@@ -23,8 +23,10 @@ void ConcurrentBufferQueue::run()
         std::cout << output_line << std::endl;
     }
     while(!all_jobs_enqueued) {
-        while(!tryPop(output_line)) {}
-        std::cout << output_line << std::endl;
+        while(!tryPop(output_line) && !all_jobs_consumed) {}
+        if(!all_jobs_consumed) {
+            std::cout << output_line << std::endl;
+        }
     }
     while(tryPop(output_line)) {
         std::cout << output_line << std::endl;
@@ -37,6 +39,9 @@ bool ConcurrentBufferQueue::tryPop(std::string item)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(_q.empty()) {
+        if(all_jobs_enqueued) {
+            all_jobs_consumed = true;
+        }
         return false;
     }
 
