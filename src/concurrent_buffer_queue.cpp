@@ -40,6 +40,7 @@ bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines)
     for(int i = 0; i < lines.size(); ++i) {
         _q.push(lines[i]);
     }
+    std::cout << _q.size() << std::endl;
     return true;
 }
 
