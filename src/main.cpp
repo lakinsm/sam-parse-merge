@@ -47,7 +47,7 @@ int main(int argc, const char *argv[]) {
     DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1, false);
     DispatchQueue* job_dispatcher = new DispatchQueue(args.threads - 1, true);
     ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(100000);
-    output_buffer_dispatcher->dispatch([concurrent_q] () {concurrent_q->test();});
+    output_buffer_dispatcher->dispatch([concurrent_q] () {concurrent_q->run();});
 
     for(int i = 0; i < sam_files.size(); ++i) {
         std::string this_sam_fp = sam_files[i];
