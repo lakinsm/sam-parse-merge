@@ -8,7 +8,7 @@
 Args::Args(int argc, const char *argv[])
 {
     std::vector< std::string > arg_list(argv, argv+argc);
-    if(argc < 3) {
+    if(argc < 4) {
         std::cerr << std::endl << "Too few arguments." << std::endl;
         _usage();
     }

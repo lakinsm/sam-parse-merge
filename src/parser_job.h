@@ -15,6 +15,7 @@ public:
     void printInfo();
     void run();
 
+    std::string barcode;
     std::string genome_select;
     std::string sam_filepath;
     std::string sam_header;

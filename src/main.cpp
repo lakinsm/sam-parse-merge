@@ -47,7 +47,7 @@ int main(int argc, const char *argv[]) {
     DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1, false);
     DispatchQueue* job_dispatcher = new DispatchQueue(args.threads - 1, true);
     ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(100000);
-//    output_buffer_dispatcher->dispatch()
+    output_buffer_dispatcher->dispatch(concurrent_q->run());
 
     for(int i = 0; i < sam_files.size(); ++i) {
         std::string this_sam_fp = sam_files[i];
@@ -62,9 +62,18 @@ int main(int argc, const char *argv[]) {
         else {
             this_param_string += "None";
         }
+
+        while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
+
+        std::unique_ptr< ParserJob > job = std::make_unique< ParserJob > (this_param_string, concurrent_q);
+        job_dispatcher->dispatch(std::move(job));
+        concurrent_q->num_active_jobs += 1;
     }
 
-    while(concurrent_q->num_active_jobs > 0) {}
+    while(concurrent_q->num_completed_jobs != sam_files.size()) {}
+    concurrent_q->all_jobs_enqueued = true;
+
+    while(!concurrent_q->work_completed) {}
 
     delete job_dispatcher;
     delete concurrent_q;
