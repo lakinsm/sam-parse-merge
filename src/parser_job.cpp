@@ -73,7 +73,6 @@ void ParserJob::run()
     }
 
     while(std::getline(ifs, line)) {
-        std::cout << line << std::endl;
         res = _parseSamLine(line);
         sam_flag = std::stoi(res[0].c_str());
         if(sam_flag & 4 == 0) {
@@ -95,16 +94,17 @@ void ParserJob::run()
 }
 
 
-std::vector< std::string > ParserJob::_parseSamLine(const std::string &line)
+std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
 {
+    std::cout << sam_line << std::endl;
     std::vector< std::string > ret;
-    std::stringstream ss;
-    ss.str(line);
+    std::stringstream this_ss;
+    ss.str(sam_line);
     std::string this_entry;
-    std::getline(ss, this_entry, '\t');
-    std::getline(ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
     ret.push_back(this_entry);
-    std::getline(ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
     ret.push_back(this_entry);
     return ret;
 }

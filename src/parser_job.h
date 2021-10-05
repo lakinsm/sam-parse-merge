@@ -25,7 +25,7 @@ private:
     ConcurrentBufferQueue* _buffer_q;
 
     bool _select;
-    std::vector< std::string > _parseSamLine(const std::string &line);
+    std::vector< std::string > _parseSamLine(const std::string &sam_line);
 };
 
 #endif //ASFFAST_PARSER_JOB_H
