@@ -99,7 +99,7 @@ std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
     std::cout << sam_line << std::endl;
     std::vector< std::string > ret;
     std::stringstream this_ss;
-    ss.str(sam_line);
+    this_ss.str(sam_line);
     std::string this_entry;
     std::getline(this_ss, this_entry, '\t');
     std::getline(this_ss, this_entry, '\t');
