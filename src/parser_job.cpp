@@ -73,6 +73,7 @@ void ParserJob::run()
     }
 
     while(std::getline(ifs, line)) {
+        std::cout << line << std::endl;
         res = _parseSamLine(line);
         sam_flag = std::stoi(res[0].c_str());
         if(sam_flag & 4 == 0) {
