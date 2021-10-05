@@ -10,7 +10,7 @@ ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue*
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, barcode, '|');
     std::getline(ss, genome_select);
-    if(genome_select == 'None') {
+    if(genome_select == "None") {
         _select = false;
     }
     else {
