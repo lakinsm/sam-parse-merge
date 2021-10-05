@@ -19,9 +19,13 @@ public:
     std::string genome_select;
     std::string sam_filepath;
     std::string sam_header;
+    std::vector< std::string > contents;
 
 private:
     ConcurrentBufferQueue* _buffer_q;
+
+    bool _select;
+    _parseSamLine(const std::string &line);
 };
 
 #endif //ASFFAST_PARSER_JOB_H

@@ -10,6 +10,12 @@ ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue*
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, barcode, '|');
     std::getline(ss, genome_select);
+    if(genome_select == 'None') {
+        _select = false;
+    }
+    else {
+        _select = true;
+    }
 }
 
 
@@ -30,5 +36,73 @@ void ParserJob::printInfo()
 
 void ParserJob::run()
 {
-    printInfo();
+    std::string this_header, line;
+    std::stringstream ss;
+    std::ifstream ifs(sam_filepath, std::ios::in);
+
+    bool headers = false;
+    while(!headers) {
+        std::getline(ifs, line);
+
+        if(line[0] == '@') {
+            this_header += line + std::endl;
+        }
+        else {
+            headers = true;
+        }
+    }
+
+    _buffer_q->pushHeader(this_header);
+
+    std::vector< std::string > res;
+    int sam_flag;
+    res = _parseSamLine(line);
+    if(res.size() == 0) {
+        return;
+    }
+    sam_flag = std::stoi(res[0].c_str());
+    if(sam_flag & 4 == 0) {
+        if(_select) {
+            if(res[1] == genome_select) {
+                contents.push_back(line);
+            }
+        }
+        else {
+            contents.push_back(line);
+        }
+    }
+
+    while(std::getline(ifs, line)) {
+        res = _parseSamLine(line);
+        sam_flag = std::stoi(res[0].c_str());
+        if(sam_flag & 4 == 0) {
+            if(_select) {
+                if(res[1] == genome_select) {
+                    contents.push_back(line);
+                }
+            }
+            else {
+                contents.push_back(line);
+            }
+        }
+    }
+
+    if(contents.size() > 0) {
+        while(!_buffer_q->tryPush(contents)) {}
+    }
+}
+
+
+std::vector< std::string > ParserJob::_parseSamLine(const std::string &line)
+{
+    std::vector< std::string > ret;
+    std::stringstream ss;
+    ss.str(line);
+    std::string this_entry;
+    std::getline(ss, this_entry, '\t');
+    std::getline(ss, this_entry, '\t');
+    ret.push_back(this_entry);
+    std::getline(ss, this_entry, '\t');
+    ret.push_back(this_entry);
+    return ret;
 }

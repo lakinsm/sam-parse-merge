@@ -16,12 +16,8 @@ ConcurrentBufferQueue::~ConcurrentBufferQueue()
 void ConcurrentBufferQueue::run()
 {
     std::string output_line;
-//    while(!headers_enqueued) {}
-    for(int i = 0; i < _header_q.size(); ++i) {
-        output_line = _header_q.front();
-        _header_q.pop();
-        std::cout << output_line << std::endl;
-    }
+    while(!headers_enqueued) {}
+    std::cout << _header << std::endl;
     while(!all_jobs_enqueued) {
         while(!tryPop(output_line) && !all_jobs_consumed) {}
         if(!all_jobs_consumed) {
@@ -32,6 +28,19 @@ void ConcurrentBufferQueue::run()
         std::cout << output_line << std::endl;
     }
     work_completed = true;
+}
+
+
+bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines)
+{
+    std::unique_lock< std::mutex > lock(_mtx);
+    if(_q.size() > _max_size) {
+        return false;
+    }
+    for(int i = 0; i < lines.size(); ++i) {
+        _q.push_back(lines[i]);
+    }
+    return true;
 }
 
 
@@ -48,5 +57,20 @@ bool ConcurrentBufferQueue::tryPop(std::string item)
     item = _q.front();
     _q.pop();
 
+    return true;
+}
+
+
+bool ConcurrentBufferQueue::pushHeader(const std::string &header)
+{
+    if(headers_enqueued) {
+        return false;
+    }
+    std::unique_lock< std::mutex > lock(_mtx);
+    if(headers_enqueued) {
+        return false;
+    }
+    _header = header;
+    headers_enqueued = true;
     return true;
 }
