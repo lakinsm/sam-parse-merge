@@ -45,7 +45,7 @@ bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines)
 }
 
 
-bool ConcurrentBufferQueue::tryPop(std::string item)
+bool ConcurrentBufferQueue::tryPop(std::string &item)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(_q.empty()) {

@@ -17,7 +17,7 @@ public:
     void run();
     bool pushHeader(const std::string &header);
     bool tryPush(const std::vector< std::string > &lines);
-    bool tryPop(std::string item);
+    bool tryPop(std::string &item);
 
     std::atomic< bool > all_jobs_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< bool > all_jobs_consumed = ATOMIC_VAR_INIT(false);
@@ -30,7 +30,7 @@ private:
     std::string _header;
     std::queue < std::string > _q;
     std::mutex _mtx;
-    int _max_size;
+    long _max_size;
 };
 
 
