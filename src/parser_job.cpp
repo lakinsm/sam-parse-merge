@@ -45,7 +45,7 @@ void ParserJob::run()
         std::getline(ifs, line);
 
         if(line[0] == '@') {
-            this_header += line + std::endl;
+            this_header = this_header + line + '\n';
         }
         else {
             headers = true;
