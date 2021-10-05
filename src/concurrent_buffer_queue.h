@@ -15,7 +15,8 @@ public:
     ~ConcurrentBufferQueue();
 
     void run();
-    bool tryPush(const std::string &body, const std::string &header);
+    bool pushHeader(const std::string &header);
+    bool tryPush(const std::string &line);
     bool tryPop(std::string item);
 
     std::atomic< bool > all_jobs_enqueued = ATOMIC_VAR_INIT(false);

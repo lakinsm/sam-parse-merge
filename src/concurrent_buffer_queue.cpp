@@ -31,3 +31,17 @@ void ConcurrentBufferQueue::run()
     }
     work_completed = true;
 }
+
+
+bool ConcurrentBufferQueue::tryPop(std::string item)
+{
+    std::unique_lock< std::mutex > lock(_mtx);
+    if(_q.empty()) {
+        return false;
+    }
+
+    item = _q.front();
+    _q.pop();
+
+    return true;
+}
