@@ -76,6 +76,7 @@ void ParserJob::run()
         res = _parseSamLine(line);
         sam_flag = std::stoi(res[0].c_str());
         if(sam_flag & 4 == 0) {
+            std::cout << res[0] << '\t' << res[1] << std::endl;
             if(_select) {
                 if(res[1] == genome_select) {
                     contents.push_back(line);
