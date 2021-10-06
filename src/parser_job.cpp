@@ -1,6 +1,7 @@
 #include "parser_job.h"
 #include <fstream>
 #include <sstream>
+#include <ctype.h>
 
 
 ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q) : _buffer_q(buffer_q)
@@ -57,7 +58,7 @@ void ParserJob::run()
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLine(line);
-    if(res.size() == 0) {
+    if((res.size() == 0) || (!std::isdigit(res[0]))) {
         return;
     }
     std::cout << res[0] << '\t' << res[1] << std::endl;
