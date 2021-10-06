@@ -1,7 +1,6 @@
 #include "parser_job.h"
 #include <fstream>
 #include <sstream>
-#include <ctype.h>
 
 
 ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q) : _buffer_q(buffer_q)
@@ -61,7 +60,6 @@ void ParserJob::run()
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
-    std::cout << res[0] << '\t' << res[1] << std::endl;
     sam_flag = std::stoi(res[0].c_str());
     if(sam_flag & 4 == 0) {
         if(_select) {
