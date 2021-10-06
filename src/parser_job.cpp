@@ -60,6 +60,7 @@ void ParserJob::run()
     if(res.size() == 0) {
         return;
     }
+    std::cout << res[0] << '\t' << res[1] << std::endl;
     sam_flag = std::stoi(res[0].c_str());
     if(sam_flag & 4 == 0) {
         if(_select) {
