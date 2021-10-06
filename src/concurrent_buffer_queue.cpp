@@ -17,7 +17,7 @@ void ConcurrentBufferQueue::run()
 {
     std::string output_line;
     while(!headers_enqueued) {}
-    std::cout << _header << std::endl;
+    std::cout << _header;
     while(!all_jobs_enqueued) {
         while(!tryPop(output_line) && !all_jobs_consumed) {}
         if(!all_jobs_consumed) {
