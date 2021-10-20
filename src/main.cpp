@@ -29,12 +29,6 @@ int main(int argc, const char *argv[]) {
         sam_files.push_back(sam_filepath);
     }
 
-    std::cerr << std::endl;
-    for(auto &x : sam_files) {
-        std::cerr << x << std::endl;
-    }
-    std::cerr << std::endl;
-
     // Load Barcode to top genome mapping
     std::ifstream ifs2(args.best_genomes, std::ios::in);
     line.clear();
@@ -70,6 +64,8 @@ int main(int argc, const char *argv[]) {
         }
 
         while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
+
+        std::cerr << this_param_string << std::endl;
 
         std::unique_ptr< ParserJob > job = std::make_unique< ParserJob > (this_param_string, concurrent_q);
         job_dispatcher->dispatch(std::move(job));

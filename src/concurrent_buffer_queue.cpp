@@ -70,7 +70,7 @@ bool ConcurrentBufferQueue::pushHeader(const std::string &header)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(headers_enqueued) {
-        return false;
+        return true;
     }
     _header = header;
     headers_enqueued = true;

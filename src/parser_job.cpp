@@ -55,12 +55,12 @@ void ParserJob::run()
         }
     }
 
-    _buffer_q->pushHeader(this_header);
+    while(!_buffer_q->pushHeader(this_header)) {};
 
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLine(line);
-    if((res.size() == 0) || (res[1].empty())) {
+    if((res.size() == 0) || (res[0].empty())) {
         return;
     }
     if(!seen_headers.count(res[0])) {
@@ -85,7 +85,10 @@ void ParserJob::run()
 
     while(std::getline(ifs, line)) {
         res = _parseSamLine(line);
-        reads_processed++;
+        if(!seen_headers.count(res[0])) {
+            reads_processed++;
+            seen_headers.insert(res[0]);
+        }
         sam_flag = std::stoi(res[1].c_str());
         if((sam_flag & 4) == 0) {
             int temp = sam_flag & 4;
@@ -96,6 +99,10 @@ void ParserJob::run()
             }
             else {
                 contents.push_back(line);
+            }
+            if(!aligned_headers.count(res[0])) {
+                reads_aligned++;
+                aligned_headers.insert(res[0]);
             }
         }
     }
