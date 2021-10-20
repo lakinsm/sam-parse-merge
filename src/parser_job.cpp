@@ -41,7 +41,7 @@ void ParserJob::run()
     std::string this_header, line;
     std::ifstream ifs(sam_filepath, std::ios::in);
 
-    if(!ifs.good) {
+    if(!ifs.good()) {
         return;
     }
 
