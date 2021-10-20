@@ -1,10 +1,10 @@
 #include "concurrent_buffer_queue.h"
+#include <sstream>
 
 
 ConcurrentBufferQueue::ConcurrentBufferQueue(const int &max_elements) : _max_size(max_elements)
 {
-    total_reads_processed = 0;
-    aligned_reads_processed = 0;
+
 }
 
 
@@ -35,7 +35,8 @@ void ConcurrentBufferQueue::run()
             else {
                 idx = _barcode_out_list.size();
                 _barcode_out_list.push_back(barcode);
-                _ofs_out.emplace_back(std::ofstream{barcode + "_aligned_reads.sam"});
+                std::string out_filepath = barcode + "_aligned_reads.sam";
+                _ofs_out.emplace_back(std::ofstream{out_filepath});
                 _ofs_out[idx] << _headers.at(barcode);
             }
 
