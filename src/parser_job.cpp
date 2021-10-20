@@ -67,7 +67,7 @@ void ParserJob::run()
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLine(line);
-    std::cerr << res[0] << '\t' << res[1] << '\t' << res[2] << std::endl;
+    std::cerr << res[0] << '\t' << res[1] << '\t' << res[2] << '\t' << _select << std::endl;
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
