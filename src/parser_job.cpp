@@ -67,7 +67,6 @@ void ParserJob::run()
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLine(line);
-    std::cerr << res[0] << '\t' << res[1] << '\t' << res[2] << '\t' << genome_select << std::endl;
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
@@ -77,18 +76,24 @@ void ParserJob::run()
     }
     sam_flag = std::stoi(res[1].c_str());
     if(sam_flag & 4 == 0) {
+            std::cerr << res[0] << '\t' << res[1] << '\t' << res[2] << '\t' << genome_select << '\t' << sam_flag << std::endl;
         if(_select) {
             if(res[2] == genome_select) {
                 contents.push_back(line);
+                if(!aligned_headers.count(res[0])) {
+                    reads_aligned++;
+                    aligned_headers.insert(res[0]);
+                }
             }
         }
         else {
             contents.push_back(line);
+            if(!aligned_headers.count(res[0])) {
+                reads_aligned++;
+                aligned_headers.insert(res[0]);
+            }
         }
-        if(!aligned_headers.count(res[0])) {
-            reads_aligned++;
-            aligned_headers.insert(res[0]);
-        }
+
     }
 
     while(std::getline(ifs, line)) {
@@ -103,14 +108,18 @@ void ParserJob::run()
             if(_select) {
                 if(res[2] == genome_select) {
                     contents.push_back(line);
+                    if(!aligned_headers.count(res[0])) {
+                        reads_aligned++;
+                        aligned_headers.insert(res[0]);
+                    }
                 }
             }
             else {
                 contents.push_back(line);
-            }
-            if(!aligned_headers.count(res[0])) {
-                reads_aligned++;
-                aligned_headers.insert(res[0]);
+                if(!aligned_headers.count(res[0])) {
+                    reads_aligned++;
+                    aligned_headers.insert(res[0]);
+                }
             }
         }
     }
