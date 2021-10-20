@@ -65,8 +65,6 @@ int main(int argc, const char *argv[]) {
 
         while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
 
-        std::cerr << this_param_string << std::endl;
-
         std::unique_ptr< ParserJob > job = std::make_unique< ParserJob > (this_param_string, concurrent_q);
         job_dispatcher->dispatch(std::move(job));
         concurrent_q->num_active_jobs += 1;

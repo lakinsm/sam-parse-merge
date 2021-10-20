@@ -41,13 +41,20 @@ void ParserJob::run()
     std::string this_header, line;
     std::ifstream ifs(sam_filepath, std::ios::in);
 
+    if(!ifs.good) {
+        return;
+    }
+
     this_header = "";
     bool headers = false;
     while(!headers) {
         std::getline(ifs, line);
 
+        if(line.empty()) {
+            return;
+        }
+
         if(line[0] == '@') {
-            std::cerr << line << std::endl;
             this_header = this_header + line + '\n';
         }
         else {
@@ -60,6 +67,7 @@ void ParserJob::run()
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLine(line);
+    std::cerr << res[0] << '\t' << res[1] << '\t' << res[2] << std::endl;
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
