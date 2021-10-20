@@ -1,5 +1,6 @@
 #include "concurrent_buffer_queue.h"
 #include <sstream>
+#include <fstream>
 
 
 ConcurrentBufferQueue::ConcurrentBufferQueue(const int &max_elements) : _max_size(max_elements)
