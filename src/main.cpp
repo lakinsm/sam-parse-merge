@@ -74,7 +74,7 @@ int main(int argc, const char *argv[]) {
     concurrent_q->all_jobs_enqueued = true;
 
     while(!concurrent_q->work_completed) {}
-    
+
     std::ofstream ofs(args.output_readcount_file);
     ofs << "Barcode,TotalReadsProcessed,ReadsAligned,PercentReadsAligned" << std::endl;
     for( auto &data : concurrent_q->total_reads_processed ) {
