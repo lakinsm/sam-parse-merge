@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <set>
 #include "concurrent_buffer_queue.h"
 
 
@@ -20,7 +21,10 @@ public:
     std::string sam_filepath;
     std::string sam_header;
     std::vector< std::string > contents;
+    std::set< std::string > seen_headers;
+    std::set< std::string > aligned_headers;
     long reads_processed;
+    long reads_aligned;
 
 private:
     ConcurrentBufferQueue* _buffer_q;

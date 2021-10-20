@@ -17,6 +17,7 @@ ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue*
         _select = true;
     }
     reads_processed = 0;
+    reads_aligned = 0;
 }
 
 
@@ -38,7 +39,6 @@ void ParserJob::printInfo()
 void ParserJob::run()
 {
     std::string this_header, line;
-    std::stringstream ss;
     std::ifstream ifs(sam_filepath, std::ios::in);
 
     this_header = "";
@@ -47,6 +47,7 @@ void ParserJob::run()
         std::getline(ifs, line);
 
         if(line[0] == '@') {
+            std::cerr << line << std::endl;
             this_header = this_header + line + '\n';
         }
         else {
@@ -59,30 +60,37 @@ void ParserJob::run()
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLine(line);
-    if((res.size() == 0) || (res[0].empty())) {
+    if((res.size() == 0) || (res[1].empty())) {
         return;
     }
-    reads_processed++;
-    sam_flag = std::stoi(res[0].c_str());
+    if(!seen_headers.count(res[0])) {
+        reads_processed++;
+        seen_headers.insert(res[0]);
+    }
+    sam_flag = std::stoi(res[1].c_str());
     if(sam_flag & 4 == 0) {
         if(_select) {
-            if(res[1] == genome_select) {
+            if(res[2] == genome_select) {
                 contents.push_back(line);
             }
         }
         else {
             contents.push_back(line);
         }
+        if(!aligned_headers.count(res[0])) {
+            reads_aligned++;
+            aligned_headers.insert(res[0]);
+        }
     }
 
     while(std::getline(ifs, line)) {
         res = _parseSamLine(line);
         reads_processed++;
-        sam_flag = std::stoi(res[0].c_str());
+        sam_flag = std::stoi(res[1].c_str());
         if((sam_flag & 4) == 0) {
             int temp = sam_flag & 4;
             if(_select) {
-                if(res[1] == genome_select) {
+                if(res[2] == genome_select) {
                     contents.push_back(line);
                 }
             }
@@ -92,7 +100,7 @@ void ParserJob::run()
         }
     }
 
-    while(!_buffer_q->tryPush(contents, reads_processed)) {}
+    while(!_buffer_q->tryPush(contents, reads_processed, reads_aligned)) {}
 }
 
 
@@ -103,6 +111,7 @@ std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
     this_ss.str(sam_line);
     std::string this_entry;
     std::getline(this_ss, this_entry, '\t');
+    ret.push_back(this_entry);
     std::getline(this_ss, this_entry, '\t');
     ret.push_back(this_entry);
     std::getline(this_ss, this_entry, '\t');
