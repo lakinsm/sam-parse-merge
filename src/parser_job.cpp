@@ -41,6 +41,7 @@ void ParserJob::run()
     std::stringstream ss;
     std::ifstream ifs(sam_filepath, std::ios::in);
 
+    this_header = "";
     bool headers = false;
     while(!headers) {
         std::getline(ifs, line);

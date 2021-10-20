@@ -40,8 +40,8 @@ bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines, con
     }
     for(int i = 0; i < lines.size(); ++i) {
         _q.push(lines[i]);
-        aligned_reads_processed++;
     }
+    aligned_reads_processed += lines.size();
     total_reads_processed += reads_processed;
     return true;
 }
