@@ -20,6 +20,7 @@ public:
     std::string sam_filepath;
     std::string sam_header;
     std::vector< std::string > contents;
+    long reads_processed;
 
 private:
     ConcurrentBufferQueue* _buffer_q;

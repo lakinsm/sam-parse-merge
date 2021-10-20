@@ -3,7 +3,8 @@
 
 ConcurrentBufferQueue::ConcurrentBufferQueue(const int &max_elements) : _max_size(max_elements)
 {
-
+    total_reads_processed = 0;
+    aligned_reads_processed = 0;
 }
 
 
@@ -31,7 +32,7 @@ void ConcurrentBufferQueue::run()
 }
 
 
-bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines)
+bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines, const long &reads_processed)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(_q.size() > _max_size) {
@@ -39,7 +40,9 @@ bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines)
     }
     for(int i = 0; i < lines.size(); ++i) {
         _q.push(lines[i]);
+        aligned_reads_processed++;
     }
+    total_reads_processed += reads_processed;
     return true;
 }
 

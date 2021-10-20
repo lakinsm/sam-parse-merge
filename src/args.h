@@ -16,6 +16,7 @@ public:
 
     std::string sam_file_list;
     std::string best_genomes;
+    std::string output_readcount_file;
     int threads;
 
 private:

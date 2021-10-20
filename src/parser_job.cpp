@@ -16,6 +16,7 @@ ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue*
     else {
         _select = true;
     }
+    reads_processed = 0;
 }
 
 
@@ -60,6 +61,7 @@ void ParserJob::run()
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
+    reads_processed++;
     sam_flag = std::stoi(res[0].c_str());
     if(sam_flag & 4 == 0) {
         if(_select) {
@@ -74,6 +76,7 @@ void ParserJob::run()
 
     while(std::getline(ifs, line)) {
         res = _parseSamLine(line);
+        reads_processed++;
         sam_flag = std::stoi(res[0].c_str());
         if((sam_flag & 4) == 0) {
             int temp = sam_flag & 4;
@@ -88,9 +91,7 @@ void ParserJob::run()
         }
     }
 
-    if(contents.size() > 0) {
-        while(!_buffer_q->tryPush(contents)) {}
-    }
+    while(!_buffer_q->tryPush(contents, reads_processed)) {}
 }
 
 

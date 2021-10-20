@@ -16,7 +16,7 @@ public:
 
     void run();
     bool pushHeader(const std::string &header);
-    bool tryPush(const std::vector< std::string > &lines);
+    bool tryPush(const std::vector< std::string > &lines, const long &reads_processed);
     bool tryPop(std::string &item);
 
     std::atomic< bool > all_jobs_enqueued = ATOMIC_VAR_INIT(false);
@@ -25,6 +25,9 @@ public:
     std::atomic< bool > headers_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);
     std::atomic< int > num_completed_jobs = ATOMIC_VAR_INIT(0);
+
+    long total_reads_processed;
+    long aligned_reads_processed;
 
 private:
     std::string _header;
