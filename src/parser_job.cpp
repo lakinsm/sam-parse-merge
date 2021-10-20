@@ -75,8 +75,7 @@ void ParserJob::run()
         seen_headers.insert(res[0]);
     }
     sam_flag = std::stoi(res[1].c_str());
-    std::cerr << res[0] << '\t' << res[1] << '\t' << res[2] << '\t' << genome_select << '\t' << sam_flag << std::endl;
-    if(sam_flag & 4 == 0) {
+    if((sam_flag & 4) == 0) {
         if(_select) {
             if(res[2] == genome_select) {
                 contents.push_back(line);
