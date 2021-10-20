@@ -29,6 +29,12 @@ int main(int argc, const char *argv[]) {
         sam_files.push_back(sam_filepath);
     }
 
+    std::cerr << std::endl;
+    for(auto &x : sam_files) {
+        std::cerr << x << std::endl;
+    }
+    std::cerr << std::endl;
+
     // Load Barcode to top genome mapping
     std::ifstream ifs2(args.best_genomes, std::ios::in);
     line.clear();

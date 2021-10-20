@@ -68,9 +68,6 @@ bool ConcurrentBufferQueue::tryPop(std::string &item)
 
 bool ConcurrentBufferQueue::pushHeader(const std::string &header)
 {
-    if(headers_enqueued) {
-        return false;
-    }
     std::unique_lock< std::mutex > lock(_mtx);
     if(headers_enqueued) {
         return false;
