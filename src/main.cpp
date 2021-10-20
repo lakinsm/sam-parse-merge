@@ -79,9 +79,10 @@ int main(int argc, const char *argv[]) {
             (double)concurrent_q->total_reads_processed);
 
     std::ofstream ofs(args.output_readcount_file);
-    ofs << "Total reads processed: " << concurrent_q->total_reads_processed << std::endl;
-    ofs << "Reads aligned: " << concurrent_q->aligned_reads_processed << std::endl;
-    ofs << "Percent reads aligned: " << perc_reads_aligned << std::endl;
+    ofs << "Barcode,TotalReadsProcessed,ReadsAligned,PercentReadsAligned" << std::endl;
+    for( auto &data : concurrent_q->total_reads_processed ) {
+        ofs << data.first << ',' << data.second << ',' << concurrent_q->aligned_reads_processed.at(data.first) << std::endl;
+    }
     ofs.close();
 
     delete job_dispatcher;

@@ -7,6 +7,8 @@
 #include <queue>
 #include <atomic>
 #include <string>
+#include <map>
+#include <vector>
 
 
 class ConcurrentBufferQueue {
@@ -15,8 +17,9 @@ public:
     ~ConcurrentBufferQueue();
 
     void run();
-    bool pushHeader(const std::string &header);
+    bool pushHeader(const std::string &barcode, const std::string &header);
     bool tryPush(const std::vector< std::string > &lines,
+                 const std::string &barcode,
                  const long &reads_processed,
                  const long &reads_aligned);
     bool tryPop(std::string &item);
@@ -28,12 +31,14 @@ public:
     std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);
     std::atomic< int > num_completed_jobs = ATOMIC_VAR_INIT(0);
 
-    long total_reads_processed;
-    long aligned_reads_processed;
+    std::map< std::string, long > total_reads_processed;
+    std::map< std::string, long > aligned_reads_processed;
 
 private:
-    std::string _header;
+    std::map< std::string, std::string > _headers;
     std::queue < std::string > _q;
+    std::vector< std::string > _barcode_out_list;
+    std::vector< std::ofstream > _ofs_out;
     std::mutex _mtx;
     long _max_size;
 };

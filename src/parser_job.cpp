@@ -62,7 +62,7 @@ void ParserJob::run()
         }
     }
 
-    while(!_buffer_q->pushHeader(this_header)) {};
+    while(!_buffer_q->pushHeader(barcode, this_header)) {}
 
     std::vector< std::string > res;
     int sam_flag;
@@ -78,7 +78,7 @@ void ParserJob::run()
     if((sam_flag & 4) == 0) {
         if(_select) {
             if(res[2] == genome_select) {
-                contents.push_back(line);
+                contents.push_back(barcode + '|' + line);
                 if(!aligned_headers.count(res[0])) {
                     reads_aligned++;
                     aligned_headers.insert(res[0]);
@@ -92,7 +92,6 @@ void ParserJob::run()
                 aligned_headers.insert(res[0]);
             }
         }
-
     }
 
     while(std::getline(ifs, line)) {
@@ -106,7 +105,7 @@ void ParserJob::run()
             int temp = sam_flag & 4;
             if(_select) {
                 if(res[2] == genome_select) {
-                    contents.push_back(line);
+                    contents.push_back(barcode + '|' + line);
                     if(!aligned_headers.count(res[0])) {
                         reads_aligned++;
                         aligned_headers.insert(res[0]);
@@ -123,7 +122,7 @@ void ParserJob::run()
         }
     }
 
-    while(!_buffer_q->tryPush(contents, reads_processed, reads_aligned)) {}
+    while(!_buffer_q->tryPush(contents, barcode, reads_processed, reads_aligned)) {}
 }
 
 
