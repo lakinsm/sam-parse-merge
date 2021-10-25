@@ -39,7 +39,6 @@ void ConcurrentBufferQueue::run()
                 _barcode_out_list.push_back(barcode);
                 std::string out_filepath = barcode + "_aligned_reads.sam";
                 _ofs_out.emplace_back(std::ofstream{out_filepath});
-                std::cout << barcode << std::endl;
                 _ofs_out[idx] << _headers.at(barcode);
             }
 
