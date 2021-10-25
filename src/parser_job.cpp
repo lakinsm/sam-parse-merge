@@ -18,6 +18,8 @@ ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue*
     }
     reads_processed = 0;
     reads_aligned = 0;
+
+    printInfo();
 }
 
 
