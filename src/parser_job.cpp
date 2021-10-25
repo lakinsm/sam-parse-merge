@@ -18,8 +18,6 @@ ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue*
     }
     reads_processed = 0;
     reads_aligned = 0;
-
-    printInfo();
 }
 
 
@@ -88,7 +86,7 @@ void ParserJob::run()
             }
         }
         else {
-            contents.push_back(line);
+            contents.push_back(barcode + '|' + line);
             if(!aligned_headers.count(res[0])) {
                 reads_aligned++;
                 aligned_headers.insert(res[0]);
@@ -115,7 +113,7 @@ void ParserJob::run()
                 }
             }
             else {
-                contents.push_back(line);
+                contents.push_back(barcode + '|' + line);
                 if(!aligned_headers.count(res[0])) {
                     reads_aligned++;
                     aligned_headers.insert(res[0]);
