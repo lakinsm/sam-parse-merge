@@ -79,7 +79,8 @@ int main(int argc, const char *argv[]) {
     ofs << "Barcode,TotalReadsProcessed,ReadsAligned,PercentReadsAligned" << std::endl;
     for( auto &data : concurrent_q->total_reads_processed ) {
         double perc_reads_aligned = 100 * ((double)concurrent_q->aligned_reads_processed.at(data.first) / (double)data.second);
-        ofs << data.first << ',' << data.second << ',' << concurrent_q->aligned_reads_processed.at(data.first) << std::endl;
+        ofs << data.first << ',' << data.second << ',' << concurrent_q->aligned_reads_processed.at(data.first);
+        ofs << perc_reads_aligned << std::endl;
     }
     ofs.close();
 
