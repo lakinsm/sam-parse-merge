@@ -12,7 +12,14 @@ ScoreJob::ScoreJob(Args &args,
     std::stringstream ss;
     ss.str(parameter_string);
     std::getline(ss, sam_filepath, '|');
-    std::getline(ss, barcode);
+    std::getline(ss, barcode, '|');
+    std::getline(ss, genome_select);
+    if(genome_select == "None") {
+        _select = false;
+    }
+    else {
+        _select = true;
+    }
 }
 
 
@@ -110,6 +117,9 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
     int this_target_len = _ref_lens[_ref_idx_map.at(target)];
     std::string num = "";
     std::string op = "";
+    std::vector< int > *local_scores = &target_idx_scores.at(target);
+    std::vector< int > *local_cov = &target_idx_coverage.at(target);
+    int target_idx = start_idx;
     for(int c = 0; c < cigar.size(); ++c) {
         if(std::isdigit(cigar[c])) {
             num += cigar[c];
@@ -119,26 +129,27 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
             int numeric_num = std::stoi(num.c_str());
             if((op == "M") or (op == "=")) {
                 for(int i = 0; i < numeric_num; ++i) {
-                    if((start_idx + i) >= this_target_len) {
-                        continue;
+                    if((target_idx + i) < this_target_len) {
+                        (*local_scores)[target_idx + i] += _args.match;
+                        (*local_cov)[target_idx + i] += 1;
                     }
-                    target_idx_scores.at(target)[start_idx + i] += _args.match;
-                    target_idx_coverage.at(target)[start_idx + i] += 1;
                 }
                 score += _args.match * numeric_num;
+                target_idx += numeric_num;
             }
             else if(op == "D") {
-                score += _args.mismatch * numeric_num;
+                score += (_args.indel_extend * (numeric_num - 1)) + _args.indel_start;
+                target_idx += numeric_num;
             }
             else if((op == "N") or (op == "X")) {
                 for(int i = 0; i < numeric_num; ++i) {
-                    if((start_idx + i) >= this_target_len) {
-                        continue;
+                    if((target_idx + i) < this_target_len) {
+                        (*local_scores)[target_idx + i] += _args.mismatch;
+                        (*local_cov)[target_idx + i] += 1;
                     }
-                    target_idx_scores.at(target)[start_idx + i] += _args.mismatch;
-                    target_idx_coverage.at(target)[start_idx + i] += 1;
                 }
                 score += _args.mismatch * numeric_num;
+                target_idx += numeric_num;
             }
             else if(op == "I") {
                 score += (_args.indel_extend * (numeric_num - 1)) + _args.indel_start;
@@ -234,9 +245,6 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
 
     if(_optimal_read_idxs.count(read_idx)) {
         res = _parseSamLine(line);
-
-        std::cout << res[0] << '\t' << res[1] << '\t' << res[2] << '\t' << res[3] << '\t' << res[4] << std::endl;
-
         _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
     }
     read_idx++;
@@ -244,9 +252,6 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     while(std::getline(ifs, line)) {
         if(_optimal_read_idxs.count(read_idx)) {
             res = _parseSamLine(line);
-
-            std::cout << res[0] << '\t' << res[1] << '\t' << res[2] << '\t' << res[3] << '\t' << res[4] << std::endl;
-
             _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
         }
         read_idx++;

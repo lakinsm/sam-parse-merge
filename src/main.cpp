@@ -102,7 +102,7 @@ int main(int argc, const char *argv[]) {
             std::string this_filename = this_sam_fp.substr(pos1 + 1);
             std::size_t pos2 = this_filename.find_first_of('_');
             std::string this_barcode = this_filename.substr(0, pos2);
-            std::string this_param_string = this_sam_fp + '|' + this_barcode;
+            std::string this_param_string = this_sam_fp + '|' + this_barcode + "|None";
 
             while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
 
