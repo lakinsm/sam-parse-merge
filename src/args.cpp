@@ -41,9 +41,14 @@ Args::Args(int argc, const char *argv[])
         sam_file_list = _findFullPath(arg_list[2]);
         output_dir = _findFullPath(arg_list[3]);
 
+        std::cout << sam_file_list << std::endl;
+        std::cout << output_dir << std::endl;
+
         if(!std::filesystem::is_directory(output_dir)) {
             std::filesystem::create_directory(output_dir);
         }
+
+        std::cout << "Check Args1" << std::endl;
 
         for(int i = 4; i < argc; ++i) {
             if(arg_list[i] == "-t")
@@ -53,6 +58,8 @@ Args::Args(int argc, const char *argv[])
             if(arg_list[i] == "-f")
                 final = true;
         }
+
+        std::cout << "Check Args2" << std::endl;
     }
     else {
         std::cerr << std::endl << "Invalid pipeline. Choose one of [combine, score]." << std::endl;
