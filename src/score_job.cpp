@@ -13,8 +13,6 @@ ScoreJob::ScoreJob(Args &args,
     ss.str(parameter_string);
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, barcode);
-
-    printInfo();
 }
 
 
@@ -73,9 +71,10 @@ void ScoreJob::run()
         }
     }
 
-    _samScore(ifs, line);
+    std::cout << "check1" << std::endl;
+//    _samScore(ifs, line);
 
-    while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
+//    while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
 }
 
 

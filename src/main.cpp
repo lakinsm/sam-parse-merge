@@ -90,14 +90,11 @@ int main(int argc, const char *argv[]) {
         delete output_buffer_dispatcher;
     }
     else if(args.pipeline == "score") {
-        std::cout << "check1" << std::endl;
 
         DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
         DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
         ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(args, 100000);
         output_buffer_dispatcher->dispatch([concurrent_q] () {concurrent_q->runScore();});
-
-        std::cout << "check2" << std::endl;
 
         for(int i = 0; i < sam_files.size(); ++i) {
             std::string this_sam_fp = sam_files[i];
