@@ -244,6 +244,9 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     while(std::getline(ifs, line)) {
         if(_optimal_read_idxs.count(read_idx)) {
             res = _parseSamLine(line);
+
+            std::cout << res[0] << '\t' << res[1] << '\t' << res[2] << '\t' << res[3] << '\t' << res[4] << std::endl;
+
             _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
         }
         read_idx++;
