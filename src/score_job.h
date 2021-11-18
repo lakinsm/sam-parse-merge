@@ -44,7 +44,7 @@ private:
     int _idxScoreCigar(const std::string &cigar,
                        const std::string &target,
                        const int &start_idx);
-    void _samScore(std::ifstream &ifs);
+    void _samScore(std::ifstream &ifs, const std::string &initial_line);
     void _firstPassRoutine(const std::string &read_name,
                            const std::string &target,
                            const std::string &cigar,
