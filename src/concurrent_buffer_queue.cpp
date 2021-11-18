@@ -132,7 +132,7 @@ void ConcurrentBufferQueue::runScore()
     ofs << "barcode,target,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
     ofs << "percent_coverage" << std::endl;
     for(auto &x : barcode_target_idx_scores) {
-        for(auto &y : x) {
+        for(auto &y : x.second) {
             ofs << x.first << ',' << y.first << ',' << ref_len_map.at(y.first) << ',';
             long total_score = 0;
             int non_zero_idxs = 0;
@@ -143,7 +143,7 @@ void ConcurrentBufferQueue::runScore()
                 }
                 total_score += y.second[i];
             }
-            std::vector< int > *local_cov_vec = &barcode_target_idx_coverate.at(x.first).at(y.first);
+            std::vector< int > *local_cov_vec = &barcode_target_idx_coverage.at(x.first).at(y.first);
             for(int i = 0; i < (*local_cov_vec).size(); ++i) {
                 if((*local_cov_vec)[i] == 0) {
                     continue;
