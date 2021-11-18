@@ -187,16 +187,12 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     int read_idx = 0;
     int sam_flag;
     res = _parseSamLine(initial_line);
-    for(int i = 0; i < res.size(); ++i) {
-        std::cout << res[i] << '\t';
-    }
-    std::cout << std::endl;
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
     sam_flag = std::stoi(res[1].c_str());
     if((sam_flag & 4) == 0) {
-//        _firstPassRoutine(res[0], res[2], res[4], read_idx);
+        _firstPassRoutine(res[0], res[2], res[4], read_idx);
     }
     read_idx++;
 //
