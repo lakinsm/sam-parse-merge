@@ -21,7 +21,6 @@ public:
     void run();
 
     std::string barcode;
-    std::string genome_select;
     std::string sam_filepath;
     std::string sam_header;
     std::map< std::string, std::vector< int > > target_idx_scores;

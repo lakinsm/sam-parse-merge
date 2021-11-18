@@ -13,6 +13,8 @@ ScoreJob::ScoreJob(Args &args,
     ss.str(parameter_string);
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, barcode);
+
+    printInfo();
 }
 
 
