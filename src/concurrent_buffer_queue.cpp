@@ -142,7 +142,7 @@ void ConcurrentBufferQueue::runScore()
                 total_score += y.second[i];
                 if((*local_cov_vec)[i] != 0) {
                     total_cov += (*local_cov_vec)[i];
-                    non_zero_idxs++
+                    non_zero_idxs++;
                 }
             }
             double this_ref_len = (double)ref_len_map.at(y.first);
