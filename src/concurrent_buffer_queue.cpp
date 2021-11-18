@@ -138,11 +138,13 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(!barcode_target_idx_scores.count(barcode)) {
+        std::cout << "INSERT: " << barcode << std::endl;
         barcode_target_idx_scores[barcode] = target_idx_scores;
         barcode_target_idx_coverage[barcode] = target_idx_coverage;
     }
     else {
         for(auto &x : target_idx_scores) {
+            std::cout << "SCORE: " << barcode << '\t' << x.first << std::endl;
             if(!barcode_target_idx_scores.at(barcode).count(x.first)) {
                 barcode_target_idx_scores.at(barcode)[x.first] = x.second;
             }
@@ -153,6 +155,7 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
             }
         }
         for(auto &x : target_idx_coverage) {
+            std::cout << "COVERAGE: " << barcode << '\t' << x.first << std::endl;
             if(!barcode_target_idx_coverage.at(barcode).count(x.first)) {
                 barcode_target_idx_coverage.at(barcode)[x.first] = x.second;
             }
