@@ -77,7 +77,7 @@ void Args::_usage()
     std::cout << "\nUsage:" << std::endl;
     std::cout<< "\tsam_parse_merge <pipeline>" << std::endl << std::endl;
     std::cout << "Examples:" << std::endl;
-    std::cout << "\tsam_parse_merge score sam_filelist.txt out_dir/ [options]"; << std::endl;
+    std::cout << "\tsam_parse_merge score sam_filelist.txt out_dir/ [options]" << std::endl;
     std::cout << "\tsam_parse_merge combine sam_filelist.txt best_genomes.tsv output_readcounts.txt [options]" << std::endl;
     std::cout << std::endl;
     std::cout << "Global options:" << std::endl;
