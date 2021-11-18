@@ -137,19 +137,13 @@ void ConcurrentBufferQueue::runScore()
             long total_score = 0;
             int non_zero_idxs = 0;
             long total_cov = 0;
-            for(int i = 0; i < y.second.size(); ++i) {
-                if(y.second[i] == 0) {
-                    continue;
-                }
-                total_score += y.second[i];
-            }
             std::vector< int > *local_cov_vec = &barcode_target_idx_coverage.at(x.first).at(y.first);
-            for(int i = 0; i < (*local_cov_vec).size(); ++i) {
-                if((*local_cov_vec)[i] == 0) {
-                    continue;
+            for(int i = 0; i < y.second.size(); ++i) {
+                total_score += y.second[i];
+                if((*local_cov_vec)[i] != 0) {
+                    total_cov += (*local_cov_vec)[i];
+                    non_zero_idxs++
                 }
-                total_cov += (*local_cov_vec)[i];
-                non_zero_idxs++;
             }
             double this_ref_len = (double)ref_len_map.at(y.first);
             double perc_cov = 100 * (double)non_zero_idxs / this_ref_len;
@@ -181,11 +175,11 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
                 barcode_target_idx_scores.at(barcode)[x.first] = x.second;
             }
             else {
+                std::vector< int > *local_vector = &barcode_target_idx_scores.at(barcode).at(x.first);
                 for(int i = 0; i < x.second.size(); ++i) {
-                    if(x.second[i] == 0) {
-                        continue;
+                    if(x.second[i] != 0) {
+                        (*local_vector)[i] += x.second[i];
                     }
-                    barcode_target_idx_scores.at(barcode)[x.first][i] += x.second[i];
                 }
             }
         }
@@ -194,11 +188,11 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
                 barcode_target_idx_coverage.at(barcode)[x.first] = x.second;
             }
             else {
+                std::vector< int > *local_vector = &barcode_target_idx_coverage.at(barcode).at(x.first);
                 for(int i = 0; i < x.second.size(); ++i) {
-                    if(x.second[i] == 0) {
-                        continue;
+                    if(x.second[i] != 0) {
+                        (*local_vector)[i] += x.second[i];
                     }
-                    barcode_target_idx_coverage.at(barcode)[x.first][i] += x.second[i];
                 }
             }
         }
