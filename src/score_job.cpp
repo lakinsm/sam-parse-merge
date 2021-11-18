@@ -192,7 +192,7 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     }
     sam_flag = std::stoi(res[2].c_str());
     if((sam_flag & 4) == 0) {
-        _firstPassRoutine(res[0], res[1], res[4], read_idx);
+//        _firstPassRoutine(res[0], res[1], res[4], read_idx);
     }
     read_idx++;
 //
