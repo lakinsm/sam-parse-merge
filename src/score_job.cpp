@@ -80,7 +80,7 @@ void ScoreJob::run()
 std::vector< std::string > ScoreJob::_parseSamLine(const std::string &sam_line)
 {
     //      0          1        2          3             4
-    // < read_name, target, sam flag, start pos 1-idx, cigar >
+    // < read_name, sam flag, target, start pos 1-idx, cigar >
     std::vector< std::string > ret;
     std::stringstream this_ss;
     this_ss.str(sam_line);
@@ -194,18 +194,18 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
-    sam_flag = std::stoi(res[2].c_str());
+    sam_flag = std::stoi(res[1].c_str());
     if((sam_flag & 4) == 0) {
-//        _firstPassRoutine(res[0], res[1], res[4], read_idx);
+//        _firstPassRoutine(res[0], res[2], res[4], read_idx);
     }
     read_idx++;
 //
 //    std::string line;
 //    while(std::getline(ifs, line)) {
 //        res = _parseSamLine(line);
-//        sam_flag = std::stoi(res[2].c_str());
+//        sam_flag = std::stoi(res[1].c_str());
 //        if((sam_flag & 4) == 0) {
-//            _firstPassRoutine(res[0], res[1], res[4], read_idx);
+//            _firstPassRoutine(res[0], res[2], res[4], read_idx);
 //        }
 //        read_idx++;
 //    }
@@ -236,14 +236,14 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
 //
 //    if(_optimal_read_idxs.count(read_idx)) {
 //        res = _parseSamLine(line);
-//        _idxScoreCigar(res[4], res[1], std::stoi(res[3].c_str()) - 1);
+//        _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
 //    }
 //    read_idx++;
 //
 //    while(std::getline(ifs, line)) {
 //        if(_optimal_read_idxs.count(read_idx)) {
 //            res = _parseSamLine(line);
-//            _idxScoreCigar(res[4], res[1], std::stoi(res[3].c_str()) - 1);
+//            _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
 //        }
 //        read_idx++;
 //    }
