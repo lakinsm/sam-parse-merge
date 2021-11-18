@@ -38,7 +38,6 @@ private:
     std::map< std::string, std::vector< std::vector< int > > > _read_first_pass;
     std::set< int > _optimal_read_idxs;
     std::set< int > _seen_targets;
-    std::map< std::string,
 
     std::vector< std::string > _parseSamLine(const std::string &sam_line);
     int _totalScoreCigar(const std::string &cigar);

@@ -62,9 +62,18 @@ void DispatchQueue::dispatch(function_object &&op)
 void DispatchQueue::dispatch(std::unique_ptr< ParserJob > job)
 {
 	std::unique_lock<std::mutex> lock(_lock);
-	_job_q.push(std::move(job));
+    _parser_job_q.push(std::move(job));
 	lock.unlock();
 	_cv.notify_all();
+}
+
+
+void DispatchQueue::dispatch(std::unique_ptr< ScoreJob > job)
+{
+    std::unique_lock<std::mutex> lock(_lock);
+    _score_job_q.push(std::move(job));
+    lock.unlock();
+    _cv.notify_all();
 }
 
 
