@@ -29,11 +29,14 @@ public:
     bool tryPushScore(const std::string &barcode,
                       const std::map< std::string, std::vector< int > > target_idx_scores,
                       const std::map< std::string, std::vector< int > > target_idx_coverage);
+    bool tryPushGenomeLengths(const std::vector< std::string > &ref_names,
+                              const std::vector< int > &ref_lens);
 
     std::atomic< bool > all_jobs_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< bool > all_jobs_consumed = ATOMIC_VAR_INIT(false);
     std::atomic< bool > work_completed = ATOMIC_VAR_INIT(false);
     std::atomic< bool > headers_enqueued = ATOMIC_VAR_INIT(false);
+    std::atomic< bool > ref_len_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);
     std::atomic< int > num_completed_jobs = ATOMIC_VAR_INIT(0);
     std::condition_variable cv;
@@ -41,6 +44,7 @@ public:
 
     std::map< std::string, long > total_reads_processed;
     std::map< std::string, long > aligned_reads_processed;
+    std::map< std::string, int > ref_len_map;
     std::map< std::string, std::map< std::string, std::vector< int > > > barcode_target_idx_scores;
     std::map< std::string, std::map< std::string, std::vector< int > > > barcode_target_idx_coverage;
 

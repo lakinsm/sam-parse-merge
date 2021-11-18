@@ -128,6 +128,40 @@ void ConcurrentBufferQueue::runScore()
 {
     _wait();
 
+    std::ofstream ofs(_args.output_dir + "/intermediate_coverage_results.csv");
+    ofs << "barcode,target,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
+    ofs << "percent_coverage" << std::endl;
+    for(auto &x : barcode_target_idx_scores) {
+        for(auto &y : x) {
+            ofs << x.first << ',' << y.first << ',' << ref_len_map.at(y.first) << ',';
+            long total_score = 0;
+            int non_zero_idxs = 0;
+            long total_cov = 0;
+            for(int i = 0; i < y.second.size(); ++i) {
+                if(y.second[i] == 0) {
+                    continue;
+                }
+                total_score += y.second[i];
+            }
+            std::vector< int > *local_cov_vec = &barcode_target_idx_coverate.at(x.first).at(y.first);
+            for(int i = 0; i < (*local_cov_vec).size(); ++i) {
+                if((*local_cov_vec)[i] == 0) {
+                    continue;
+                }
+                total_cov += (*local_cov_vec)[i];
+                non_zero_idxs++;
+            }
+            double this_ref_len = (double)ref_len_map.at(y.first);
+            double perc_cov = 100 * (double)non_zero_idxs / this_ref_len;
+            double average_cov = (double)total_cov / this_ref_len;
+            double average_score = (double)total_score / this_ref_len;
+            ofs << std::to_string(total_score) << ',' << std::to_string(average_score) << ',';
+            ofs << std::to_string(average_cov) << ',' << std::to_string(perc_cov) << std::endl;
+        }
+    }
+
+    ofs.close();
+
     work_completed = true;
 }
 
@@ -170,6 +204,21 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
     }
 
+    return true;
+}
+
+
+bool ConcurrentBufferQueue::tryPushGenomeLengths(const std::vector< std::string > &ref_names,
+                                                 const std::vector< int > &ref_lens)
+{
+    std::unique_lock< std::mutex > lock(_mtx);
+    if(ref_len_enqueued) {
+        return true;
+    }
+    for(int i = 0; i < ref_names.size(); ++i) {
+        ref_len_map[ref_names[i]] = ref_lens[i];
+    }
+    ref_len_enqueued = true;
     return true;
 }
 

@@ -111,11 +111,12 @@ int main(int argc, const char *argv[]) {
             concurrent_q->num_active_jobs += 1;
         }
 
-        std::cout << "check3" << std::endl;
 
         while(concurrent_q->num_completed_jobs != sam_files.size()) {}
         concurrent_q->all_jobs_enqueued = true;
         concurrent_q->cv.notify_all();
+
+        std::cout << "check3" << std::endl;
 
         while(!concurrent_q->work_completed) {}
     }
