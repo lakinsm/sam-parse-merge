@@ -6,11 +6,14 @@
 #include <vector>
 #include <set>
 #include "concurrent_buffer_queue.h"
+#include "args.h"
 
 
 class ParserJob {
 public:
-    ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q);
+    ParserJob(Args &args,
+              const std::string &parameter_string,
+              ConcurrentBufferQueue* buffer_q);
     ~ParserJob();
 
     void printInfo();
@@ -29,6 +32,7 @@ public:
 private:
     ConcurrentBufferQueue* _buffer_q;
 
+    Args& _args;
     bool _select;
     std::vector< std::string > _parseSamLine(const std::string &sam_line);
 };

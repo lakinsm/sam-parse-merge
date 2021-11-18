@@ -4,7 +4,9 @@
 #include <algorithm>
 
 
-ConcurrentBufferQueue::ConcurrentBufferQueue(const int &max_elements) : _max_size(max_elements)
+ConcurrentBufferQueue::ConcurrentBufferQueue(Args &args,
+                                             const int &max_elements)
+                                             : _max_size(max_elements), _args(args)
 {
 
 }
@@ -16,7 +18,7 @@ ConcurrentBufferQueue::~ConcurrentBufferQueue()
 }
 
 
-void ConcurrentBufferQueue::run()
+void ConcurrentBufferQueue::runCombine()
 {
     std::string output_line, data_line, barcode;
     std::stringstream ss;
@@ -72,12 +74,10 @@ void ConcurrentBufferQueue::run()
     }
 
     work_completed = true;
-
-
 }
 
 
-bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines,
+bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lines,
                                     const std::string &barcode,
                                     const long &reads_processed,
                                     const long &reads_aligned)
@@ -96,7 +96,7 @@ bool ConcurrentBufferQueue::tryPush(const std::vector< std::string > &lines,
 }
 
 
-bool ConcurrentBufferQueue::tryPop(std::string &item)
+bool ConcurrentBufferQueue::tryPopCombine(std::string &item)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(_q.empty()) {
@@ -113,7 +113,7 @@ bool ConcurrentBufferQueue::tryPop(std::string &item)
 }
 
 
-bool ConcurrentBufferQueue::pushHeader(const std::string &barcode, const std::string &header)
+bool ConcurrentBufferQueue::pushHeaderCombine(const std::string &barcode, const std::string &header)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(_headers.count(barcode)) {
@@ -121,4 +121,55 @@ bool ConcurrentBufferQueue::pushHeader(const std::string &barcode, const std::st
     }
     _headers[barcode] = header;
     return true;
+}
+
+
+void ConcurrentBufferQueue::runScore()
+{
+    _wait();
+
+    work_completed = true;
+}
+
+
+bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
+                                         const std::map< std::string, std::vector< int > > target_idx_scores,
+                                         const std::map< std::string, std::vector< int > > target_idx_coverage)
+{
+    std::unique_lock< std::mutex > lock(_mtx);
+    if(!barcode_target_idx_scores.count(barcode)) {
+        barcode_target_idx_scores[barcode] = target_idx_scores;
+        barcode_target_idx_coverage[barcode] = target_idx_coverage;
+    }
+    else {
+        for(auto &x : target_idx_scores) {
+            if(!barcode_target_idx_scores.at(barcode).count(x.first)) {
+                barcode_target_idx_scores.at(barcode)[x.first] = x.second;
+            }
+            else {
+                for(int i = 0; i < x.second.size(); ++i) {
+                    barcode_target_idx_scores.at(barcode)[x.first][i] += x.second[i];
+                }
+            }
+        }
+        for(auto &x : target_idx_coverage) {
+            if(!barcode_target_idx_coverage.at(barcode).count(x.first)) {
+                barcode_target_idx_coverage.at(barcode)[x.first] = x.second;
+            }
+            else {
+                for(int i = 0; i < x.second.size(); ++i) {
+                    barcode_target_idx_coverage.at(barcode)[x.first][i] += x.second[i];
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+
+void ConcurrentBufferQueue::_wait()
+{
+    std::unique_lock<std::mutex> lk(cv_m);
+    cv.wait(lk);
 }
