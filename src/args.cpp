@@ -39,7 +39,7 @@ Args::Args(int argc, const char *argv[])
         }
 
         sam_file_list = _findFullPath(arg_list[2]);
-        output_dir = _findFullPath(arg_list[3]);
+        output_dir = arg_list[3];
 
         std::cout << sam_file_list << std::endl;
         std::cout << output_dir << std::endl;
