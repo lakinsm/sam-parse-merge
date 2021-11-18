@@ -186,6 +186,7 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     std::vector< std::string > res;
     int read_idx = 0;
     int sam_flag;
+    print(initial_line);
     res = _parseSamLine(initial_line);
     if((res.size() == 0) || (res[0].empty())) {
         return;
