@@ -74,6 +74,8 @@ void ScoreJob::run()
     _samScore(ifs, line);
 
     while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
+
+    std::cout << "FINISH: " << sam_filepath << std::endl;
 }
 
 
