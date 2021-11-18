@@ -73,7 +73,7 @@ void ScoreJob::run()
 
     _samScore(ifs);
 
-    while(!_buffer_q->tryPushCombine(contents, barcode, reads_processed, reads_aligned)) {}
+    while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
 }
 
 
@@ -108,7 +108,7 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
     int this_target_len = _ref_lens[_ref_idx_map.at(target)];
     std::string num = "";
     std::string op = "";
-    for(c = 0; c < cigar.size(); ++c) {
+    for(int c = 0; c < cigar.size(); ++c) {
         if(std::isdigit(cigar[c])) {
             num += cigar[c];
         }
@@ -153,7 +153,7 @@ int ScoreJob::_totalScoreCigar(const std::string &cigar)
     int score = 0;
     std::string num = "";
     std::string op = "";
-    for(c = 0; c < cigar.size(); ++c) {
+    for(int c = 0; c < cigar.size(); ++c) {
         if(std::isdigit(cigar[c])) {
             num += cigar[c];
         }
@@ -214,8 +214,9 @@ void ScoreJob::_samScore(std::ifstream &ifs)
     }
 
     for( auto &ref : _seen_targets ) {
-        target_idx_scores[ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(ref)], 0);
-        target_idx_coverage[ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(ref)], 0);
+        std::string this_ref = _ref_names[ref];
+        target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
+        target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
     }
 
     // Second pass calculate idx scores and idx coverage per target
@@ -241,8 +242,6 @@ void ScoreJob::_samScore(std::ifstream &ifs)
         }
         read_idx++;
     }
-
-    while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
 }
 
 
@@ -254,7 +253,9 @@ void ScoreJob::_firstPassRoutine(const std::string &read_name,
     int read_score = _totalScoreCigar(cigar);
     std::vector< int > this_data = {_ref_idx_map.at(target), read_idx, read_score};
     if(!_read_first_pass.count(read_name)) {
-        _read_first_pass[read_name] = std::vector< int >{this_data};
+        std::vector< std::vector< int> > outer_vec;
+        outer_vec.push_back(this_data);
+        _read_first_pass[read_name] = outer_vec;
     }
     else {
         int target_iter = 0;
