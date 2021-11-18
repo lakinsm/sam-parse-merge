@@ -71,8 +71,7 @@ void ScoreJob::run()
         }
     }
 
-    std::cout << "check1" << std::endl;
-//    _samScore(ifs, line);
+    _samScore(ifs, line);
 
 //    while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
 }
@@ -196,54 +195,54 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
         _firstPassRoutine(res[0], res[1], res[4], read_idx);
     }
     read_idx++;
-
-    std::string line;
-    while(std::getline(ifs, line)) {
-        res = _parseSamLine(line);
-        sam_flag = std::stoi(res[2].c_str());
-        if((sam_flag & 4) == 0) {
-            _firstPassRoutine(res[0], res[1], res[4], read_idx);
-        }
-        read_idx++;
-    }
-
-    // Find sam file read idxs that contain optimal reads WITHIN each target for ALL targets
-    for(auto &x : _read_first_pass) {
-        for(int i = 0; i < x.second.size(); ++i) {
-            _optimal_read_idxs.insert(x.second[i][1]);
-            _seen_targets.insert(x.second[i][0]);
-        }
-    }
-
-    for( auto &ref : _seen_targets ) {
-        std::string this_ref = _ref_names[ref];
-        target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-        target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-    }
-
-    // Second pass calculate idx scores and idx coverage per target
-    ifs.clear();
-    ifs.seekg(0);
-    read_idx = 0;
-    while(std::getline(ifs, line)) {
-        if(line[0] != '@') {
-            break;
-        }
-    }
-
-    if(_optimal_read_idxs.count(read_idx)) {
-        res = _parseSamLine(line);
-        _idxScoreCigar(res[4], res[1], std::stoi(res[3].c_str()) - 1);
-    }
-    read_idx++;
-
-    while(std::getline(ifs, line)) {
-        if(_optimal_read_idxs.count(read_idx)) {
-            res = _parseSamLine(line);
-            _idxScoreCigar(res[4], res[1], std::stoi(res[3].c_str()) - 1);
-        }
-        read_idx++;
-    }
+//
+//    std::string line;
+//    while(std::getline(ifs, line)) {
+//        res = _parseSamLine(line);
+//        sam_flag = std::stoi(res[2].c_str());
+//        if((sam_flag & 4) == 0) {
+//            _firstPassRoutine(res[0], res[1], res[4], read_idx);
+//        }
+//        read_idx++;
+//    }
+//
+//    // Find sam file read idxs that contain optimal reads WITHIN each target for ALL targets
+//    for(auto &x : _read_first_pass) {
+//        for(int i = 0; i < x.second.size(); ++i) {
+//            _optimal_read_idxs.insert(x.second[i][1]);
+//            _seen_targets.insert(x.second[i][0]);
+//        }
+//    }
+//
+//    for( auto &ref : _seen_targets ) {
+//        std::string this_ref = _ref_names[ref];
+//        target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
+//        target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
+//    }
+//
+//    // Second pass calculate idx scores and idx coverage per target
+//    ifs.clear();
+//    ifs.seekg(0);
+//    read_idx = 0;
+//    while(std::getline(ifs, line)) {
+//        if(line[0] != '@') {
+//            break;
+//        }
+//    }
+//
+//    if(_optimal_read_idxs.count(read_idx)) {
+//        res = _parseSamLine(line);
+//        _idxScoreCigar(res[4], res[1], std::stoi(res[3].c_str()) - 1);
+//    }
+//    read_idx++;
+//
+//    while(std::getline(ifs, line)) {
+//        if(_optimal_read_idxs.count(read_idx)) {
+//            res = _parseSamLine(line);
+//            _idxScoreCigar(res[4], res[1], std::stoi(res[3].c_str()) - 1);
+//        }
+//        read_idx++;
+//    }
 }
 
 
