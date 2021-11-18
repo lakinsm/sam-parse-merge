@@ -71,7 +71,7 @@ void ScoreJob::run()
         }
     }
 
-    _samScore(ifs);
+    _samScore(ifs, line);
 
     while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
 }
@@ -179,14 +179,14 @@ int ScoreJob::_totalScoreCigar(const std::string &cigar)
 }
 
 
-void ScoreJob::_samScore(std::ifstream &ifs)
+void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
 {
     // First pass calculate max total read score and max read idx (overall read position in sam file)
     // This determines the max read by alignment score WITHIN each target, for ALL targets
     std::vector< std::string > res;
     int read_idx = 0;
     int sam_flag;
-    res = _parseSamLine(line);
+    res = _parseSamLine(initial_line);
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
@@ -196,6 +196,7 @@ void ScoreJob::_samScore(std::ifstream &ifs)
     }
     read_idx++;
 
+    std::string line;
     while(std::getline(ifs, line)) {
         res = _parseSamLine(line);
         sam_flag = std::stoi(res[2].c_str());
