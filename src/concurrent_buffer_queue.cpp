@@ -150,6 +150,9 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
             }
             else {
                 for(int i = 0; i < x.second.size(); ++i) {
+                    if(x.second[i] == 0) {
+                        continue;
+                    }
                     barcode_target_idx_scores.at(barcode)[x.first][i] += x.second[i];
                 }
             }
@@ -161,6 +164,9 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
             }
             else {
                 for(int i = 0; i < x.second.size(); ++i) {
+                    if(x.second[i] == 0) {
+                        continue;
+                    }
                     barcode_target_idx_coverage.at(barcode)[x.first][i] += x.second[i];
                 }
             }
