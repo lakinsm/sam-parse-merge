@@ -220,29 +220,29 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
         target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
     }
 
-//    // Second pass calculate idx scores and idx coverage per target
-//    ifs.clear();
-//    ifs.seekg(0);
-//    read_idx = 0;
-//    while(std::getline(ifs, line)) {
-//        if(line[0] != '@') {
-//            break;
-//        }
-//    }
-//
-//    if(_optimal_read_idxs.count(read_idx)) {
-//        res = _parseSamLine(line);
-//        _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
-//    }
-//    read_idx++;
-//
-//    while(std::getline(ifs, line)) {
-//        if(_optimal_read_idxs.count(read_idx)) {
-//            res = _parseSamLine(line);
-//            _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
-//        }
-//        read_idx++;
-//    }
+    // Second pass calculate idx scores and idx coverage per target
+    ifs.clear();
+    ifs.seekg(0);
+    read_idx = 0;
+    while(std::getline(ifs, line)) {
+        if(line[0] != '@') {
+            break;
+        }
+    }
+
+    if(_optimal_read_idxs.count(read_idx)) {
+        res = _parseSamLine(line);
+        _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
+    }
+    read_idx++;
+
+    while(std::getline(ifs, line)) {
+        if(_optimal_read_idxs.count(read_idx)) {
+            res = _parseSamLine(line);
+            _idxScoreCigar(res[4], res[2], std::stoi(res[3].c_str()) - 1);
+        }
+        read_idx++;
+    }
 }
 
 
