@@ -10,6 +10,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "args.h"
 
 
 class ConcurrentBufferQueue {
@@ -18,12 +19,16 @@ public:
     ~ConcurrentBufferQueue();
 
     void runCombine();
+    void runScore();
     bool pushHeaderCombine(const std::string &barcode, const std::string &header);
     bool tryPushCombine(const std::vector< std::string > &lines,
                  const std::string &barcode,
                  const long &reads_processed,
                  const long &reads_aligned);
     bool tryPopCombine(std::string &item);
+    bool tryPushScore(const std::string &barcode,
+                      const std::map< std::string, std::vector< int > > target_idx_scores,
+                      const std::map< std::string, std::vector< int > > target_idx_coverage);
 
     std::atomic< bool > all_jobs_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< bool > all_jobs_consumed = ATOMIC_VAR_INIT(false);
