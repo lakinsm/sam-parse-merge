@@ -279,6 +279,7 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
         std::cout << "check2" << std::endl;
         if(timepoint <= _args.max_timepoints) {
+            std::cout << "check2.5\t" << timepoint << '\t' << _args.max_timepoints << std::endl;
             std::set< int > *local_set = &timeseries_cov.at(barcode)[timepoint];
             for(auto &x : target_idx_coverage) {
                 // There will only be one key-value pair in target_idx_coverage if this is the final run
