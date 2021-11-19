@@ -21,12 +21,13 @@ public:
     std::string output_readcount_file;
     std::string timeseries_file;
     std::string sample_to_barcode_file;
+    std::string final_file = "";
     int threads = 2;
-    bool final = false;
     int match = 2;
     int mismatch = -4;
     int indel_start = -2;
     int indel_extend = -2;
+    int max_timepoints = 50;
 
 private:
     std::string _findFullPath(std::string path);

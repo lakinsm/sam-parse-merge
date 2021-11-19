@@ -20,6 +20,7 @@ public:
     void printInfo();
     void run();
 
+    int timepoint;
     std::string barcode;
     std::string genome_select;
     std::string sam_filepath;

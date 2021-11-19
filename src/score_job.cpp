@@ -14,11 +14,17 @@ ScoreJob::ScoreJob(Args &args,
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, barcode, '|');
     std::getline(ss, genome_select);
+    std::size_t found = sam_filepath.find_last_of('_');
+    std::string tp_suffix = sam_filepath.substr(found);
+    found = tp_suffix.find_last_of('.');
+    std::string tp = tp_suffix.substr(0, found);
+    timepoint = std::stoi(tp.c_str());
     if(genome_select == "None") {
         _select = false;
     }
     else {
         _select = true;
+        printInfo();
     }
 }
 
@@ -33,7 +39,7 @@ ScoreJob::~ScoreJob()
 void ScoreJob::printInfo()
 {
     std::cout << std::endl;
-    std::cout << barcode << '\t' << sam_filepath << std::endl;
+    std::cout << barcode << '\t' << std::to_string(timepoint) << '\t' << sam_filepath << std::endl;
     std::cout << std::endl;
 }
 
@@ -82,7 +88,7 @@ void ScoreJob::run()
 
     _samScore(ifs, line);
 
-    while(!_buffer_q->tryPushScore(barcode, target_idx_scores, target_idx_coverage)) {}
+    while(!_buffer_q->tryPushScore(barcode, timepoint, target_idx_scores, target_idx_coverage)) {}
 }
 
 
@@ -205,7 +211,14 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     }
     sam_flag = std::stoi(res[1].c_str());
     if((sam_flag & 4) == 0) {
-        _firstPassRoutine(res[0], res[2], res[4], read_idx);
+        if(_select) {
+            if(res[2] == genome_select) {
+                _firstPassRoutine(res[0], res[2], res[4], read_idx);
+            }
+        }
+        else {
+            _firstPassRoutine(res[0], res[2], res[4], read_idx);
+        }
     }
     read_idx++;
 
@@ -214,7 +227,14 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
         res = _parseSamLine(line);
         sam_flag = std::stoi(res[1].c_str());
         if((sam_flag & 4) == 0) {
-            _firstPassRoutine(res[0], res[2], res[4], read_idx);
+            if(_select) {
+                if(res[2] == genome_select) {
+                    _firstPassRoutine(res[0], res[2], res[4], read_idx);
+                }
+            }
+            else {
+                _firstPassRoutine(res[0], res[2], res[4], read_idx);
+            }
         }
         read_idx++;
     }

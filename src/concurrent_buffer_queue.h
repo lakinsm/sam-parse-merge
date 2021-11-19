@@ -27,6 +27,7 @@ public:
                  const long &reads_aligned);
     bool tryPopCombine(std::string &item);
     bool tryPushScore(const std::string &barcode,
+                      const int &timepoint,
                       const std::map< std::string, std::vector< int > > target_idx_scores,
                       const std::map< std::string, std::vector< int > > target_idx_coverage);
     bool tryPushGenomeLengths(const std::vector< std::string > &ref_names,
@@ -47,6 +48,8 @@ public:
     std::map< std::string, int > ref_len_map;
     std::map< std::string, std::map< std::string, std::vector< int > > > barcode_target_idx_scores;
     std::map< std::string, std::map< std::string, std::vector< int > > > barcode_target_idx_coverage;
+    std::map< std::vector< std::set< int > > > timeseries_cov;
+    std::map< std::string, std::string > barcode_top_genomes;
 
 private:
     Args& _args;

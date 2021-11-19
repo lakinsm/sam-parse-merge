@@ -51,7 +51,9 @@ Args::Args(int argc, const char *argv[])
             if(arg_list[i] == "-s")
                 timeseries_file = _findFullPath(arg_list[++i]);
             if(arg_list[i] == "-f")
-                final = true;
+                final_file = _findFullPath(arg_list[++i]);
+            if(arg_list[i] == "-m")
+                max_timepoints = std::stoi(arg_list[++i].c_str());
         }
     }
     else {
@@ -85,7 +87,8 @@ void Args::_usage()
     std::cout << "Combine pipeline options:" << std::endl;
     std::cout << "\t-b\tFILE\tOptional CSV file linking barcode to sample names, one per line, no headers" << std::endl;
     std::cout << "Score pipeline options:" << std::endl;
-    std::cout << "\t-f\tFLAG\tIndicates final run to output data for plotting [false]" << std::endl;
+    std::cout << "\t-f\tFILE\tTab-separated file linking barcode to best genome, indicates final run" << std::endl;
+    std::cout << "\t-m\tINT\tMaximum number of timepoints to plot for coverage, requires -f be set [50]" << std::endl;
     std::cout << "\t-s\tFILE\tOptional file mapping read name to timepoint sequenced for plotting" << std::endl;
     std::cout << std::endl << std::endl;
     exit(EXIT_FAILURE);

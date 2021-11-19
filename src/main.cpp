@@ -29,14 +29,14 @@ int main(int argc, const char *argv[]) {
         sam_files.push_back(sam_filepath);
     }
 
+    std::map< std::string, std::string > best_genomes;
+
     if(args.pipeline == "combine") {
         // Load Barcode to top genome mapping
         std::ifstream ifs2(args.best_genomes, std::ios::in);
         line.clear();
         std::string barcode, genome;
         std::stringstream ss2;
-
-        std::map< std::string, std::string > best_genomes;
 
         while(std::getline(ifs2, line)) {
             ss2.str(line);
@@ -90,11 +90,25 @@ int main(int argc, const char *argv[]) {
         delete output_buffer_dispatcher;
     }
     else if(args.pipeline == "score") {
-
         DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
         DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
         ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(args, 100000);
         output_buffer_dispatcher->dispatch([concurrent_q] () {concurrent_q->runScore();});
+
+        if(!args.final_file.empty()) {
+            // Load Barcode to top genome mapping
+            std::ifstream ifs2(args.final_file, std::ios::in);
+            line.clear();
+            std::string barcode, genome;
+            std::stringstream ss2;
+
+            while(std::getline(ifs2, line)) {
+                ss2.str(line);
+                std::getline(ss2, barcode, '\t');
+                std::getline(ss2, genome, '\t');
+                best_genomes[barcode] = genome;
+            }
+        }
 
         for(int i = 0; i < sam_files.size(); ++i) {
             std::string this_sam_fp = sam_files[i];
@@ -102,7 +116,13 @@ int main(int argc, const char *argv[]) {
             std::string this_filename = this_sam_fp.substr(pos1 + 1);
             std::size_t pos2 = this_filename.find_first_of('_');
             std::string this_barcode = this_filename.substr(0, pos2);
-            std::string this_param_string = this_sam_fp + '|' + this_barcode + "|None";
+            std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
+            if(!args.final_file.empty()) {
+                this_param_string += best_genomes.at(this_barcode);
+            }
+            else {
+                this_param_string += "None";
+            }
 
             while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
 
@@ -111,12 +131,9 @@ int main(int argc, const char *argv[]) {
             concurrent_q->num_active_jobs += 1;
         }
 
-
         while(concurrent_q->num_completed_jobs != sam_files.size()) {}
         concurrent_q->all_jobs_enqueued = true;
         concurrent_q->cv.notify_all();
-
-        std::cout << "check3" << std::endl;
 
         while(!concurrent_q->work_completed) {}
     }
