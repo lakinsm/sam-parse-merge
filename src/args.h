@@ -27,7 +27,7 @@ public:
     int mismatch = -4;
     int indel_start = -2;
     int indel_extend = -2;
-    int max_timepoints = 50;
+    int max_timepoints = 100;
 
 private:
     std::string _findFullPath(std::string path);
