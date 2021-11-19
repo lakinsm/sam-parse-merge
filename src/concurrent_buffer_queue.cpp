@@ -271,24 +271,26 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
     }
 
+    std::cout << "check1" << std::endl;
+
     if(!_args.final_file.empty()) {
         if(!timeseries_cov.count(barcode)) {
             timeseries_cov[barcode] = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
         }
-        else {
-            if(timepoint <= _args.max_timepoints) {
-                std::set< int > *local_set = &timeseries_cov.at(barcode)[timepoint];
-                for(auto &x : target_idx_coverage) {
-                    // There will only be one key-value pair in target_idx_coverage if this is the final run
-                    barcode_top_genomes[barcode] = x.first;
-                    for(int i = 0; i < x.second.size(); ++i) {
-                        if(x.second[i] != 0) {
-                            (*local_set).insert(x.second[i]);
-                        }
+        std::cout << "check2" << std::endl;
+        if(timepoint <= _args.max_timepoints) {
+            std::set< int > *local_set = &timeseries_cov.at(barcode)[timepoint];
+            for(auto &x : target_idx_coverage) {
+                // There will only be one key-value pair in target_idx_coverage if this is the final run
+                barcode_top_genomes[barcode] = x.first;
+                for(int i = 0; i < x.second.size(); ++i) {
+                    if(x.second[i] != 0) {
+                        (*local_set).insert(x.second[i]);
                     }
                 }
             }
         }
+        std::cout << "check3" << std::endl;
     }
 
     return true;
