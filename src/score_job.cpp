@@ -18,7 +18,7 @@ ScoreJob::ScoreJob(Args &args,
     std::string tp_suffix = sam_filepath.substr(found+1);
     found = tp_suffix.find_last_of('.');
     std::string tp = tp_suffix.substr(0, found);
-    timepoint = std::stoi(tp.c_str());
+    this->timepoint = std::stoi(tp.c_str());
     if(genome_select == "None") {
         _select = false;
     }
@@ -88,7 +88,7 @@ void ScoreJob::run()
 
     _samScore(ifs, line);
 
-    while(!_buffer_q->tryPushScore(barcode, timepoint, target_idx_scores, target_idx_coverage)) {}
+    while(!_buffer_q->tryPushScore(barcode, this->timepoint, target_idx_scores, target_idx_coverage)) {}
 }
 
 
