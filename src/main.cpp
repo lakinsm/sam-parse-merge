@@ -38,6 +38,7 @@ int main(int argc, const char *argv[]) {
         std::stringstream ss2;
 
         while(std::getline(ifs2, line2)) {
+            ss2.clear();
             ss2.str(line2);
             std::getline(ss2, barcode, '\t');
             std::getline(ss2, genome);
@@ -102,13 +103,11 @@ int main(int argc, const char *argv[]) {
             std::stringstream ss2;
 
             while(std::getline(ifs2, line2)) {
-                std::cout << line2 << std::endl;
                 ss2.clear();
                 ss2.str(line2);
                 std::getline(ss2, barcode, '\t');
                 std::getline(ss2, genome);
                 best_genomes[barcode] = genome;
-                std::cout << barcode << '\t' << genome << std::endl;
             }
             ifs2.close();
         }

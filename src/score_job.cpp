@@ -18,6 +18,7 @@ ScoreJob::ScoreJob(Args &args,
     std::string tp_suffix = sam_filepath.substr(found);
     found = tp_suffix.find_last_of('.');
     std::string tp = tp_suffix.substr(0, found);
+    std::cout << tp_suffix << '\t' << tp << std::endl;
     timepoint = std::stoi(tp.c_str());
     if(genome_select == "None") {
         _select = false;
