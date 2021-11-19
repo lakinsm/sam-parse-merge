@@ -110,8 +110,9 @@ int main(int argc, const char *argv[]) {
                 best_genomes[barcode] = genome;
                 std::cout << barcode << '\t' << genome << std::endl;
             }
+            ifs2.close();
         }
-        ifs2.close();
+
 
         for(int i = 0; i < sam_files.size(); ++i) {
             std::string this_sam_fp = sam_files[i];
