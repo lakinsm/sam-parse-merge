@@ -193,7 +193,7 @@ void ConcurrentBufferQueue::runScore()
             double perc_cov = 100 * (double)cumulative_cov.size() / (double)genome_len;
             ofs3 << ',' << std::to_string(perc_cov);
             for(int i = 1; i < _args.max_timepoints; ++i) {
-                for(j = 0; j < x.second[i].size(); ++j) {
+                for(int j = 0; j < x.second[i].size(); ++j) {
                     cumulative_cov.insert(x.second[i][j]);
                 }
                 perc_cov = 100 * (double)cumulative_cov.size() / (double)genome_len;
@@ -273,7 +273,7 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
     }
 
-    if(!args.final_file.empty()) {
+    if(!_args.final_file.empty()) {
         if(!timeseries_cov.count(barcode)) {
             timeseries_cov = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
         }
