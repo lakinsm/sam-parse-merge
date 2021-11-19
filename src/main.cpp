@@ -34,12 +34,11 @@ int main(int argc, const char *argv[]) {
     if(args.pipeline == "combine") {
         // Load Barcode to top genome mapping
         std::ifstream ifs2(args.best_genomes, std::ios::in);
-        line.clear();
-        std::string barcode, genome;
+        std::string line2, barcode, genome;
         std::stringstream ss2;
 
-        while(std::getline(ifs2, line)) {
-            ss2.str(line);
+        while(std::getline(ifs2, line2)) {
+            ss2.str(line2);
             std::getline(ss2, barcode, '\t');
             std::getline(ss2, genome, '\t');
             best_genomes[barcode] = genome;
@@ -99,14 +98,13 @@ int main(int argc, const char *argv[]) {
         if(!args.final_file.empty()) {
             // Load Barcode to top genome mapping
             std::ifstream ifs2(args.final_file, std::ios::in);
-            line.clear();
-            std::string barcode, genome;
+            std::string line2, barcode, genome;
             std::stringstream ss2;
 
-            while(std::getline(ifs2, line)) {
-                ss2.str(line);
+            while(std::getline(ifs2, line2)) {
+                ss2.str(line2);
                 std::getline(ss2, barcode, '\t');
-                std::getline(ss2, genome, '\t');
+                std::getline(ss2, genome);
                 best_genomes[barcode] = genome;
                 std::cout << barcode << '\t' << genome << std::endl;
             }
