@@ -40,7 +40,7 @@ int main(int argc, const char *argv[]) {
         while(std::getline(ifs2, line2)) {
             ss2.str(line2);
             std::getline(ss2, barcode, '\t');
-            std::getline(ss2, genome, '\t');
+            std::getline(ss2, genome);
             best_genomes[barcode] = genome;
         }
         ifs2.close();
@@ -102,6 +102,7 @@ int main(int argc, const char *argv[]) {
             std::stringstream ss2;
 
             while(std::getline(ifs2, line2)) {
+                std::cout << line2 << std::endl;
                 ss2.str(line2);
                 std::getline(ss2, barcode, '\t');
                 std::getline(ss2, genome);
@@ -110,7 +111,6 @@ int main(int argc, const char *argv[]) {
             }
             ifs2.close();
         }
-
 
         for(int i = 0; i < sam_files.size(); ++i) {
             std::string this_sam_fp = sam_files[i];
