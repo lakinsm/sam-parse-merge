@@ -103,6 +103,7 @@ int main(int argc, const char *argv[]) {
 
             while(std::getline(ifs2, line2)) {
                 std::cout << line2 << std::endl;
+                ss2.clear();
                 ss2.str(line2);
                 std::getline(ss2, barcode, '\t');
                 std::getline(ss2, genome);
