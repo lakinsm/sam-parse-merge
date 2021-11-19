@@ -44,6 +44,7 @@ int main(int argc, const char *argv[]) {
             std::getline(ss2, genome, '\t');
             best_genomes[barcode] = genome;
         }
+        ifs2.close();
 
         DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
         DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
@@ -107,8 +108,10 @@ int main(int argc, const char *argv[]) {
                 std::getline(ss2, barcode, '\t');
                 std::getline(ss2, genome, '\t');
                 best_genomes[barcode] = genome;
+                std::cout << barcode << '\t' << genome << std::endl;
             }
         }
+        ifs2.close();
 
         for(int i = 0; i < sam_files.size(); ++i) {
             std::string this_sam_fp = sam_files[i];
