@@ -15,10 +15,9 @@ ScoreJob::ScoreJob(Args &args,
     std::getline(ss, barcode, '|');
     std::getline(ss, genome_select);
     std::size_t found = sam_filepath.find_last_of('_');
-    std::string tp_suffix = sam_filepath.substr(found);
+    std::string tp_suffix = sam_filepath.substr(found+1);
     found = tp_suffix.find_last_of('.');
     std::string tp = tp_suffix.substr(0, found);
-    std::cout << tp_suffix << '\t' << tp << std::endl;
     timepoint = std::stoi(tp.c_str());
     if(genome_select == "None") {
         _select = false;
