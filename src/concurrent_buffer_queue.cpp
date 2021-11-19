@@ -193,9 +193,7 @@ void ConcurrentBufferQueue::runScore()
             double perc_cov = 100 * (double)cumulative_cov.size() / (double)genome_len;
             ofs3 << ',' << std::to_string(perc_cov);
             for(int i = 1; i < _args.max_timepoints; ++i) {
-                for(int j = 0; j < x.second[i].size(); ++j) {
-                    cumulative_cov.insert(x.second[i][j]);
-                }
+                cumulative_cov.insert(x.second[i].begin(), x.second[i].end());
                 perc_cov = 100 * (double)cumulative_cov.size() / (double)genome_len;
                 ofs3 << ',' << std::to_string(perc_cov);
             }
