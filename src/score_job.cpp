@@ -24,7 +24,6 @@ ScoreJob::ScoreJob(Args &args,
     }
     else {
         _select = true;
-        printInfo();
     }
 }
 
@@ -48,6 +47,8 @@ void ScoreJob::run()
 {
     std::string this_header, line;
     std::ifstream ifs(sam_filepath, std::ios::in);
+
+    std::cout << timepoint << '\t' << sam_filepath << std::endl;
 
     if(!ifs.good()) {
         return;
