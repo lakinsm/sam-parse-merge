@@ -49,7 +49,7 @@ public:
     std::map< std::string, int > ref_len_map;
     std::map< std::string, std::map< std::string, std::vector< int > > > barcode_target_idx_scores;
     std::map< std::string, std::map< std::string, std::vector< int > > > barcode_target_idx_coverage;
-    std::map< std::string, std::vector< std::set< int > > > timeseries_cov;
+    std::map< std::string, std::map< std::string, std::vector< std::set< int > > > > timeseries_cov;
     std::map< std::string, std::string > barcode_top_genomes;
 
 private:

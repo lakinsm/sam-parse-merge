@@ -24,6 +24,14 @@ ScoreJob::ScoreJob(Args &args,
     }
     else {
         _select = true;
+        if(!args.db_parent_map.empty()) {
+            for(int i = 0; i < args.db_parent_map.at(genome_select).size(); ++i) {
+                _select_children.insert(args.db_parent_map.at(genome_select)[i]);
+            }
+        }
+        else {
+            _select_children.insert(genome_select);
+        }
     }
 }
 
@@ -211,7 +219,7 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
     sam_flag = std::stoi(res[1].c_str());
     if((sam_flag & 4) == 0) {
         if(_select) {
-            if(res[2] == genome_select) {
+            if(_select_children.count(res[2])) {
                 _firstPassRoutine(res[0], res[2], res[4], read_idx);
             }
         }
@@ -227,7 +235,7 @@ void ScoreJob::_samScore(std::ifstream &ifs, const std::string &initial_line)
         sam_flag = std::stoi(res[1].c_str());
         if((sam_flag & 4) == 0) {
             if(_select) {
-                if(res[2] == genome_select) {
+                if(_select_children.count(res[2])) {
                     _firstPassRoutine(res[0], res[2], res[4], read_idx);
                 }
             }

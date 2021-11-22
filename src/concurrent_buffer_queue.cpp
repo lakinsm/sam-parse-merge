@@ -215,45 +215,96 @@ void ConcurrentBufferQueue::runScore()
 
     if(!_args.final_file.empty()) {
         std::ofstream ofs3(_args.output_dir + "/final_timeseries_coverage.csv");
+        std::string parent = barcode_top_genomes.at(x.first);
         for(auto &x : timeseries_cov) {
-            std::string this_best_genome = barcode_top_genomes.at(x.first);
-            int genome_len = ref_len_map.at(this_best_genome);
-            ofs3 << x.first << ',' << this_best_genome;
-            std::set< int > cumulative_cov = x.second[0];
-            double perc_cov = 100 * (double)cumulative_cov.size() / (double)genome_len;
-            ofs3 << ',' << std::to_string(perc_cov);
-            for(int i = 1; i < _args.max_timepoints; ++i) {
-                cumulative_cov.insert(x.second[i].begin(), x.second[i].end());
-                perc_cov = 100 * (double)cumulative_cov.size() / (double)genome_len;
-                ofs3 << ',' << std::to_string(perc_cov);
+            // Barcode, Parent
+            ofs3 << x.first << ',' << parent;
+            long cumulative_cov = 0;
+            long cumul_ref_len = 0;
+            if(!_args.db_parent_map.empty()) {
+                for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+                    std::string child = _args.db_parent_map.at(parent)[j]
+                    cumul_ref_len += (long)ref_len_map.at(child);
+                    cumulative_cov += (long)x.second.at(child)[0].size();
+                }
             }
+            else {
+                cumul_ref_len = (long)ref_len_map.at(parent);
+                cumulative_cov = (long)x.second.at(parent)[0].size();
+            }
+            double perc_cov = 100 * (double)cumulative_cov.size() / (double)cumul_ref_len;
+            ofs3 << ',' << std::to_string(perc_cov);
+
+            if(!_args.db_parent_map.empty()) {
+                for(int i = 0; i < _args.max_timepoints; ++i) {
+                    for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+                        std::string child = _args.db_parent_map.at(parent)[j];
+                        cumulative_cov += (long)x.second.at(child)[i].size();
+                    }
+                }
+            }
+            else {
+                for(int i = 1; i < _args.max_timepoints; ++i) {
+                    cumulative_cov += (long)x.second.at(parent)[i].size();
+                }
+            }
+            perc_cov = 100 * (double)cumulative_cov.size() / (double)cumul_ref_len;
+            ofs3 << ',' << std::to_string(perc_cov);
             ofs3 << std::endl;
         }
         ofs3.close();
 
         std::ofstream ofs4(_args.output_dir + "/final_genome_idx_coverage.csv");
         for(auto &x : barcode_target_idx_coverage) {
-            std::string this_best_genome = barcode_top_genomes.at(x.first);
-            ofs4 << x.first << ',' << this_best_genome;
-            std::vector< int > *local_vec = &x.second.at(this_best_genome);
-            ofs4 << ',' << std::to_string((*local_vec)[0]);
-            for(int i = 1; i < (*local_vec).size(); ++i) {
-                ofs4 << ',' << std::to_string((*local_vec)[i]);
+            std::string parent = barcode_top_genomes.at(x.first);
+            if(!_args.db_parent_map.empty()) {
+                for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+                    std::string child = _args.db_parent_map.at(parent)[j];
+                    ofs4 << x.first << ',' << parent << ',' << child;
+                    std::vector< int > *local_vec = &x.second.at(child);
+                    ofs4 << ',' << std::to_string((*local_vec)[0]);
+                    for(int i = 1; i < (*local_vec).size(); ++i) {
+                        ofs4 << ',' << std::to_string((*local_vec)[i]);
+                    }
+                    ofs4 << std::endl;
+                }
             }
-            ofs4 << std::endl;
+            else {
+                ofs4 << x.first << ',' << parent << ',' << parent;
+                std::vector< int > *local_vec = &x.second.at(this_best_genome);
+                ofs4 << ',' << std::to_string((*local_vec)[0]);
+                for(int i = 1; i < (*local_vec).size(); ++i) {
+                    ofs4 << ',' << std::to_string((*local_vec)[i]);
+                }
+                ofs4 << std::endl;
+            }
         }
         ofs4.close();
 
         std::ofstream ofs5(_args.output_dir + "/final_genome_idx_scores.csv");
         for(auto &x : barcode_target_idx_scores) {
-            std::string this_best_genome = barcode_top_genomes.at(x.first);
-            ofs5 << x.first << ',' << this_best_genome;
-            std::vector< int > *local_vec = &x.second.at(this_best_genome);
-            ofs5 << ',' << std::to_string((*local_vec)[0]);
-            for(int i = 1; i < (*local_vec).size(); ++i) {
-                ofs5 << ',' << std::to_string((*local_vec)[i]);
+            std::string parent = barcode_top_genomes.at(x.first);
+            if(!_args.db_parent_map.empty()) {
+                for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+                    std::string child = _args.db_parent_map.at(parent)[j];
+                    ofs5 << x.first << ',' << parent << ',' << child;
+                    std::vector< int > *local_vec = &x.second.at(child);
+                    ofs5 << ',' << std::to_string((*local_vec)[0]);
+                    for(int i = 1; i < (*local_vec).size(); ++i) {
+                        ofs5 << ',' << std::to_string((*local_vec)[i]);
+                    }
+                    ofs5 << std::endl;
+                }
             }
-            ofs5 << std::endl;
+            else {
+                ofs5 << x.first << ',' << parent << ',' << parent;
+                std::vector< int > *local_vec = &x.second.at(this_best_genome);
+                ofs5 << ',' << std::to_string((*local_vec)[0]);
+                for(int i = 1; i < (*local_vec).size(); ++i) {
+                    ofs5 << ',' << std::to_string((*local_vec)[i]);
+                }
+                ofs5 << std::endl;
+            }
         }
         ofs5.close();
     }
@@ -304,15 +355,22 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
 
     if(!_args.final_file.empty()) {
         if(!timeseries_cov.count(barcode)) {
-            timeseries_cov[barcode] = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
+            timeseries_cov[barcode];
         }
         if(timepoint < _args.max_timepoints) {
             for(auto &x : target_idx_coverage) {
-                // There will only be one key-value pair in target_idx_coverage if this is the final run
-                barcode_top_genomes[barcode] = x.first;
+                timeseries_cov.at(barcode)[x.first] = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
+                if(!_args.db_parent_map.empty()) {
+                    if(!barcode_top_genomes.count(barcode)) {
+                        barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);
+                    }
+                }
+                else {
+                    barcode_top_genomes[barcode] = x.first;
+                }
                 for(int i = 0; i < x.second.size(); ++i) {
                     if(x.second[i] != 0) {
-                        timeseries_cov.at(barcode)[timepoint].insert(i);
+                        timeseries_cov.at(barcode).at(x.first)[timepoint].insert(i);
                     }
                 }
             }
