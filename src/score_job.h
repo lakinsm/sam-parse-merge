@@ -34,6 +34,7 @@ private:
     Args& _args;
     bool _select;
     std::vector< std::string > _ref_names;
+    std::map< std::string, std::vector< std::string > > _ref_children;
     std::map< std::string, int > _ref_idx_map;
     std::vector< int > _ref_lens;
     std::map< std::string, std::vector< std::vector< int > > > _read_first_pass;

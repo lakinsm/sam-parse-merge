@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cassert>
 #include <map>
 #include "args.h"
 #include "dispatch_queue.h"
@@ -30,6 +31,91 @@ int main(int argc, const char *argv[]) {
     }
 
     std::map< std::string, std::string > best_genomes;
+
+    if(args.db_ann_file) {
+        std::ifstream ifs6(args.db_names_file, std::ios::in);
+        std::string ann_line, ann_acc, ann_entry;
+        std::stringstream ann_ss;
+        std::getline(ifs6, ann_line);  // Skip header
+        while(std::getline(ifs6, ann_line)) {
+            ann_ss.clear();
+            ann_ss.str(ann_line);
+            std::getline(ann_ss, ann_acc, ',');
+            if(!args.db_ann_map.count(ann_acc)) {
+                args.db_ann_map[ann_acc] = std::vector< std::vector< std::string > >(1, std::vector< std::string >());
+            }
+            else {
+                args.db_ann_map.at(ann_acc).push_back(std::vector< std::string >());
+            }
+            int j_vec_idx = args.db_ann_map.at(ann_acc).size() - 1;
+            for(int i = 0; i < 5; ++i) {
+                std::getline(ann_ss, ann_entry, ',');
+                args.db_ann_map.at(ann_acc)[j_vec_idx].push_back(ann_entry);
+            }
+        }
+        ifs6.close();
+    }
+
+    if(args.db_names_file) {
+        std::ifstream ifs7(args.db_names_file, std::ios::in);
+        std::string names_line, names_parent, names_child, names_alias;
+        std::stringstream names_ss;
+        while(std::getline(ifs7, names_line)) {
+            names_ss.clear();
+            names_ss.str(names_line);
+            std::getline(names_ss, names_parent);
+            std::size_t div_pos = names_parent.find(':');
+            if(div_pos == std::string::npos) {
+                // No children are present
+                args.db_name_map[names_parent] = std::vector< std::string > {names_parent};
+                args.rev_db_name_map[names_parent] = names_parent;
+            }
+            else {
+                // Children are present
+                names_child = names_parent.substr(div_pos + 1);
+                names_parent.erase(div_pos);
+                if(args.db_name_map.count(names_parent)) {
+                    args.db_name_map.at(names_parent).push_back(names_child);
+                }
+                else {
+                    args.db_name_map[names_parent] = std::vector< std::string > {names_child};
+                    if(args.rev_db_name_map.count(names_child)) {
+                        std::cerr << "ERROR: Child chromosomes must be unique (duplicate detected): ";
+                        std::cerr << names_parent << " -> " << names_child << std::endl;
+                        exit(EXIT_FAILURE);
+                    }
+                    args.rev_db_name_map[names_child] = names_parent;
+                }
+            }
+        }
+        ifs7.close();
+    }
+
+    for(auto &x : args.db_ann_map) {
+        for(auto &y : x.second) {
+            std::cout << x.first ;
+            for(int i = 0; i < y.second.size(); ++i) {
+                std::cout << '\t' << y.second[i];
+            }
+            std::cout << std::endl;
+        }
+    }
+    std::cout << std::endl << std::endl;
+
+    for(auto &x : args.db_name_map) {
+        std::cout << x.first;
+        for(int i = 0; i < x.second.size(); ++i) {
+            std::cout << '\t' << x.second[i];
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+
+    for(auto &x : args.rev_db_name_map) {
+        std::cout << x.first << '\t' << x.second << std::endl;
+    }
+
+    exit(0);
 
     if(args.pipeline == "combine") {
         // Load Barcode to top genome mapping
