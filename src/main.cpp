@@ -38,6 +38,9 @@ int main(int argc, const char *argv[]) {
         std::stringstream ann_ss;
         std::getline(ifs6, ann_line);  // Skip header
         while(std::getline(ifs6, ann_line)) {
+            if(ann_line.empty()) {
+                continue;
+            }
             ann_ss.clear();
             ann_ss.str(ann_line);
             std::getline(ann_ss, ann_acc, ',');
@@ -61,6 +64,9 @@ int main(int argc, const char *argv[]) {
         std::string names_line, names_parent, names_child, names_alias;
         std::stringstream names_ss;
         while(std::getline(ifs7, names_line)) {
+            if(names_line.empty()) {
+                continue;
+            }
             names_ss.clear();
             names_ss.str(names_line);
             std::getline(names_ss, names_parent, '\t');
