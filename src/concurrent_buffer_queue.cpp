@@ -241,7 +241,7 @@ void ConcurrentBufferQueue::runScore()
             ofs3 << ',' << std::to_string(perc_cov);
 
             if(!_args.db_parent_map.empty()) {
-                for(int i = 0; i < _args.max_timepoints; ++i) {
+                for(int i = 1; i < _args.max_timepoints; ++i) {
                     perc_cov = 0;
                     for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
                         std::string child = _args.db_parent_map.at(parent)[j];
