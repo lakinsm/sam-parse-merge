@@ -116,7 +116,7 @@ int main(int argc, const char *argv[]) {
     }
     std::cout << std::endl << std::endl;
 
-    for(auto &x : args.db_name_map) {
+    for(auto &x : args.db_parent_map) {
         std::cout << x.first;
         for(int i = 0; i < x.second.size(); ++i) {
             std::cout << '\t' << x.second[i];
@@ -125,9 +125,15 @@ int main(int argc, const char *argv[]) {
     }
     std::cout << std::endl << std::endl;
 
-    for(auto &x : args.rev_db_name_map) {
+    for(auto &x : args.rev_db_parent_map) {
         std::cout << x.first << '\t' << x.second << std::endl;
     }
+    std::cout << std::endl << std::endl;
+
+    for(auto &x : args.db_name_map) {
+        std::cout << x.first << '\t' << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
 
     exit(0);
 
