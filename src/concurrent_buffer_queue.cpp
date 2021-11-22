@@ -240,17 +240,21 @@ void ConcurrentBufferQueue::runScore()
                     for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
                         std::string child = _args.db_parent_map.at(parent)[j];
                         cumulative_cov += (long)x.second.at(child)[i].size();
+                        perc_cov = 100 * (double)cumulative_cov / (double)cumul_ref_len;
+                        ofs3 << ',' << std::to_string(perc_cov);
+
                     }
                 }
+                ofs3 << std::endl;
             }
             else {
                 for(int i = 1; i < _args.max_timepoints; ++i) {
                     cumulative_cov += (long)x.second.at(parent)[i].size();
+                    perc_cov = 100 * (double)cumulative_cov / (double)cumul_ref_len;
+                    ofs3 << ',' << std::to_string(perc_cov);
                 }
+                ofs3 << std::endl;
             }
-            perc_cov = 100 * (double)cumulative_cov / (double)cumul_ref_len;
-            ofs3 << ',' << std::to_string(perc_cov);
-            ofs3 << std::endl;
         }
         ofs3.close();
 
