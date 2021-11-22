@@ -221,20 +221,23 @@ void ConcurrentBufferQueue::runScore()
             ofs3 << x.first << ',' << parent;
             std::vector< std::set< int > > cumulative_cov;
             long cumul_ref_len = 0;
+            double perc_cov = 0;
             if(!_args.db_parent_map.empty()) {
-                cumulative_cov.resize(_args.db_parent_map.at(parent).size(), std::set< int >())
+                cumulative_cov.resize(_args.db_parent_map.at(parent).size(), std::set< int >());
                 for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
                     std::string child = _args.db_parent_map.at(parent)[j];
                     cumul_ref_len += (long)ref_len_map.at(child);
                     cumulative_cov[j].insert(x.second.at(child)[0].begin(), x.second.at(child)[0].end());
+                    perc_cov += (double)cumulative_cov[j].size();
                 }
+                perc_cov = 100 * perc_cov / (double)cumul_ref_len;
             }
             else {
                 cumul_ref_len = (long)ref_len_map.at(parent);
                 cumulative_cov.resize(1, std::set< int >());
                 cumulative_cov[0].insert(x.second.at(parent)[0].begin(), x.second.at(parent)[0].end());
+                perc_cov = 100 * (double)cumulative_cov.size() / (double)cumul_ref_len;
             }
-            double perc_cov = 100 * (double)cumulative_cov / (double)cumul_ref_len;
             ofs3 << ',' << std::to_string(perc_cov);
 
             if(!_args.db_parent_map.empty()) {
