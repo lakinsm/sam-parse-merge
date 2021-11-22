@@ -145,9 +145,12 @@ void ConcurrentBufferQueue::runScore()
                 long cumul_ref_len = 0;
                 for(int i = 0; i < p.second.size(); ++i) {
                     children_present |= x.second.count(p.second[i]);
-                    std::cout << x.first << '\t' << p.first << '\t' << p.second[i] << std::endl;
+//                    std::cout << x.first << '\t' << p.first << '\t' << p.second[i] << std::endl;
+                    if(!ref_len_map.count(p.second[i])) {
+                        std::cerr << "ERROR: Reference genome in database not found in SAM headers: ";
+                        std::cerr << p.second[i] << std::endl;
+                    }
                     cumul_ref_len += (long)ref_len_map.at(p.second[i]);
-                    std::cout << "check1" << std::endl;
                 }
                 if(children_present) {
                     ofs1 << x.first << ',' << p.first << ',' << cumul_ref_len << ',';
