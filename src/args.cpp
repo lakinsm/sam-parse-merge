@@ -56,7 +56,7 @@ Args::Args(int argc, const char *argv[])
                 max_timepoints = std::stoi(arg_list[++i].c_str());
             else if(arg_list[i] == "-d") {
                 db_ann_file = _findFullPath(arg_list[++i]);
-                std::size_t = start_pos = db_ann_file.find(".ann");
+                std::size_t start_pos = db_ann_file.find(".ann");
                 if(start_pos == std::string::npos) {
                     std::cerr << "ERROR: Database annotation file (-d) must have .ann extension, provided: ";
                     std::cerr << db_ann_file << std::endl;
