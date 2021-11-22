@@ -32,7 +32,7 @@ int main(int argc, const char *argv[]) {
 
     std::map< std::string, std::string > best_genomes;
 
-    if(args.db_ann_file) {
+    if(args.db_ann_file != "") {
         std::ifstream ifs6(args.db_names_file, std::ios::in);
         std::string ann_line, ann_acc, ann_entry;
         std::stringstream ann_ss;
@@ -92,10 +92,10 @@ int main(int argc, const char *argv[]) {
     }
 
     for(auto &x : args.db_ann_map) {
-        for(auto &y : x.second) {
+        for(int j = 0; j < x.second.size(); ++j) {
             std::cout << x.first ;
-            for(int i = 0; i < y.second.size(); ++i) {
-                std::cout << '\t' << y.second[i];
+            for(int i = 0; i < x.second[j].size(); ++i) {
+                std::cout << '\t' << x.second[j][i];
             }
             std::cout << std::endl;
         }

@@ -63,7 +63,7 @@ Args::Args(int argc, const char *argv[])
                     exit(EXIT_FAILURE);
                 }
                 db_names_file = db_ann_file;
-                db_names_file.replace(start_pos, 4, '.names');
+                db_names_file.replace(start_pos, 4, ".names");
                 if(!std::filesystem::exists(db_names_file)) {
                     db_names_file = "";
                 }
