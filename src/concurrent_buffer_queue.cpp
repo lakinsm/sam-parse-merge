@@ -215,15 +215,15 @@ void ConcurrentBufferQueue::runScore()
 
     if(!_args.final_file.empty()) {
         std::ofstream ofs3(_args.output_dir + "/final_timeseries_coverage.csv");
-        std::string parent = barcode_top_genomes.at(x.first);
         for(auto &x : timeseries_cov) {
+            std::string parent = barcode_top_genomes.at(x.first);
             // Barcode, Parent
             ofs3 << x.first << ',' << parent;
             long cumulative_cov = 0;
             long cumul_ref_len = 0;
             if(!_args.db_parent_map.empty()) {
                 for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
-                    std::string child = _args.db_parent_map.at(parent)[j]
+                    std::string child = _args.db_parent_map.at(parent)[j];
                     cumul_ref_len += (long)ref_len_map.at(child);
                     cumulative_cov += (long)x.second.at(child)[0].size();
                 }
@@ -232,7 +232,7 @@ void ConcurrentBufferQueue::runScore()
                 cumul_ref_len = (long)ref_len_map.at(parent);
                 cumulative_cov = (long)x.second.at(parent)[0].size();
             }
-            double perc_cov = 100 * (double)cumulative_cov.size() / (double)cumul_ref_len;
+            double perc_cov = 100 * (double)cumulative_cov / (double)cumul_ref_len;
             ofs3 << ',' << std::to_string(perc_cov);
 
             if(!_args.db_parent_map.empty()) {
@@ -248,7 +248,7 @@ void ConcurrentBufferQueue::runScore()
                     cumulative_cov += (long)x.second.at(parent)[i].size();
                 }
             }
-            perc_cov = 100 * (double)cumulative_cov.size() / (double)cumul_ref_len;
+            perc_cov = 100 * (double)cumulative_cov / (double)cumul_ref_len;
             ofs3 << ',' << std::to_string(perc_cov);
             ofs3 << std::endl;
         }
@@ -271,7 +271,7 @@ void ConcurrentBufferQueue::runScore()
             }
             else {
                 ofs4 << x.first << ',' << parent << ',' << parent;
-                std::vector< int > *local_vec = &x.second.at(this_best_genome);
+                std::vector< int > *local_vec = &x.second.at(parent);
                 ofs4 << ',' << std::to_string((*local_vec)[0]);
                 for(int i = 1; i < (*local_vec).size(); ++i) {
                     ofs4 << ',' << std::to_string((*local_vec)[i]);
@@ -298,7 +298,7 @@ void ConcurrentBufferQueue::runScore()
             }
             else {
                 ofs5 << x.first << ',' << parent << ',' << parent;
-                std::vector< int > *local_vec = &x.second.at(this_best_genome);
+                std::vector< int > *local_vec = &x.second.at(parent);
                 ofs5 << ',' << std::to_string((*local_vec)[0]);
                 for(int i = 1; i < (*local_vec).size(); ++i) {
                     ofs5 << ',' << std::to_string((*local_vec)[i]);
