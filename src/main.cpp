@@ -94,17 +94,17 @@ int main(int argc, const char *argv[]) {
     std::cout << args.db_ann_file << std::endl;
     std::cout << args.db_names_file << std::endl;
 
-//    for(auto &x : args.db_ann_map) {
-//        for(int j = 0; j < x.second.size(); ++j) {
-//            std::cout << x.first ;
-//            for(int i = 0; i < x.second[j].size(); ++i) {
-//                std::cout << '\t' << x.second[j][i];
-//            }
-//            std::cout << std::endl;
-//        }
-//    }
-//    std::cout << std::endl << std::endl;
-//
+    for(auto &x : args.db_ann_map) {
+        for(int j = 0; j < x.second.size(); ++j) {
+            std::cout << x.first ;
+            for(int i = 0; i < x.second[j].size(); ++i) {
+                std::cout << '\t' << x.second[j][i];
+            }
+            std::cout << std::endl;
+        }
+    }
+    std::cout << std::endl << std::endl;
+
 //    for(auto &x : args.db_name_map) {
 //        std::cout << x.first;
 //        for(int i = 0; i < x.second.size(); ++i) {
