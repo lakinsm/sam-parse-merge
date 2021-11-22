@@ -128,11 +128,53 @@ void ConcurrentBufferQueue::runScore()
 {
     _wait();
 
+    std::ofstream ofs1;
+
     if(_args.final_file.empty()) {
-        std::ofstream ofs1(_args.output_dir + "/intermediate_coverage_results.csv");
-        ofs1 << "barcode,target,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
-        ofs1 << "percent_coverage" << std::endl;
-        for(auto &x : barcode_target_idx_scores) {
+        ofs1.open(_args.output_dir + "/intermediate_coverage_results.csv");
+    }
+    else {
+        ofs1.open(_args.output_dir + "/final_coverage_results.csv");
+    }
+    ofs1 << "barcode,target,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
+    ofs1 << "percent_coverage" << std::endl;
+    for(auto &x : barcode_target_idx_scores) {
+        if(!_args.db_parent_map.empty()) {
+            for(auto &p : _args.db_parent_map) {
+                bool children_present = false;
+                long cumul_ref_len = 0;
+                for(int i = 0; i < p.second.size(); ++i) {
+                    children_present |= x.second.count(p.second[i]);
+                    cumul_ref_len += (long)ref_len_map.at(p.second[i]);
+                }
+                if(children_present) {
+                    ofs1 << x.first << ',' << p.first << ',' << cumul_ref_len << ',';
+                    long total_score = 0;
+                    int non_zero_idxs = 0;
+                    long total_cov = 0;
+                    for(int j = 0; j < p.second.size(); ++j) {
+                        if(x.second.count(p.second[i])) {
+                            std::vector< int > *local_score_vec = &x.second.at(p.second[j]);
+                            std::vector< int > *local_cov_vec = &barcode_target_idx_coverage.at(x.first).at(p.second[j]);
+                            for(int i = 0; i < y.second.size(); ++i) {
+                                total_score += (*local_score_vec)[i];
+                                if((*local_cov_vec)[i] != 0) {
+                                    total_cov += (*local_cov_vec)[i];
+                                    non_zero_idxs++;
+                                }
+                            }
+                        }
+                    }
+                    double this_ref_len = (double)cumul_ref_len;
+                    double perc_cov = 100 * (double)non_zero_idxs / this_ref_len;
+                    double average_cov = (double)total_cov / this_ref_len;
+                    double average_score = (double)total_score / this_ref_len;
+                    ofs1 << std::to_string(total_score) << ',' << std::to_string(average_score) << ',';
+                    ofs1 << std::to_string(average_cov) << ',' << std::to_string(perc_cov) << std::endl;
+                }
+            }
+        }
+        else {
             for(auto &y : x.second) {
                 ofs1 << x.first << ',' << y.first << ',' << ref_len_map.at(y.first) << ',';
                 long total_score = 0;
@@ -154,36 +196,10 @@ void ConcurrentBufferQueue::runScore()
                 ofs1 << std::to_string(average_cov) << ',' << std::to_string(perc_cov) << std::endl;
             }
         }
-        ofs1.close();
     }
-    else {
-        std::ofstream ofs2(_args.output_dir + "/final_coverage_results.csv");
-        ofs2 << "barcode,target,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
-        ofs2 << "percent_coverage" << std::endl;
-        for(auto &x : barcode_target_idx_scores) {
-            for(auto &y : x.second) {
-                ofs2 << x.first << ',' << y.first << ',' << ref_len_map.at(y.first) << ',';
-                long total_score = 0;
-                int non_zero_idxs = 0;
-                long total_cov = 0;
-                std::vector< int > *local_cov_vec = &barcode_target_idx_coverage.at(x.first).at(y.first);
-                for(int i = 0; i < y.second.size(); ++i) {
-                    total_score += y.second[i];
-                    if((*local_cov_vec)[i] != 0) {
-                        total_cov += (*local_cov_vec)[i];
-                        non_zero_idxs++;
-                    }
-                }
-                double this_ref_len = (double)ref_len_map.at(y.first);
-                double perc_cov = 100 * (double)non_zero_idxs / this_ref_len;
-                double average_cov = (double)total_cov / this_ref_len;
-                double average_score = (double)total_score / this_ref_len;
-                ofs2 << std::to_string(total_score) << ',' << std::to_string(average_score) << ',';
-                ofs2 << std::to_string(average_cov) << ',' << std::to_string(perc_cov) << std::endl;
-            }
-        }
-        ofs2.close();
+    ofs1.close();
 
+    if(!_args.final_file.empty()) {
         std::ofstream ofs3(_args.output_dir + "/final_timeseries_coverage.csv");
         for(auto &x : timeseries_cov) {
             std::string this_best_genome = barcode_top_genomes.at(x.first);
