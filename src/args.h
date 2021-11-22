@@ -41,8 +41,11 @@ public:
     // { acc_child: acc_parent }
     std::map< std::string, std::string > rev_db_parent_map;
 
+    // { acc_parent: name }
+    std::map< std::string, std::string > db_parent_name_map;
+
     // { acc_child: name }
-    std::map< std::string, std::string > db_name_map;
+    std::map< std::string, std::string > db_child_name_map;
 
 private:
     std::string _findFullPath(std::string path);

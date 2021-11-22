@@ -136,7 +136,7 @@ void ConcurrentBufferQueue::runScore()
     else {
         ofs1.open(_args.output_dir + "/final_coverage_results.csv");
     }
-    ofs1 << "barcode,target,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
+    ofs1 << "barcode,accession,accession_name,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
     ofs1 << "percent_coverage" << std::endl;
     for(auto &x : barcode_target_idx_scores) {
         if(!_args.db_parent_map.empty()) {
@@ -153,7 +153,14 @@ void ConcurrentBufferQueue::runScore()
                     cumul_ref_len += (long)ref_len_map.at(p.second[i]);
                 }
                 if(children_present) {
-                    ofs1 << x.first << ',' << p.first << ',' << cumul_ref_len << ',';
+                    ofs1 << x.first << ',' << p.first << ',';
+                    if(_args.db_parent_name_map.count(p.first)) {
+                        ofs1 << _args.db_parent_name_map.at(p.first);
+                    }
+                    else {
+                        ofs1 << p.first;
+                    }
+                    ofs1 << ',' << cumul_ref_len << ',';
                     long total_score = 0;
                     int non_zero_idxs = 0;
                     long total_cov = 0;
@@ -181,7 +188,9 @@ void ConcurrentBufferQueue::runScore()
         }
         else {
             for(auto &y : x.second) {
-                ofs1 << x.first << ',' << y.first << ',' << ref_len_map.at(y.first) << ',';
+                ofs1 << x.first << ',' << y.first << ',';
+                ofs1 << y.first;
+                ofs1 << ',' << ref_len_map.at(y.first) << ',';
                 long total_score = 0;
                 int non_zero_idxs = 0;
                 long total_cov = 0;
