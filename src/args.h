@@ -36,10 +36,13 @@ public:
     std::map< std::string, std::vector< std::vector< std::string > > > db_ann_map;
 
     // { acc_parent: < acc_child1, acc_child2, ... > }
-    std::map< std::string, std::vector< std::string > > db_name_map;
+    std::map< std::string, std::vector< std::string > > db_parent_map;
 
     // { acc_child: acc_parent }
-    std::map< std::string, std::string > rev_db_name_map;
+    std::map< std::string, std::string > rev_db_parent_map;
+
+    // { acc_child: name }
+    std::map< std::string, std::string > db_name_map;
 
 private:
     std::string _findFullPath(std::string path);

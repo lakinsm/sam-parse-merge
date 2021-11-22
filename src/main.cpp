@@ -63,42 +63,47 @@ int main(int argc, const char *argv[]) {
         while(std::getline(ifs7, names_line)) {
             names_ss.clear();
             names_ss.str(names_line);
-            std::getline(names_ss, names_parent);
+            std::getline(names_ss, names_parent, '\t');
+            std::getline(names_ss, names_alias, '\t');
             std::size_t div_pos = names_parent.find(':');
             if(div_pos == std::string::npos) {
                 // No children are present
-                if(args.rev_db_name_map.count(names_parent)) {
+                if(args.db_parent_map.count(names_parent)) {
                     std::cerr << "ERROR: Parent chromosomes must be unique if no children are present,";
                     std::cerr << " (duplicate detected): ";
                     std::cerr << names_parent << std::endl;
                     exit(EXIT_FAILURE);
                 }
-                args.db_name_map[names_parent] = std::vector< std::string > {names_parent};
-                args.rev_db_name_map[names_parent] = names_parent;
+                args.db_name_map[names_parent] = names_alias;
+                args.db_parent_map[names_parent] = std::vector< std::string > {names_parent};
+                args.rev_db_parent_map[names_parent] = names_parent;
             }
             else {
                 // Children are present
                 names_child = names_parent.substr(div_pos + 1);
                 names_parent.erase(div_pos);
                 if(args.db_name_map.count(names_parent)) {
-                    args.db_name_map.at(names_parent).push_back(names_child);
+                    args.db_parent_map.at(names_parent).push_back(names_child);
                 }
                 else {
-                    args.db_name_map[names_parent] = std::vector< std::string > {names_child};
-                    if(args.rev_db_name_map.count(names_child)) {
+                    args.db_parent_map[names_parent] = std::vector< std::string > {names_child};
+                    if(args.rev_db_parent_map.count(names_child)) {
                         std::cerr << "ERROR: Child chromosomes must be unique (duplicate detected): ";
                         std::cerr << names_parent << " -> " << names_child << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    args.rev_db_name_map[names_child] = names_parent;
+                    args.rev_db_parent_map[names_child] = names_parent;
                 }
+                if(args.db_name_map.count(names_child)) {
+                    std::cerr << "ERROR: Child chromosomes must be unique (duplicate detected): ";
+                    std::cerr << names_parent << " -> " << names_child << ": " << names_alias << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                args.db_name_map[names_child] = names_alias;
             }
         }
         ifs7.close();
     }
-
-    std::cout << args.db_ann_file << std::endl;
-    std::cout << args.db_names_file << std::endl;
 
     for(auto &x : args.db_ann_map) {
         for(int j = 0; j < x.second.size(); ++j) {

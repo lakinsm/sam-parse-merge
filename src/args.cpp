@@ -6,7 +6,7 @@
 
 
 // Public member functions
-Args::Args(int argc, const char *argv[]) : db_ann_map(), db_name_map(), rev_db_name_map()
+Args::Args(int argc, const char *argv[]) : db_ann_map(), db_name_map(), db_parent_map(), rev_db_parent_map()
 {
     std::vector< std::string > arg_list(argv, argv+argc);
     if(argc < 2) {
