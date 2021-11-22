@@ -153,10 +153,10 @@ void ConcurrentBufferQueue::runScore()
                     int non_zero_idxs = 0;
                     long total_cov = 0;
                     for(int j = 0; j < p.second.size(); ++j) {
-                        if(x.second.count(p.second[i])) {
+                        if(x.second.count(p.second[j])) {
                             std::vector< int > *local_score_vec = &x.second.at(p.second[j]);
                             std::vector< int > *local_cov_vec = &barcode_target_idx_coverage.at(x.first).at(p.second[j]);
-                            for(int i = 0; i < y.second.size(); ++i) {
+                            for(int i = 0; i < (*local_score_vec).size(); ++i) {
                                 total_score += (*local_score_vec)[i];
                                 if((*local_cov_vec)[i] != 0) {
                                     total_cov += (*local_cov_vec)[i];
