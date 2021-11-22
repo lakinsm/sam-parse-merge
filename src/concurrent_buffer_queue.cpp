@@ -259,6 +259,7 @@ void ConcurrentBufferQueue::runScore()
             std::string parent = barcode_top_genomes.at(x.first);
             if(!_args.db_parent_map.empty()) {
                 for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+                    std::string child = _args.db_parent_map.at(parent)[j];
                     ofs4 << x.first << ',';
                     if(parent == child) {
                         ofs4 << parent << ',' << _args.db_parent_name_map.at(parent);
