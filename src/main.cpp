@@ -33,7 +33,7 @@ int main(int argc, const char *argv[]) {
     std::map< std::string, std::string > best_genomes;
 
     if(args.db_ann_file != "") {
-        std::ifstream ifs6(args.db_names_file, std::ios::in);
+        std::ifstream ifs6(args.db_ann_file, std::ios::in);
         std::string ann_line, ann_acc, ann_entry;
         std::stringstream ann_ss;
         std::getline(ifs6, ann_line);  // Skip header
@@ -67,6 +67,12 @@ int main(int argc, const char *argv[]) {
             std::size_t div_pos = names_parent.find(':');
             if(div_pos == std::string::npos) {
                 // No children are present
+                if(args.rev_db_name_map.count(names_parent)) {
+                    std::cerr << "ERROR: Parent chromosomes must be unique if no children are present,";
+                    std::cerr << " (duplicate detected): ";
+                    std::cerr << names_parent << std::endl;
+                    exit(EXIT_FAILURE);
+                }
                 args.db_name_map[names_parent] = std::vector< std::string > {names_parent};
                 args.rev_db_name_map[names_parent] = names_parent;
             }
