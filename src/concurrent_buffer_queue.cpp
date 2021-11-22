@@ -259,8 +259,15 @@ void ConcurrentBufferQueue::runScore()
             std::string parent = barcode_top_genomes.at(x.first);
             if(!_args.db_parent_map.empty()) {
                 for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
-                    std::string child = _args.db_parent_map.at(parent)[j];
-                    ofs4 << x.first << ',' << parent << ',' << child;
+                    ofs4 << x.first << ',';
+                    if(parent == child) {
+                        ofs4 << parent << ',' << _args.db_parent_name_map.at(parent);
+                    }
+                    else {
+                        ofs4 << parent << ':' << child;
+                        ofs4 << ',' << _args.db_parent_name_map.at(parent);
+                        ofs4 << '|' << _args.db_child_name_map.at(child);
+                    }
                     std::vector< int > *local_vec = &x.second.at(child);
                     ofs4 << ',' << std::to_string((*local_vec)[0]);
                     for(int i = 1; i < (*local_vec).size(); ++i) {
@@ -287,7 +294,15 @@ void ConcurrentBufferQueue::runScore()
             if(!_args.db_parent_map.empty()) {
                 for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
                     std::string child = _args.db_parent_map.at(parent)[j];
-                    ofs5 << x.first << ',' << parent << ',' << child;
+                    ofs5 << x.first << ',';
+                    if(parent == child) {
+                        ofs5 << parent << ',' << _args.db_parent_name_map.at(parent);
+                    }
+                    else {
+                        ofs5 << parent << ':' << child;
+                        ofs5 << ',' << _args.db_parent_name_map.at(parent);
+                        ofs5 << '|' << _args.db_child_name_map.at(child);
+                    }
                     std::vector< int > *local_vec = &x.second.at(child);
                     ofs5 << ',' << std::to_string((*local_vec)[0]);
                     for(int i = 1; i < (*local_vec).size(); ++i) {
@@ -359,7 +374,9 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
         if(timepoint < _args.max_timepoints) {
             for(auto &x : target_idx_coverage) {
-                timeseries_cov.at(barcode)[x.first] = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
+                if(!timeseries_cov.at(barcode).count(x.first)) {
+                    timeseries_cov.at(barcode)[x.first] = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
+                }
                 if(!_args.db_parent_map.empty()) {
                     if(!barcode_top_genomes.count(barcode)) {
                         barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);

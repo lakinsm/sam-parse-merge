@@ -150,6 +150,7 @@ int main(int argc, const char *argv[]) {
                 }
                 else {
                     // Children are present
+                    // names_alias format: parent_name\tchild_name
                     names_child = names_parent.substr(div_pos + 1);
                     names_parent.erase(div_pos);
                     if(args.db_parent_map.count(names_parent)) {
@@ -170,9 +171,11 @@ int main(int argc, const char *argv[]) {
                         exit(EXIT_FAILURE);
                     }
                     if(!args.db_parent_name_map.count(names_parent)) {
-                        args.db_parent_name_map[names_parent] = names_alias;
+                        std::size_t parent_found = names_alias.find_last_of('\t');
+                        args.db_parent_name_map[names_parent] = names_alias.substr(0, parent_found - 1);
                     }
-                    args.db_child_name_map[names_child] = names_alias;
+                    std::size_t child_found = names_alias.find_last_of('\t');
+                    args.db_child_name_map[names_child] = names_alias.substr(child_found + 1);
                 }
             }
             ifs7.close();
