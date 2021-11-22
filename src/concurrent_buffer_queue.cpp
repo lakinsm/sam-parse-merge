@@ -145,7 +145,7 @@ void ConcurrentBufferQueue::runScore()
                 long cumul_ref_len = 0;
                 for(int i = 0; i < p.second.size(); ++i) {
                     children_present |= x.second.count(p.second[i]);
-                    std::cout << x.first << '\t' << p.first << '\t' << p.second << std::endl;
+                    std::cout << x.first << '\t' << p.first << '\t' << p.second[i] << std::endl;
                     cumul_ref_len += (long)ref_len_map.at(p.second[i]);
                     std::cout << "check1" << std::endl;
                 }
