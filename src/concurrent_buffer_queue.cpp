@@ -357,7 +357,7 @@ void ConcurrentBufferQueue::runScore()
                             int min_region_cov = std::numeric_limits<int>::max();
                             int max_region_cov = 0;
                             int region_idxs_covered = 0;
-                            long total_region_score;
+                            long total_region_score = 0;
                             std::vector< int > *local_cov_vec = &x.second.at(child);
                             std::vector< int > *local_score_vec = &barcode_target_idx_scores.at(x.first).at(child);
                             for(int j = (start - 1); j < stop; ++j) {
@@ -406,7 +406,7 @@ void ConcurrentBufferQueue::runScore()
                         int min_region_cov = std::numeric_limits<int>::max();
                         int max_region_cov = 0;
                         int region_idxs_covered = 0;
-                        long total_region_score;
+                        long total_region_score = 0;
                         std::vector< int > *local_cov_vec = &x.second.at(parent);
                         std::vector< int > *local_score_vec = &barcode_target_idx_scores.at(x.first).at(parent);
                         for(int j = (start - 1); j < stop; ++j) {
