@@ -145,7 +145,6 @@ void ConcurrentBufferQueue::runScore()
                 long cumul_ref_len = 0;
                 for(int i = 0; i < p.second.size(); ++i) {
                     children_present |= x.second.count(p.second[i]);
-//                    std::cout << x.first << '\t' << p.first << '\t' << p.second[i] << std::endl;
                     if(!ref_len_map.count(p.second[i])) {
                         std::cerr << "ERROR: Reference genome in database not found in SAM headers: ";
                         std::cerr << p.second[i] << std::endl;
@@ -334,6 +333,109 @@ void ConcurrentBufferQueue::runScore()
             }
         }
         ofs5.close();
+
+        // .ann subregion analyses
+        for(auto &x : barcode_target_idx_coverage) {
+            std::string parent = barcode_top_genomes.at(x.first);
+            std::string local_out_path = _args.output_dir + "/" + x.first + "_region_idx_data.csv";
+            std::ofstream local_ofs(local_out_path);
+            local_ofs << "Barcode,Reference,ReferenceName,Start,Stop,Gene,Product,";
+            local_ofs << "MinCoverage,MaxCoverage,AvgCoverage,PercentCov,AvgScore" << std::endl;
+
+            if(!_args.db_parent_map.empty()) {
+                for(int p = 0; p < _args.db_parent_map.at(parent).size(); ++p) {
+                    std::string child = _args.db_parent_map.at(parent)[p];
+                    if(_args.db_ann_map.count(child) and x.second.count(child)) {
+                        for(int i = 0; i < _args.db_ann_map.at(child).size(); ++i) {
+                            std::vector< std::string > *ann_vec = &_args.db_ann_map.at(child)[i];
+                            int start = std::stoi((*ann_vec)[0].c_str());
+                            int stop = std::stoi((*ann_vec)[1].c_str());
+                            std::string &gene = (*ann_vec)[3];
+                            std::string &product = (*ann_vec)[4];
+                            long total_region_cov = 0;
+                            int min_region_cov = 0;
+                            int max_region_cov = 0;
+                            int region_idxs_covered = 0;
+                            long total_region_score;
+                            std::vector< int > *local_cov_vec = &x.second.at(child);
+                            std::vector< int > *local_score_vec = &x.second.at(child);
+                            for(int j = (start - 1); j < stop; ++j) {
+                                if((*local_cov_vec)[j] != 0) {
+                                    total_region_cov += (*local_cov_vec)[j];
+                                    region_idxs_covered++;
+                                }
+                                if((*local_cov_vec)[j] < min_region_cov) {
+                                    min_region_cov = (*local_cov_vec)[j];
+                                }
+                                if((*local_cov_vec)[j] > max_region_cov) {
+                                    max_region_cov = (*local_cov_vec)[j];
+                                }
+                                total_region_score += (*local_score_vec)[j];
+                            }
+                            double region_len = (double)(stop - start);
+                            double avg_region_cov = (double)total_region_cov / region_len;
+                            double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
+                            double avg_region_score = (double)total_region_score / region_len;
+                            local_ofs << x.first << ',';
+                            if(parent == child) {
+                                local_ofs << parent << ',' << _args.db_parent_name_map.at(parent) << ',';
+                            }
+                            else {
+                                local_ofs << parent << ':' << child << ',' << _args.db_parent_name_map.at(parent);
+                                local_ofs << '|' << _args.db_child_name_map.at(child) << ',';
+                            }
+                            local_ofs << (*ann_vec)[0] << ',';
+                            local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
+                            local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
+                            local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
+                            local_ofs << std::to_string(avg_region_score) << std::endl;
+                        }
+                    }
+                }
+            }
+            else {
+                if(_args.db_ann_map.count(parent) and x.second.count(parent)) {
+                    for(int i = 0; i < _args.db_ann_map.at(parent).size(); ++i) {
+                        std::vector< std::string > *ann_vec = &_args.db_ann_map.at(parent)[i];
+                        int start = std::stoi((*ann_vec)[0].c_str());
+                        int stop = std::stoi((*ann_vec)[1].c_str());
+                        std::string &gene = (*ann_vec)[3];
+                        std::string &product = (*ann_vec)[4];
+                        long total_region_cov = 0;
+                        int min_region_cov = 0;
+                        int max_region_cov = 0;
+                        int region_idxs_covered = 0;
+                        long total_region_score;
+                        std::vector< int > *local_cov_vec = &x.second.at(parent);
+                        std::vector< int > *local_score_vec = &x.second.at(parent);
+                        for(int j = (start - 1); j < stop; ++j) {
+                            if((*local_cov_vec)[j] != 0) {
+                                total_region_cov += (*local_cov_vec)[j];
+                                region_idxs_covered++;
+                            }
+                            if((*local_cov_vec)[j] < min_region_cov) {
+                                min_region_cov = (*local_cov_vec)[j];
+                            }
+                            if((*local_cov_vec)[j] > max_region_cov) {
+                                max_region_cov = (*local_cov_vec)[j];
+                            }
+                            total_region_score += (*local_score_vec)[j];
+                        }
+                        double region_len = (double)(stop - start);
+                        double avg_region_cov = (double)total_region_cov / region_len;
+                        double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
+                        double avg_region_score = (double)total_region_score / region_len;
+                        local_ofs << x.first << ',' << parent << ',' << parent << ',';
+                        local_ofs << (*ann_vec)[0] << ',';
+                        local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
+                        local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
+                        local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
+                        local_ofs << std::to_string(avg_region_score) << std::endl;
+                    }
+                }
+            }
+            local_ofs.close();
+        }
     }
 
     work_completed = true;
