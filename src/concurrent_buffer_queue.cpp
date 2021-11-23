@@ -389,7 +389,13 @@ void ConcurrentBufferQueue::runScore()
                             local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
                             local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
                             local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
-                            local_ofs << std::to_string(perc_max_region_score) << std::endl;
+                            if(total_region_score > 0) {
+                                local_ofs << std::to_string(perc_max_region_score) << std::endl;
+                            }
+                            else {
+                                local_ofs << std::to_string((double)0) << std::endl;
+                            }
+
                         }
                     }
                 }
@@ -431,7 +437,12 @@ void ConcurrentBufferQueue::runScore()
                         local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
                         local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
                         local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
-                        local_ofs << std::to_string(perc_max_region_score) << std::endl;
+                        if(total_region_score > 0) {
+                            local_ofs << std::to_string(perc_max_region_score) << std::endl;
+                        }
+                        else {
+                            local_ofs << std::to_string((double)0) << std::endl;
+                        }
                     }
                 }
             }
