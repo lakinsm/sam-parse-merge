@@ -373,7 +373,7 @@ void ConcurrentBufferQueue::runScore()
                                 }
                                 total_region_score += (*local_score_vec)[j];
                             }
-                            double region_len = (double)(stop - start);
+                            double region_len = (double)(stop - start + 1);
                             double avg_region_cov = (double)total_region_cov / region_len;
                             double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
                             double avg_region_score = (double)total_region_score / region_len;
