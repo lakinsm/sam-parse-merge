@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <limits>
 
 
 ConcurrentBufferQueue::ConcurrentBufferQueue(Args &args,
@@ -353,12 +354,12 @@ void ConcurrentBufferQueue::runScore()
                             std::string &gene = (*ann_vec)[3];
                             std::string &product = (*ann_vec)[4];
                             long total_region_cov = 0;
-                            int min_region_cov = 0;
+                            int min_region_cov = std::numeric_limits<int>::max();
                             int max_region_cov = 0;
                             int region_idxs_covered = 0;
                             long total_region_score;
                             std::vector< int > *local_cov_vec = &x.second.at(child);
-                            std::vector< int > *local_score_vec = &x.second.at(child);
+                            std::vector< int > *local_score_vec = &barcode_target_idx_scores.at(x.first).at(child);
                             for(int j = (start - 1); j < stop; ++j) {
                                 if((*local_cov_vec)[j] != 0) {
                                     total_region_cov += (*local_cov_vec)[j];
@@ -402,12 +403,12 @@ void ConcurrentBufferQueue::runScore()
                         std::string &gene = (*ann_vec)[3];
                         std::string &product = (*ann_vec)[4];
                         long total_region_cov = 0;
-                        int min_region_cov = 0;
+                        int min_region_cov = std::numeric_limits<int>::max();
                         int max_region_cov = 0;
                         int region_idxs_covered = 0;
                         long total_region_score;
                         std::vector< int > *local_cov_vec = &x.second.at(parent);
-                        std::vector< int > *local_score_vec = &x.second.at(parent);
+                        std::vector< int > *local_score_vec = &barcode_target_idx_scores.at(x.first).at(parent);
                         for(int j = (start - 1); j < stop; ++j) {
                             if((*local_cov_vec)[j] != 0) {
                                 total_region_cov += (*local_cov_vec)[j];
@@ -421,7 +422,7 @@ void ConcurrentBufferQueue::runScore()
                             }
                             total_region_score += (*local_score_vec)[j];
                         }
-                        double region_len = (double)(stop - start);
+                        double region_len = (double)(stop - start + 1);
                         double avg_region_cov = (double)total_region_cov / region_len;
                         double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
                         double avg_region_score = (double)total_region_score / region_len;
