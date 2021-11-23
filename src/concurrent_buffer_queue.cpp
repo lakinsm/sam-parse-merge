@@ -376,7 +376,7 @@ void ConcurrentBufferQueue::runScore()
                             double region_len = (double)(stop - start + 1);
                             double avg_region_cov = (double)total_region_cov / region_len;
                             double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
-                            double avg_region_score = (double)total_region_score / region_len;
+                            double perc_max_region_score = 100 * (double)total_region_score / (double)(total_region_cov * _args.match);
                             local_ofs << x.first << ',';
                             if(parent == child) {
                                 local_ofs << parent << ',' << _args.db_parent_name_map.at(parent) << ',';
@@ -389,7 +389,7 @@ void ConcurrentBufferQueue::runScore()
                             local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
                             local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
                             local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
-                            local_ofs << std::to_string(avg_region_score) << std::endl;
+                            local_ofs << std::to_string(perc_max_region_score) << std::endl;
                         }
                     }
                 }
@@ -425,13 +425,13 @@ void ConcurrentBufferQueue::runScore()
                         double region_len = (double)(stop - start + 1);
                         double avg_region_cov = (double)total_region_cov / region_len;
                         double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
-                        double avg_region_score = (double)total_region_score / region_len;
+                        double perc_max_region_score = 100 * (double)total_region_score / (double)(total_region_cov * _args.match);
                         local_ofs << x.first << ',' << parent << ',' << parent << ',';
                         local_ofs << (*ann_vec)[0] << ',';
                         local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
                         local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
                         local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
-                        local_ofs << std::to_string(avg_region_score) << std::endl;
+                        local_ofs << std::to_string(perc_max_region_score) << std::endl;
                     }
                 }
             }
