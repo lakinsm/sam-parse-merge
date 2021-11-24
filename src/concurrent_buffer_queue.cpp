@@ -48,6 +48,9 @@ void ConcurrentBufferQueue::runCombine()
                 _ofs_out[idx] << _headers.at(barcode);
             }
 
+            if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
+                _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
+            }
             _ofs_out[idx] << data_line << std::endl;
         }
     }
