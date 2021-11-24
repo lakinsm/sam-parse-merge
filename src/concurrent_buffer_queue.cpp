@@ -42,7 +42,7 @@ void ConcurrentBufferQueue::runCombine()
                 _barcode_out_list.push_back(barcode);
                 std::string out_filepath = barcode + "_aligned_reads.sam";
                 _ofs_out.emplace_back(std::ofstream{out_filepath});
-                if(!_args.sample_to_barcode_file.empty()) {
+                if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                     _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
                 }
                 _ofs_out[idx] << _headers.at(barcode);
@@ -67,13 +67,13 @@ void ConcurrentBufferQueue::runCombine()
             idx = _barcode_out_list.size();
             _barcode_out_list.push_back(barcode);
             _ofs_out.emplace_back(std::ofstream{barcode + "_aligned_reads.sam"});
-            if(!_args.sample_to_barcode_file.empty()) {
+            if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
             }
             _ofs_out[idx] << _headers.at(barcode);
         }
 
-        if(!_args.sample_to_barcode_file.empty()) {
+        if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
             _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
         }
         _ofs_out[idx] << data_line << std::endl;
