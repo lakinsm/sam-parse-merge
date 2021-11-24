@@ -54,6 +54,9 @@ int main(int argc, const char *argv[]) {
             std::stringstream sb_ss;
 
             while(std::getline(ifs8, sb_line)) {
+                if(sb_line.empty()) {
+                    continue;
+                }
                 sb_ss.clear();
                 sb_ss.str(sb_line);
                 std::getline(sb_ss, sb_barcode, '\t');
