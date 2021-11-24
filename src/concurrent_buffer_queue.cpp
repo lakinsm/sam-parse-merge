@@ -555,7 +555,7 @@ void ConcurrentBufferQueue::_wait()
 }
 
 
-void ConcurrentBufferQueue::_strReplaceAll(std::string &s, const int &old_str, const int &new_str)
+void ConcurrentBufferQueue::_strReplaceAll(std::string &s, const std::string &old_str, const std::string &new_str)
 {
     std::size_t start_pos = 0;
     if(!old_str.empty()) {
