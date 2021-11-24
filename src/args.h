@@ -21,7 +21,7 @@ public:
     std::string best_genomes;
     std::string output_readcount_file;
     std::string timeseries_file;
-    std::string sample_to_barcode_file;
+    std::string sample_to_barcode_file = "";
     std::string final_file = "";
     std::string db_ann_file = "";
     std::string db_names_file = "";
@@ -31,6 +31,8 @@ public:
     int indel_start = -2;
     int indel_extend = -2;
     int max_timepoints = 100;
+
+    std::map< std::string, std::string > barcode_sample_map;
 
     // { acc: < < start, stop, strand, gene, product > > }
     std::map< std::string, std::vector< std::vector< std::string > > > db_ann_map;

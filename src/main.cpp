@@ -47,6 +47,35 @@ int main(int argc, const char *argv[]) {
         }
         ifs2.close();
 
+        // Load barcode to sample mapping
+        if(!args.sample_to_barcode_file.empty()) {
+            std::ifstream ifs8(args.sample_to_barcode_file);
+            std::string sb_line, sb_barcode, sb_sample;
+            std::stringstream sb_ss;
+
+            while(std::getline(ifs8, sb_line)) {
+                sb_ss.clear();
+                sb_ss.str(sb_line);
+                std::getline(sb_ss, sb_barcode, '\t');
+                std::getline(sb_ss, sb_sample);
+                if(args.barcode_sample_map.count(sb_barcode)) {
+                    std::cerr << "ERROR: Barcode to sample map file must contain unique mappings, barcode -> sample.";
+                    std::cerr << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                std::size_t found = sb_sample.find(' ');
+                if(found != std::string::npos) {
+                    std::cerr << "ERROR: White space in barcode to sample name mapping";
+                    std::cerr << " does not conform to SAM file spec, provided: ";
+                    std::cerr << sb_sample << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                args.barcode_sample_map[sb_barcode] = sb_sample;
+            }
+
+            ifs8.close();
+        }
+
         DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
         DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
         ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(args, 100000);

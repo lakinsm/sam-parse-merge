@@ -42,6 +42,9 @@ void ConcurrentBufferQueue::runCombine()
                 _barcode_out_list.push_back(barcode);
                 std::string out_filepath = barcode + "_aligned_reads.sam";
                 _ofs_out.emplace_back(std::ofstream{out_filepath});
+                if(!_args.sample_to_barcode_file.empty()) {
+                    _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
+                }
                 _ofs_out[idx] << _headers.at(barcode);
             }
 
@@ -64,9 +67,15 @@ void ConcurrentBufferQueue::runCombine()
             idx = _barcode_out_list.size();
             _barcode_out_list.push_back(barcode);
             _ofs_out.emplace_back(std::ofstream{barcode + "_aligned_reads.sam"});
+            if(!_args.sample_to_barcode_file.empty()) {
+                _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
+            }
             _ofs_out[idx] << _headers.at(barcode);
         }
 
+        if(!_args.sample_to_barcode_file.empty()) {
+            _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
+        }
         _ofs_out[idx] << data_line << std::endl;
     }
 
@@ -341,7 +350,7 @@ void ConcurrentBufferQueue::runScore()
             std::string local_out_path = _args.output_dir + "/" + x.first + "_region_idx_data.csv";
             std::ofstream local_ofs(local_out_path);
             local_ofs << "Barcode,Reference,ReferenceName,Start,Stop,Gene,Product,";
-            local_ofs << "MinCoverage,MaxCoverage,AvgCoverage,PercentCov,AvgScore" << std::endl;
+            local_ofs << "MinCoverage,MaxCoverage,AvgCoverage,PercentCov,PercentMaxScore" << std::endl;
 
             if(!_args.db_parent_map.empty()) {
                 for(int p = 0; p < _args.db_parent_map.at(parent).size(); ++p) {
@@ -543,4 +552,16 @@ void ConcurrentBufferQueue::_wait()
 {
     std::unique_lock<std::mutex> lk(cv_m);
     cv.wait(lk);
+}
+
+
+void ConcurrentBufferQueue::_strReplaceAll(std::string &s, const int &old_str, const int &new_str)
+{
+    std::size_t start_pos = 0;
+    if(!old_str.empty()) {
+        while((start_pos = s.find(old_str, start_pos)) != std::string::npos) {
+            s.replace(start_pos, old_str.length(), new_str);
+            start_pos += new_str.length();
+        }
+    }
 }

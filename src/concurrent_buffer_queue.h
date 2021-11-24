@@ -62,6 +62,7 @@ private:
     long _max_size;
 
     void _wait();
+    void _strReplaceAll(std::string &s, const std::string &old_str, const std::string &new_str);
 };
 
 
