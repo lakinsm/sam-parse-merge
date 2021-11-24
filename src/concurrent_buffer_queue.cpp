@@ -45,7 +45,20 @@ void ConcurrentBufferQueue::runCombine()
                 if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                     _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
                 }
-                _ofs_out[idx] << _headers.at(barcode);
+                std::stringstream header_ss;
+                header_ss.str(_headers.at(barcode));
+                std::string header_line;
+                while(std::getline(header_ss, header_line)) {
+                    if(header_line.substr(0, 3) == "@SQ") {
+                        std::size_t found = header_line.find(_args.best_genome_map.at(barcode));
+                        if(found != std::string::npos) {
+                            _ofs_out[idx] << header_line << std::endl;
+                        }
+                    }
+                    else {
+                        _ofs_out[idx] << header_line << std::endl;
+                    }
+                }
             }
 
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
@@ -73,7 +86,20 @@ void ConcurrentBufferQueue::runCombine()
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
             }
-            _ofs_out[idx] << _headers.at(barcode);
+            std::stringstream header_ss;
+            header_ss.str(_headers.at(barcode));
+            std::string header_line;
+            while(std::getline(header_ss, header_line)) {
+                if(header_line.substr(0, 3) == "@SQ") {
+                    std::size_t found = header_line.find(_args.best_genome_map.at(barcode));
+                    if(found != std::string::npos) {
+                        _ofs_out[idx] << header_line << std::endl;
+                    }
+                }
+                else {
+                    _ofs_out[idx] << header_line << std::endl;
+                }
+            }
         }
 
         if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {

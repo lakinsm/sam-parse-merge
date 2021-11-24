@@ -33,6 +33,7 @@ public:
     int max_timepoints = 100;
 
     std::map< std::string, std::string > barcode_sample_map;
+    std::map< std::string, std::string > best_genome_map;
 
     // { acc: < < start, stop, strand, gene, product > > }
     std::map< std::string, std::vector< std::vector< std::string > > > db_ann_map;

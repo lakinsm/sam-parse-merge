@@ -30,8 +30,6 @@ int main(int argc, const char *argv[]) {
         sam_files.push_back(sam_filepath);
     }
 
-    std::map< std::string, std::string > best_genomes;
-
     if(args.pipeline == "combine") {
         // Load Barcode to top genome mapping
         std::ifstream ifs2(args.best_genomes, std::ios::in);
@@ -43,7 +41,7 @@ int main(int argc, const char *argv[]) {
             ss2.str(line2);
             std::getline(ss2, barcode, '\t');
             std::getline(ss2, genome);
-            best_genomes[barcode] = genome;
+            args.best_genome_map[barcode] = genome;
         }
         ifs2.close();
 
@@ -91,8 +89,8 @@ int main(int argc, const char *argv[]) {
             std::size_t pos2 = this_filename.find_first_of('_');
             std::string this_barcode = this_filename.substr(0, pos2);
             std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
-            if(best_genomes.count(this_barcode)) {
-                this_param_string += best_genomes.at(this_barcode);
+            if(args.best_genome_map.count(this_barcode)) {
+                this_param_string += args.best_genome_map.at(this_barcode);
             }
             else {
                 this_param_string += "None";
@@ -230,7 +228,7 @@ int main(int argc, const char *argv[]) {
                 ss2.str(line2);
                 std::getline(ss2, barcode, '\t');
                 std::getline(ss2, genome);
-                best_genomes[barcode] = genome;
+                args.best_genome_map[barcode] = genome;
             }
             ifs2.close();
         }
@@ -243,7 +241,7 @@ int main(int argc, const char *argv[]) {
             std::string this_barcode = this_filename.substr(0, pos2);
             std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
             if(!args.final_file.empty()) {
-                this_param_string += best_genomes.at(this_barcode);
+                this_param_string += args.best_genome_map.at(this_barcode);
             }
             else {
                 this_param_string += "None";
