@@ -3,7 +3,10 @@
 #include <sstream>
 
 
-ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q) : _buffer_q(buffer_q)
+ParserJob::ParserJob(Args &args,
+                     const std::string &parameter_string,
+                     ConcurrentBufferQueue* buffer_q)
+                     : _buffer_q(buffer_q), _args(args)
 {
     std::stringstream ss;
     ss.str(parameter_string);
@@ -62,7 +65,7 @@ void ParserJob::run()
         }
     }
 
-    while(!_buffer_q->pushHeader(barcode, this_header)) {}
+    while(!_buffer_q->pushHeaderCombine(barcode, this_header)) {}
 
     std::vector< std::string > res;
     int sam_flag;
@@ -122,7 +125,7 @@ void ParserJob::run()
         }
     }
 
-    while(!_buffer_q->tryPush(contents, barcode, reads_processed, reads_aligned)) {}
+    while(!_buffer_q->tryPushCombine(contents, barcode, reads_processed, reads_aligned)) {}
 }
 
 
