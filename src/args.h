@@ -31,6 +31,7 @@ public:
     int indel_start = -2;
     int indel_extend = -2;
     int max_timepoints = 100;
+    bool illumina = false;
 
     std::map< std::string, std::string > barcode_sample_map;
     std::map< std::string, std::string > best_genome_map;

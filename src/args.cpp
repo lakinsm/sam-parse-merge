@@ -60,6 +60,8 @@ Args::Args(int argc,
                 final_file = _findFullPath(arg_list[++i]);
             else if(arg_list[i] == "-m")
                 max_timepoints = std::stoi(arg_list[++i].c_str());
+            else if(arg_list[i] == "-i")
+                illumina = true;
             else if(arg_list[i] == "-d") {
                 db_ann_file = _findFullPath(arg_list[++i]);
                 std::size_t start_pos = db_ann_file.find(".ann");
@@ -76,6 +78,9 @@ Args::Args(int argc,
             }
             else if(arg_list[i] == "-b")
                 sample_to_barcode_file = _findFullPath(arg_list[++i]);
+        }
+        if(illumina) {
+            max_timepoints = 1;
         }
     }
     else {
@@ -115,6 +120,7 @@ void Args::_usage()
     std::cout << "\t-d\tFILE\tComma-separated file linking reference ID to subregions of interest (.ann extension)";
     std::cout << std::endl;
     std::cout << "\t-f\tFILE\tTab-separated file linking barcode to best genome, indicates final run" << std::endl;
+    std::cout << "\t-i\tFLAG\tFlag indicating Illumina data, so don't compute time series" << std::endl;
     std::cout << "\t-m\tINT\tMaximum number of timepoints to plot for coverage, requires -f be set [50]" << std::endl;
     std::cout << "\t-s\tFILE\tOptional file mapping read name to timepoint sequenced for plotting" << std::endl;
     std::cout << std::endl << std::endl;
