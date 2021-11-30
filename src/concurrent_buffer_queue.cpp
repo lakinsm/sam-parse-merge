@@ -594,7 +594,7 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
     }
 
 
-    if(!_args.final_file.empty()) {
+    if((!_args.final_file.empty()) && (!_args.illumina)) {
         if(!timeseries_cov.count(barcode)) {
             timeseries_cov[barcode];
         }
