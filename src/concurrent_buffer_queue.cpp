@@ -42,7 +42,7 @@ void ConcurrentBufferQueue::runCombine()
                 _barcode_out_list.push_back(barcode);
                 std::string out_prefix;
                 if(!_args.sample_to_barcode_file.empty()) {
-                    out_prefix = _args.sample_to_barcode_file.at(barcode);
+                    out_prefix = _args.barcode_sample_map.at(barcode);
                 }
                 else {
                     out_prefix = barcode;
@@ -91,7 +91,7 @@ void ConcurrentBufferQueue::runCombine()
             _barcode_out_list.push_back(barcode);
             std::string out_prefix;
             if(!_args.sample_to_barcode_file.empty()) {
-                out_prefix = _args.sample_to_barcode_file.at(barcode);
+                out_prefix = _args.barcode_sample_map.at(barcode);
             }
             else {
                 out_prefix = barcode;
@@ -208,7 +208,7 @@ void ConcurrentBufferQueue::runScore()
                 if(children_present) {
                     ofs1 << x.first << ',';
                     if(!_args.sample_to_barcode_file.empty()) {
-                        samplename = _args.sample_to_barcode_file.at(x.first);
+                        samplename = _args.barcode_sample_map.at(x.first);
                     }
                     else {
                         samplename = x.first;
@@ -250,7 +250,7 @@ void ConcurrentBufferQueue::runScore()
             for(auto &y : x.second) {
                 ofs1 << x.first << ',';
                 if(!_args.sample_to_barcode_file.empty()) {
-                    samplename = _args.sample_to_barcode_file.at(x.first);
+                    samplename = _args.barcode_sample_map.at(x.first);
                 }
                 else {
                     samplename = x.first;
@@ -288,7 +288,7 @@ void ConcurrentBufferQueue::runScore()
             ofs3 << x.first << ',';
             std::string samplename;
             if(!_args.sample_to_barcode_file.empty()) {
-                samplename = _args.sample_to_barcode_file.at(x.first);
+                samplename = _args.barcode_sample_map.at(x.first);
             }
             else {
                 samplename = x.first;
@@ -345,7 +345,7 @@ void ConcurrentBufferQueue::runScore()
             std::string parent = barcode_top_genomes.at(x.first);
             std::string samplename;
             if(!_args.sample_to_barcode_file.empty()) {
-                samplename = _args.sample_to_barcode_file.at(x.first);
+                samplename = _args.barcode_sample_map.at(x.first);
             }
             else {
                 samplename = x.first;
@@ -387,7 +387,7 @@ void ConcurrentBufferQueue::runScore()
             std::string parent = barcode_top_genomes.at(x.first);
             std::string samplename;
             if(!_args.sample_to_barcode_file.empty()) {
-                samplename = _args.sample_to_barcode_file.at(x.first);
+                samplename = _args.barcode_sample_map.at(x.first);
             }
             else {
                 samplename = x.first;
@@ -429,7 +429,7 @@ void ConcurrentBufferQueue::runScore()
             std::string parent = barcode_top_genomes.at(x.first);
             std::string out_prefix;
             if(!_args.sample_to_barcode_file.empty()) {
-                out_prefix = _args.sample_to_barcode_file.at(x.first);
+                out_prefix = _args.barcode_sample_map.at(x.first);
             }
             else {
                 out_prefix = x.first;
