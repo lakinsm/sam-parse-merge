@@ -438,10 +438,10 @@ void ConcurrentBufferQueue::runScore()
             }
             std::string local_out_path = _args.output_dir + "/" + out_prefix + "_region_idx_data.csv";
             std::ofstream local_ofs(local_out_path);
-            local_ofs << "Barcode,Samplename,Reference,ReferenceName,Start,Stop,Gene,Product,";
-            local_ofs << "MinCoverage,MaxCoverage,AvgCoverage,PercentCov,PercentMaxScore" << std::endl;
 
             if(!_args.db_parent_map.empty()) {
+                local_ofs << "Barcode,Samplename,Reference,ReferenceName,Start,Stop,Gene,Product,";
+                local_ofs << "MinCoverage,MaxCoverage,AvgCoverage,PercentCov,PercentMaxScore" << std::endl;
                 for(int p = 0; p < _args.db_parent_map.at(parent).size(); ++p) {
                     std::string child = _args.db_parent_map.at(parent)[p];
                     if(_args.db_ann_map.count(child) and x.second.count(child)) {
@@ -500,6 +500,8 @@ void ConcurrentBufferQueue::runScore()
             }
             else {
                 if(_args.db_ann_map.count(parent) and x.second.count(parent)) {
+                    local_ofs << "Barcode,Samplename,Reference,ReferenceName,Start,Stop,Gene,Product,";
+                    local_ofs << "MinCoverage,MaxCoverage,AvgCoverage,PercentCov,PercentMaxScore" << std::endl;
                     for(int i = 0; i < _args.db_ann_map.at(parent).size(); ++i) {
                         std::vector< std::string > *ann_vec = &_args.db_ann_map.at(parent)[i];
                         int start = std::stoi((*ann_vec)[0].c_str());
