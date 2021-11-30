@@ -30,6 +30,37 @@ int main(int argc, const char *argv[]) {
         sam_files.push_back(sam_filepath);
     }
 
+    // Load barcode to sample mapping
+    if(!args.sample_to_barcode_file.empty()) {
+        std::ifstream ifs8(args.sample_to_barcode_file);
+        std::string sb_line, sb_barcode, sb_sample;
+        std::stringstream sb_ss;
+
+        while(std::getline(ifs8, sb_line)) {
+            if(sb_line.empty()) {
+                continue;
+            }
+            sb_ss.clear();
+            sb_ss.str(sb_line);
+            std::getline(sb_ss, sb_barcode, '\t');
+            std::getline(sb_ss, sb_sample);
+            if(args.barcode_sample_map.count(sb_barcode)) {
+                std::cerr << "ERROR: Barcode to sample map file must contain unique mappings, barcode -> sample.";
+                std::cerr << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            std::size_t found = sb_sample.find(' ');
+            if(found != std::string::npos) {
+                std::cerr << "ERROR: White space in barcode to sample name mapping";
+                std::cerr << " does not conform to SAM file spec, provided: ";
+                std::cerr << sb_sample << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            args.barcode_sample_map[sb_barcode] = sb_sample;
+        }
+        ifs8.close();
+    }
+
     if(args.pipeline == "combine") {
         // Load Barcode to top genome mapping
         std::ifstream ifs2(args.best_genomes, std::ios::in);
@@ -44,38 +75,6 @@ int main(int argc, const char *argv[]) {
             args.best_genome_map[barcode] = genome;
         }
         ifs2.close();
-
-        // Load barcode to sample mapping
-        if(!args.sample_to_barcode_file.empty()) {
-            std::ifstream ifs8(args.sample_to_barcode_file);
-            std::string sb_line, sb_barcode, sb_sample;
-            std::stringstream sb_ss;
-
-            while(std::getline(ifs8, sb_line)) {
-                if(sb_line.empty()) {
-                    continue;
-                }
-                sb_ss.clear();
-                sb_ss.str(sb_line);
-                std::getline(sb_ss, sb_barcode, '\t');
-                std::getline(sb_ss, sb_sample);
-                if(args.barcode_sample_map.count(sb_barcode)) {
-                    std::cerr << "ERROR: Barcode to sample map file must contain unique mappings, barcode -> sample.";
-                    std::cerr << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                std::size_t found = sb_sample.find(' ');
-                if(found != std::string::npos) {
-                    std::cerr << "ERROR: White space in barcode to sample name mapping";
-                    std::cerr << " does not conform to SAM file spec, provided: ";
-                    std::cerr << sb_sample << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                args.barcode_sample_map[sb_barcode] = sb_sample;
-            }
-
-            ifs8.close();
-        }
 
         DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
         DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
@@ -109,10 +108,18 @@ int main(int argc, const char *argv[]) {
         while(!concurrent_q->work_completed) {}
 
         std::ofstream ofs(args.output_readcount_file);
-        ofs << "Barcode,TotalReadsProcessed,ReadsAligned,PercentReadsAligned" << std::endl;
+        ofs << "Barcode,Samplename,TotalReadsProcessed,ReadsAligned,PercentReadsAligned" << std::endl;
         for( auto &data : concurrent_q->total_reads_processed ) {
             double perc_reads_aligned = 100 * ((double)concurrent_q->aligned_reads_processed.at(data.first) / (double)data.second);
-            ofs << data.first << ',' << data.second << ',' << concurrent_q->aligned_reads_processed.at(data.first);
+            ofs << data.first << ',';
+            std::string samplename;
+            if(!args.sample_to_barcode_file.empty()) {
+                samplename = args.barcode_sample_map.at(data.first);
+            }
+            else {
+                samplename = data.first;
+            }
+            ofs << samplename << ',' << data.second << ',' << concurrent_q->aligned_reads_processed.at(data.first);
             ofs << ',' << perc_reads_aligned << std::endl;
         }
         ofs.close();

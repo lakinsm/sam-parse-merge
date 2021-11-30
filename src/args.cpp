@@ -74,6 +74,8 @@ Args::Args(int argc,
                     db_names_file = "";
                 }
             }
+            else if(arg_list[i] == "-b")
+                sample_to_barcode_file = _findFullPath(arg_list[++i]);
         }
     }
     else {
@@ -107,9 +109,8 @@ void Args::_usage()
     std::cout << "\tsam_parse_merge combine sam_filelist.txt best_genomes.tsv output_readcounts.txt [options]" << std::endl;
     std::cout << std::endl;
     std::cout << "Global options:" << std::endl;
-    std::cout << "\t-t\tINT\tThreads to use, minimum 2 [2]" << std::endl;
-    std::cout << "Combine pipeline options:" << std::endl;
     std::cout << "\t-b\tFILE\tOptional TSV file linking barcode to sample names, one per line, no headers" << std::endl;
+    std::cout << "\t-t\tINT\tThreads to use, minimum 2 [2]" << std::endl;
     std::cout << "Score pipeline options:" << std::endl;
     std::cout << "\t-d\tFILE\tComma-separated file linking reference ID to subregions of interest (.ann extension)";
     std::cout << std::endl;

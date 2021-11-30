@@ -40,7 +40,14 @@ void ConcurrentBufferQueue::runCombine()
             else {
                 idx = _barcode_out_list.size();
                 _barcode_out_list.push_back(barcode);
-                std::string out_filepath = barcode + "_aligned_reads.sam";
+                std::string out_prefix;
+                if(!_args.sample_to_barcode_file.empty()) {
+                    out_prefix = _args.sample_to_barcode_file.at(barcode);
+                }
+                else {
+                    out_prefix = barcode;
+                }
+                std::string out_filepath = out_prefix + ".sam";
                 _ofs_out.emplace_back(std::ofstream{out_filepath});
                 if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                     _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
@@ -82,7 +89,14 @@ void ConcurrentBufferQueue::runCombine()
         else {
             idx = _barcode_out_list.size();
             _barcode_out_list.push_back(barcode);
-            _ofs_out.emplace_back(std::ofstream{barcode + "_aligned_reads.sam"});
+            std::string out_prefix;
+            if(!_args.sample_to_barcode_file.empty()) {
+                out_prefix = _args.sample_to_barcode_file.at(barcode);
+            }
+            else {
+                out_prefix = barcode;
+            }
+            _ofs_out.emplace_back(std::ofstream{out_prefix + ".sam"});
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
             }
@@ -175,9 +189,10 @@ void ConcurrentBufferQueue::runScore()
     else {
         ofs1.open(_args.output_dir + "/final_coverage_results.csv");
     }
-    ofs1 << "barcode,accession,accession_name,genome_length,total_alignment_score,average_alignment_score,average_coverage,";
-    ofs1 << "percent_coverage" << std::endl;
+    ofs1 << "barcode,samplename,accession,accession_name,genome_length,total_alignment_score,";
+    ofs1 << "average_alignment_score,average_coverage,percent_coverage" << std::endl;
     for(auto &x : barcode_target_idx_scores) {
+        std::string samplename;
         if(!_args.db_parent_map.empty()) {
             for(auto &p : _args.db_parent_map) {
                 bool children_present = false;
@@ -191,7 +206,14 @@ void ConcurrentBufferQueue::runScore()
                     cumul_ref_len += (long)ref_len_map.at(p.second[i]);
                 }
                 if(children_present) {
-                    ofs1 << x.first << ',' << p.first << ',';
+                    ofs1 << x.first << ',';
+                    if(!_args.sample_to_barcode_file.empty()) {
+                        samplename = _args.sample_to_barcode_file.at(x.first);
+                    }
+                    else {
+                        samplename = x.first;
+                    }
+                    ofs1 << samplename << ',' << p.first << ',';
                     if(_args.db_parent_name_map.count(p.first)) {
                         ofs1 << _args.db_parent_name_map.at(p.first);
                     }
@@ -226,7 +248,14 @@ void ConcurrentBufferQueue::runScore()
         }
         else {
             for(auto &y : x.second) {
-                ofs1 << x.first << ',' << y.first << ',';
+                ofs1 << x.first << ',';
+                if(!_args.sample_to_barcode_file.empty()) {
+                    samplename = _args.sample_to_barcode_file.at(x.first);
+                }
+                else {
+                    samplename = x.first;
+                }
+                ofs1 << samplename << ',' << y.first << ',';
                 ofs1 << y.first;
                 ofs1 << ',' << ref_len_map.at(y.first) << ',';
                 long total_score = 0;
@@ -255,8 +284,16 @@ void ConcurrentBufferQueue::runScore()
         std::ofstream ofs3(_args.output_dir + "/final_timeseries_coverage.csv");
         for(auto &x : timeseries_cov) {
             std::string parent = barcode_top_genomes.at(x.first);
-            // Barcode, Parent
-            ofs3 << x.first << ',' << parent;
+            // Barcode, Sample, Parent
+            ofs3 << x.first << ',';
+            std::string samplename;
+            if(!_args.sample_to_barcode_file.empty()) {
+                samplename = _args.sample_to_barcode_file.at(x.first);
+            }
+            else {
+                samplename = x.first;
+            }
+            ofs3 << samplename << ',' << parent;
             std::vector< std::set< int > > cumulative_cov;
             long cumul_ref_len = 0;
             double perc_cov = 0;
@@ -306,10 +343,17 @@ void ConcurrentBufferQueue::runScore()
         std::ofstream ofs4(_args.output_dir + "/final_genome_idx_coverage.csv");
         for(auto &x : barcode_target_idx_coverage) {
             std::string parent = barcode_top_genomes.at(x.first);
+            std::string samplename;
+            if(!_args.sample_to_barcode_file.empty()) {
+                samplename = _args.sample_to_barcode_file.at(x.first);
+            }
+            else {
+                samplename = x.first;
+            }
+            ofs4 << x.first << ',' << samplename << ',';
             if(!_args.db_parent_map.empty()) {
                 for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
                     std::string child = _args.db_parent_map.at(parent)[j];
-                    ofs4 << x.first << ',';
                     if(parent == child) {
                         ofs4 << parent << ',' << _args.db_parent_name_map.at(parent);
                     }
@@ -327,7 +371,7 @@ void ConcurrentBufferQueue::runScore()
                 }
             }
             else {
-                ofs4 << x.first << ',' << parent << ',' << parent;
+                ofs4 << parent << ',' << parent;
                 std::vector< int > *local_vec = &x.second.at(parent);
                 ofs4 << ',' << std::to_string((*local_vec)[0]);
                 for(int i = 1; i < (*local_vec).size(); ++i) {
@@ -341,10 +385,17 @@ void ConcurrentBufferQueue::runScore()
         std::ofstream ofs5(_args.output_dir + "/final_genome_idx_scores.csv");
         for(auto &x : barcode_target_idx_scores) {
             std::string parent = barcode_top_genomes.at(x.first);
+            std::string samplename;
+            if(!_args.sample_to_barcode_file.empty()) {
+                samplename = _args.sample_to_barcode_file.at(x.first);
+            }
+            else {
+                samplename = x.first;
+            }
+            ofs5 << x.first << ',' << samplename << ',';
             if(!_args.db_parent_map.empty()) {
                 for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
                     std::string child = _args.db_parent_map.at(parent)[j];
-                    ofs5 << x.first << ',';
                     if(parent == child) {
                         ofs5 << parent << ',' << _args.db_parent_name_map.at(parent);
                     }
@@ -362,7 +413,7 @@ void ConcurrentBufferQueue::runScore()
                 }
             }
             else {
-                ofs5 << x.first << ',' << parent << ',' << parent;
+                ofs5 << parent << ',' << parent;
                 std::vector< int > *local_vec = &x.second.at(parent);
                 ofs5 << ',' << std::to_string((*local_vec)[0]);
                 for(int i = 1; i < (*local_vec).size(); ++i) {
@@ -376,9 +427,16 @@ void ConcurrentBufferQueue::runScore()
         // .ann subregion analyses
         for(auto &x : barcode_target_idx_coverage) {
             std::string parent = barcode_top_genomes.at(x.first);
-            std::string local_out_path = _args.output_dir + "/" + x.first + "_region_idx_data.csv";
+            std::string out_prefix;
+            if(!_args.sample_to_barcode_file.empty()) {
+                out_prefix = _args.sample_to_barcode_file.at(x.first);
+            }
+            else {
+                out_prefix = x.first;
+            }
+            std::string local_out_path = _args.output_dir + "/" + out_prefix + "_region_idx_data.csv";
             std::ofstream local_ofs(local_out_path);
-            local_ofs << "Barcode,Reference,ReferenceName,Start,Stop,Gene,Product,";
+            local_ofs << "Barcode,Samplename,Reference,ReferenceName,Start,Stop,Gene,Product,";
             local_ofs << "MinCoverage,MaxCoverage,AvgCoverage,PercentCov,PercentMaxScore" << std::endl;
 
             if(!_args.db_parent_map.empty()) {
@@ -415,7 +473,7 @@ void ConcurrentBufferQueue::runScore()
                             double avg_region_cov = (double)total_region_cov / region_len;
                             double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
                             double perc_max_region_score = 100 * (double)total_region_score / (double)(total_region_cov * _args.match);
-                            local_ofs << x.first << ',';
+                            local_ofs << x.first << ',' << out_prefix << ',';
                             if(parent == child) {
                                 local_ofs << parent << ',' << _args.db_parent_name_map.at(parent) << ',';
                             }
@@ -470,7 +528,7 @@ void ConcurrentBufferQueue::runScore()
                         double avg_region_cov = (double)total_region_cov / region_len;
                         double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
                         double perc_max_region_score = 100 * (double)total_region_score / (double)(total_region_cov * _args.match);
-                        local_ofs << x.first << ',' << parent << ',' << parent << ',';
+                        local_ofs << x.first << ',' << out_prefix << ',' << parent << ',' << parent << ',';
                         local_ofs << (*ann_vec)[0] << ',';
                         local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
                         local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
