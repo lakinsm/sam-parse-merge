@@ -250,6 +250,9 @@ int main(int argc, const char *argv[]) {
             std::string this_barcode = this_filename.substr(0, pos2);
             std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
             if(!args.final_file.empty()) {
+                if(!args.best_genome_map.count(this_barcode)) {
+                    continue;
+                }
                 std::cout << this_barcode << '\t' << this_param_string << std::endl;
                 this_param_string += args.best_genome_map.at(this_barcode);
             }
