@@ -242,6 +242,7 @@ int main(int argc, const char *argv[]) {
             ifs2.close();
         }
 
+        int total_jobs = 0;
         for(int i = 0; i < sam_files.size(); ++i) {
             std::string this_sam_fp = sam_files[i];
             std::size_t pos1 = this_sam_fp.find_last_of('/');
@@ -262,12 +263,13 @@ int main(int argc, const char *argv[]) {
 
             while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
 
+            total_jobs++;
             std::unique_ptr< ScoreJob > job = std::make_unique< ScoreJob > (args, this_param_string, concurrent_q);
             job_dispatcher->dispatch(std::move(job));
             concurrent_q->num_active_jobs += 1;
         }
 
-        while(concurrent_q->num_completed_jobs != sam_files.size()) {}
+        while(concurrent_q->num_completed_jobs != total_jobs) {}
         concurrent_q->all_jobs_enqueued = true;
         concurrent_q->cv.notify_all();
 
