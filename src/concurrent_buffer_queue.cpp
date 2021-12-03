@@ -559,7 +559,6 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
                                          const std::map< std::string, std::vector< int > > target_idx_scores,
                                          const std::map< std::string, std::vector< int > > target_idx_coverage)
 {
-    std::cout << "Check3" << std::endl;
     std::unique_lock< std::mutex > lock(_mtx);
     if(!barcode_target_idx_scores.count(barcode)) {
         barcode_target_idx_scores[barcode] = target_idx_scores;
@@ -594,9 +593,6 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
     }
 
-    std::cout << "Check4" << std::endl;
-
-
     if((!_args.final_file.empty()) && (!_args.illumina)) {
         if(!timeseries_cov.count(barcode)) {
             timeseries_cov[barcode];
@@ -622,8 +618,6 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
             }
         }
     }
-
-    std::cout << "Check5" << std::endl;
 
     return true;
 }

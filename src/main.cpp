@@ -88,6 +88,11 @@ int main(int argc, const char *argv[]) {
             std::size_t pos2 = this_filename.find_first_of('_');
             std::string this_barcode = this_filename.substr(0, pos2);
             std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
+            if(!args.sample_to_barcode_file.empty()) {
+                if(!args.barcode_sample_map.count(this_barcode)) {
+                    args.barcode_sample_map[this_barcode] = this_barcode;
+                }
+            }
             if(args.best_genome_map.count(this_barcode)) {
                 this_param_string += args.best_genome_map.at(this_barcode);
             }
@@ -218,8 +223,6 @@ int main(int argc, const char *argv[]) {
             ifs7.close();
         }
 
-        std::cout << "Check1" << std::endl;
-
         // Main scoring routine
         DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
         DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
@@ -250,11 +253,15 @@ int main(int argc, const char *argv[]) {
             std::size_t pos2 = this_filename.find_first_of('_');
             std::string this_barcode = this_filename.substr(0, pos2);
             std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
+            if(!args.sample_to_barcode_file.empty()) {
+                if(!args.barcode_sample_map.count(this_barcode)) {
+                    args.barcode_sample_map[this_barcode] = this_barcode;
+                }
+            }
             if(!args.final_file.empty()) {
                 if(!args.best_genome_map.count(this_barcode)) {
                     continue;
                 }
-                std::cout << this_barcode << '\t' << this_param_string << std::endl;
                 this_param_string += args.best_genome_map.at(this_barcode);
             }
             else {

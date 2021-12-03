@@ -38,8 +38,6 @@ ScoreJob::ScoreJob(Args &args,
             _select_children.insert(genome_select);
         }
     }
-
-    std::cout << "Check2" << std::endl;
 }
 
 
