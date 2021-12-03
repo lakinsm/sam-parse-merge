@@ -218,6 +218,8 @@ int main(int argc, const char *argv[]) {
             ifs7.close();
         }
 
+        std::cout << "Check1" << std::endl;
+
         // Main scoring routine
         DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
         DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
