@@ -77,10 +77,10 @@ void ParserJob::run()
     while(!_buffer_q->pushHeaderCombine(barcode, this_header)) {}
 
     if(_args.illumina) {
-        _illuminaSubroutine(ifs);
+        _illuminaSubroutine(ifs, line);
     }
     else {
-        _nanoporeSubroutine(ifs);
+        _nanoporeSubroutine(ifs, line);
     }
     ifs.close();
 
@@ -88,9 +88,9 @@ void ParserJob::run()
 }
 
 
-void ParserJob::_illuminaSubroutine(std::ifstream &ifs)
+void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first_line)
 {
-    std::string line;
+    std::string line = first_line;
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLineIllumina(line);
@@ -210,9 +210,9 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs)
 }
 
 
-void ParserJob::_nanoporeSubroutine(std::ifstream &ifs)
+void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first_line)
 {
-    std::string line;
+    std::string line = first_line;
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLineNanopore(line);

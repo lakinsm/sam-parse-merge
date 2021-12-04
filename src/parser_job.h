@@ -37,8 +37,8 @@ private:
     std::set< std::string > _select_children;
     std::vector< std::string > _parseSamLineIllumina(const std::string &sam_line);
     std::vector< std::string > _parseSamLineNanopore(const std::string &sam_line);
-    void _illuminaSubroutine(std::ifstream &ifs);
-    void _nanoporeSubroutine(std::ifstream &ifs);
+    void _illuminaSubroutine(std::ifstream &ifs, const std::string &first_line);
+    void _nanoporeSubroutine(std::ifstream &ifs, const std::string &first_line);
 };
 
 #endif //ASFFAST_PARSER_JOB_H
