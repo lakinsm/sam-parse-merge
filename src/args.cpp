@@ -21,71 +21,57 @@ Args::Args(int argc,
     }
     pipeline = arg_list[1];
 
+    if(argc < 4) {
+        std::cerr << std::endl << "Too few arguments." << std::endl;
+        _usage();
+    }
+    sam_file_list = _findFullPath(arg_list[2]);
+
     if(pipeline == "combine") {
-        if(argc < 5) {
-            std::cerr << std::endl << "Too few arguments." << std::endl;
-            _usage();
-        }
-
-        sam_file_list = _findFullPath(arg_list[2]);
-        best_genomes = _findFullPath(arg_list[3]);
-        output_readcount_file = arg_list[4];
-
-        for(int i = 5; i < argc; ++i) {
-            if(arg_list[i] == "-t")
-                threads = std::stoi(arg_list[++i].c_str());
-            else if(arg_list[i] == "-b")
-                sample_to_barcode_file = _findFullPath(arg_list[++i]);
-        }
+        output_readcount_file = arg_list[3];
     }
     else if(pipeline == "score") {
-        if(argc < 4) {
-            std::cerr << std::endl << "Too few arguments." << std::endl;
-            _usage();
-        }
-
-        sam_file_list = _findFullPath(arg_list[2]);
         output_dir = arg_list[3];
 
         if(!std::filesystem::is_directory(output_dir)) {
             std::filesystem::create_directory(output_dir);
         }
-
-        for(int i = 4; i < argc; ++i) {
-            if(arg_list[i] == "-t")
-                threads = std::stoi(arg_list[++i].c_str());
-            else if(arg_list[i] == "-s")
-                timeseries_file = _findFullPath(arg_list[++i]);
-            else if(arg_list[i] == "-f")
-                final_file = _findFullPath(arg_list[++i]);
-            else if(arg_list[i] == "-m")
-                max_timepoints = std::stoi(arg_list[++i].c_str());
-            else if(arg_list[i] == "-i")
-                illumina = true;
-            else if(arg_list[i] == "-d") {
-                db_ann_file = _findFullPath(arg_list[++i]);
-                std::size_t start_pos = db_ann_file.find(".ann");
-                if(start_pos == std::string::npos) {
-                    std::cerr << "ERROR: Database annotation file (-d) must have .ann extension, provided: ";
-                    std::cerr << db_ann_file << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                db_names_file = db_ann_file;
-                db_names_file.replace(start_pos, 4, ".names");
-                if(!std::filesystem::exists(db_names_file)) {
-                    db_names_file = "";
-                }
-            }
-            else if(arg_list[i] == "-b")
-                sample_to_barcode_file = _findFullPath(arg_list[++i]);
-        }
-        if(illumina) {
-            max_timepoints = 1;
-        }
     }
     else {
         std::cerr << std::endl << "Invalid pipeline. Choose one of [combine, score]." << std::endl;
         _usage();
+    }
+
+    for(int i = 4; i < argc; ++i) {
+        if(arg_list[i] == "-t")
+            threads = std::stoi(arg_list[++i].c_str());
+        else if(arg_list[i] == "-f")
+            final_file = _findFullPath(arg_list[++i]);
+        else if(arg_list[i] == "-m")
+            max_timepoints = std::stoi(arg_list[++i].c_str());
+        else if(arg_list[i] == "-i")
+            illumina = true;
+        else if(arg_list[i] == "-d") {
+            db_ann_file = _findFullPath(arg_list[++i]);
+            std::size_t start_pos = db_ann_file.find(".ann");
+            if(start_pos == std::string::npos) {
+                std::cerr << "ERROR: Database annotation file (-d) must have .ann extension, provided: ";
+                std::cerr << db_ann_file << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            db_names_file = db_ann_file;
+            db_names_file.replace(start_pos, 4, ".names");
+            if(!std::filesystem::exists(db_names_file)) {
+                db_names_file = "";
+            }
+        }
+        else if(arg_list[i] == "-b")
+            sample_to_barcode_file = _findFullPath(arg_list[++i]);
+        else if(arg_list[i] == "-z")
+            forced_reference_acc = arg_list[++i];
+    }
+    if(illumina) {
+        max_timepoints = 1;
     }
 }
 
@@ -111,18 +97,17 @@ void Args::_usage()
     std::cout<< "\tsam_parse_merge <pipeline>" << std::endl << std::endl;
     std::cout << "Examples:" << std::endl;
     std::cout << "\tsam_parse_merge score sam_filelist.txt out_dir/ [options]" << std::endl;
-    std::cout << "\tsam_parse_merge combine sam_filelist.txt best_genomes.tsv output_readcounts.txt [options]" << std::endl;
+    std::cout << "\tsam_parse_merge combine sam_filelist.txt output_readcounts.txt [options]" << std::endl;
     std::cout << std::endl;
     std::cout << "Global options:" << std::endl;
     std::cout << "\t-b\tFILE\tOptional TSV file linking barcode to sample names, one per line, no headers" << std::endl;
-    std::cout << "\t-t\tINT\tThreads to use, minimum 2 [2]" << std::endl;
-    std::cout << "Score pipeline options:" << std::endl;
     std::cout << "\t-d\tFILE\tComma-separated file linking reference ID to subregions of interest (.ann extension)";
     std::cout << std::endl;
     std::cout << "\t-f\tFILE\tTab-separated file linking barcode to best genome, indicates final run" << std::endl;
     std::cout << "\t-i\tFLAG\tFlag indicating Illumina data, so don't compute time series" << std::endl;
     std::cout << "\t-m\tINT\tMaximum number of timepoints to plot for coverage, requires -f be set [50]" << std::endl;
-    std::cout << "\t-s\tFILE\tOptional file mapping read name to timepoint sequenced for plotting" << std::endl;
+    std::cout << "\t-t\tINT\tThreads to use, minimum 2 [2]" << std::endl;
+    std::cout << "\t-z\tSTR\tForce use of this reference (must match a parent accession if used with -d)" << std::endl;
     std::cout << std::endl << std::endl;
     exit(EXIT_FAILURE);
 }

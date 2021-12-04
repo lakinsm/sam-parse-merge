@@ -34,6 +34,7 @@ private:
 
     Args& _args;
     bool _select;
+    std::set< std::string > _select_children;
     std::vector< std::string > _parseSamLine(const std::string &sam_line);
 };
 

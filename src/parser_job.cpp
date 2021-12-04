@@ -18,6 +18,14 @@ ParserJob::ParserJob(Args &args,
     }
     else {
         _select = true;
+        if(!args.db_parent_map.empty()) {
+            for(int i = 0; i < args.db_parent_map.at(genome_select).size(); ++i) {
+                _select_children.insert(args.db_parent_map.at(genome_select)[i]);
+            }
+        }
+        else {
+            _select_children.insert(genome_select);
+        }
     }
     reads_processed = 0;
     reads_aligned = 0;
@@ -80,7 +88,7 @@ void ParserJob::run()
     sam_flag = std::stoi(res[1].c_str());
     if((sam_flag & 4) == 0) {
         if(_select) {
-            if(res[2] == genome_select) {
+            if(_select_children.count(res[2])) {
                 contents.push_back(barcode + '|' + line);
                 if(!aligned_headers.count(res[0])) {
                     reads_aligned++;
@@ -107,7 +115,7 @@ void ParserJob::run()
         if((sam_flag & 4) == 0) {
             int temp = sam_flag & 4;
             if(_select) {
-                if(res[2] == genome_select) {
+                if(_select_children.count(res[2])) {
                     contents.push_back(barcode + '|' + line);
                     if(!aligned_headers.count(res[0])) {
                         reads_aligned++;
