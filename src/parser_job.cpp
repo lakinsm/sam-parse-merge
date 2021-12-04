@@ -91,30 +91,33 @@ void ParserJob::run()
 void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first_line)
 {
     std::string line = first_line;
+    std::string illumina_readname;
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLineIllumina(line);
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
-    if(!seen_headers.count(res[0])) {
-        reads_processed++;
-        seen_headers.insert(res[0]);
-    }
-    std::string illumina_readname = res[0];
-    sam_flag = std::stoi(res[1].c_str());
-    if((sam_flag & 4) == 0) {
 
+
+    illumina_readname = res[0];
+    sam_flag = std::stoi(res[1].c_str());
+    if((sam_flag & 40) != 0) {
+        illumina_readname += "-f";
+    }
+    else if((sam_flag & 80) != 0) {
+        illumina_readname += "-r";
+    }
+    if(!seen_headers.count(illumina_readname)) {
+        reads_processed++;
+        seen_headers.insert(illumina_readname);
+    }
+
+    if((sam_flag & 4) == 0) {
         if(_select) {
             if(_select_children.count(res[2])) {
                 if(!_args.final_file.empty()) {
                     contents.push_back(barcode + '|' + line);
-                }
-                if((sam_flag & 40) != 0) {
-                    illumina_readname += "-f";
-                }
-                else if((sam_flag & 80) != 0) {
-                    illumina_readname += "-r";
                 }
                 if(!aligned_headers.count(illumina_readname)) {
                     reads_aligned++;
@@ -142,12 +145,18 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
     if(!_args.final_file.empty()) {
         while(std::getline(ifs, line)) {
             res = _parseSamLineIllumina(line);
-            if(!seen_headers.count(res[0])) {
-                reads_processed++;
-                seen_headers.insert(res[0]);
-            }
             illumina_readname = res[0];
             sam_flag = std::stoi(res[1].c_str());
+            if((sam_flag & 40) != 0) {
+                illumina_readname += "-f";
+            }
+            else if((sam_flag & 80) != 0) {
+                illumina_readname += "-r";
+            }
+            if(!seen_headers.count(illumina_readname)) {
+                reads_processed++;
+                seen_headers.insert(illumina_readname);
+            }
             if((sam_flag & 4) == 0) {
                 if((sam_flag & 40) != 0) {
                     illumina_readname += "-f";
@@ -177,12 +186,18 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
     else {
         while(std::getline(ifs, line)) {
             res = _parseSamLineIllumina(line);
-            if(!seen_headers.count(res[0])) {
-                reads_processed++;
-                seen_headers.insert(res[0]);
-            }
-            sam_flag = std::stoi(res[1].c_str());
             illumina_readname = res[0];
+            sam_flag = std::stoi(res[1].c_str());
+            if((sam_flag & 40) != 0) {
+                illumina_readname += "-f";
+            }
+            else if((sam_flag & 80) != 0) {
+                illumina_readname += "-r";
+            }
+            if(!seen_headers.count(illumina_readname)) {
+                reads_processed++;
+                seen_headers.insert(illumina_readname);
+            }
             if((sam_flag & 4) == 0) {
                 if((sam_flag & 40) != 0) {
                     illumina_readname += "-f";
