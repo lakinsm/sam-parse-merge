@@ -13,7 +13,6 @@ ParserJob::ParserJob(Args &args,
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, barcode, '|');
     std::getline(ss, genome_select);
-    std::cout << "Check1" << std::endl;
     if(genome_select == "None") {
         _select = false;
     }
