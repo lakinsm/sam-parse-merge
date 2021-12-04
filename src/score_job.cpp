@@ -99,6 +99,7 @@ void ScoreJob::run()
     while(!_buffer_q->tryPushGenomeLengths(_ref_names, _ref_lens)) {}
 
     _samScore(ifs, line);
+    ifs.close();
 
     while(!_buffer_q->tryPushScore(barcode, timepoint, target_idx_scores, target_idx_coverage)) {}
 }
