@@ -23,8 +23,8 @@ void ConcurrentBufferQueue::runCombine()
 {
     std::string output_line, data_line, barcode;
     std::stringstream ss;
-    while(!all_jobs_enqueued) {
-        while(!tryPopCombine(output_line) && !all_jobs_consumed) {}
+    while((!all_jobs_enqueued) or (!all_jobs_consumed)) {
+        while((!tryPopCombine(output_line)) and (!all_jobs_consumed)) {}
         if(!all_jobs_consumed) {
             ss.clear();
             ss.str(output_line);
