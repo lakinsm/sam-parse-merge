@@ -59,7 +59,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // Optionally load database names
-    if(args.db_names_file != "") {
+    if(!args.db_names_file.empty()) {
         std::ifstream ifs7(args.db_names_file, std::ios::in);
         std::string names_line, names_parent, names_child, names_alias;
         std::stringstream names_ss;

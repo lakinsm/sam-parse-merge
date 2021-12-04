@@ -29,7 +29,7 @@ ScoreJob::ScoreJob(Args &args,
     }
     else {
         _select = true;
-        if(!args.db_parent_map.empty()) {
+        if(!args.db_names_file.empty()) {
             for(int i = 0; i < args.db_parent_map.at(genome_select).size(); ++i) {
                 _select_children.insert(args.db_parent_map.at(genome_select)[i]);
             }
