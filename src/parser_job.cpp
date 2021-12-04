@@ -93,7 +93,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs)
     std::string line;
     std::vector< std::string > res;
     int sam_flag;
-    res = _parseSamLineNanopore(line);
+    res = _parseSamLineIllumina(line);
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
@@ -141,7 +141,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs)
 
     if(!_args.final_file.empty()) {
         while(std::getline(ifs, line)) {
-            res = _parseSamLine(line);
+            res = _parseSamLineIllumina(line);
             if(!seen_headers.count(res[0])) {
                 reads_processed++;
                 seen_headers.insert(res[0]);
@@ -176,7 +176,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs)
     }
     else {
         while(std::getline(ifs, line)) {
-            res = _parseSamLine(line);
+            res = _parseSamLineIllumina(line);
             if(!seen_headers.count(res[0])) {
                 reads_processed++;
                 seen_headers.insert(res[0]);
@@ -249,7 +249,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs)
 
     if(!_args.final_file.empty()) {
         while(std::getline(ifs, line)) {
-            res = _parseSamLine(line);
+            res = _parseSamLineNanopore(line);
             if(!seen_headers.count(res[0])) {
                 reads_processed++;
                 seen_headers.insert(res[0]);
@@ -277,7 +277,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs)
     }
     else {
         while(std::getline(ifs, line)) {
-            res = _parseSamLine(line);
+            res = _parseSamLineNanopore(line);
             if(!seen_headers.count(res[0])) {
                 reads_processed++;
                 seen_headers.insert(res[0]);
@@ -301,6 +301,22 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs)
             }
         }
     }
+}
+
+
+std::vector< std::string > ParserJob::_parseSamLineIllumina(const std::string &sam_line)
+{
+    std::vector< std::string > ret;
+    std::stringstream this_ss;
+    this_ss.str(sam_line);
+    std::string this_entry;
+    std::getline(this_ss, this_entry, '\t');
+    ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');
+    ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');
+    ret.push_back(this_entry);
+    return ret;
 }
 
 
