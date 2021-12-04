@@ -18,13 +18,12 @@ public:
     std::string pipeline;
     std::string output_dir;
     std::string sam_file_list;
-    std::string best_genomes;
     std::string output_readcount_file;
-    std::string timeseries_file;
     std::string sample_to_barcode_file = "";
     std::string final_file = "";
     std::string db_ann_file = "";
     std::string db_names_file = "";
+    std::string forced_reference_acc = "";
     int threads = 2;
     int match = 2;
     int mismatch = -4;

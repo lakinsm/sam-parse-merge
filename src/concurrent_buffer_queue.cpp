@@ -23,8 +23,8 @@ void ConcurrentBufferQueue::runCombine()
 {
     std::string output_line, data_line, barcode;
     std::stringstream ss;
-    while(!all_jobs_enqueued) {
-        while(!tryPopCombine(output_line) && !all_jobs_consumed) {}
+    while((!all_jobs_enqueued) or (!all_jobs_consumed)) {
+        while((!tryPopCombine(output_line)) and (!all_jobs_consumed)) {}
         if(!all_jobs_consumed) {
             ss.clear();
             ss.str(output_line);
@@ -136,11 +136,13 @@ bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lin
                                     const long &reads_aligned)
 {
     std::unique_lock< std::mutex > lock(_mtx);
-    if(_q.size() > _max_size) {
-        return false;
-    }
-    for(int i = 0; i < lines.size(); ++i) {
-        _q.push(lines[i]);
+    if(!_args.final_file.empty()) {
+        if(_q.size() > _max_size) {
+            return false;
+        }
+        for(int i = 0; i < lines.size(); ++i) {
+            _q.push(lines[i]);
+        }
     }
 
     aligned_reads_processed[barcode] += reads_aligned;
@@ -169,7 +171,7 @@ bool ConcurrentBufferQueue::tryPopCombine(std::string &item)
 bool ConcurrentBufferQueue::pushHeaderCombine(const std::string &barcode, const std::string &header)
 {
     std::unique_lock< std::mutex > lock(_mtx);
-    if(_headers.count(barcode)) {
+    if((_headers.count(barcode)) or (_args.final_file.empty())) {
         return true;
     }
     _headers[barcode] = header;
