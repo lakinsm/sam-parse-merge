@@ -167,7 +167,11 @@ int main(int argc, const char *argv[]) {
 
     if(!args.db_names_file.empty()) {
         if(!args.forced_reference_acc.empty()) {
-            if(!args.db_parent_map.count(args.forced_reference_acc)) {
+            if(args.forced_reference_acc == "NONE_Z") {
+                // This conditional is for Nextflow compatibility
+                args.forced_reference_acc = "";
+            }
+            else if(!args.db_parent_map.count(args.forced_reference_acc)) {
                 std::cerr << "ERROR: Reference accession provided to -z option must be a parent accession";
                 std::cerr << " in <reference_db>.names";
                 std::cerr << " if the -d option is also used.  Provided: " << args.forced_reference_acc << std::endl;
