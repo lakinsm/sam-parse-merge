@@ -277,7 +277,7 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
                 }
             }
             else if(op == "D") {
-                m_idx += numeric_num + 1
+                m_idx += numeric_num + 1;
                 score += (_args.indel_extend * (numeric_num - 1)) + _args.indel_start;
             }
             else if(op == "I") {
