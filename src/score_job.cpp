@@ -143,12 +143,11 @@ std::vector< std::string > ScoreJob::_parseSamLineIllumina(const std::string &sa
     std::getline(this_ss, this_entry, '\t');  // 10. qual
     std::getline(this_ss, this_entry, '\t');  // 11. rnext
     while(this_entry.substr(0, 4) != "MD:Z") {
-        std::cout << "\t\t" << this_entry.substr(0, 4) << std::endl;
         if(!this_ss.good()) {
             this_entry = "";
             break;
         }
-        std::getline(this_ss, this_entry);
+        std::getline(this_ss, this_entry, '\t');
     }
     if(!this_entry.empty()) {
         ret.push_back(this_entry.substr(5));
