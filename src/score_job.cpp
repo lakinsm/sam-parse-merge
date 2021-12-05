@@ -313,8 +313,18 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
     // Handle remaining num on end of mdz
     if(!num.empty()) {
         numeric_num = std::stoi(num.c_str());
+        for(int i = 0; i < numeric_num; ++i) {
+            if((target_idx + i) < this_target_len) {
+                (*local_scores)[target_idx + i] += _args.match;
+                (*local_cov)[target_idx + i] += 1;
+            }
+        }
         score += _args.match * numeric_num;
+        target_idx += numeric_num;
     }
+
+    std::cout << cigar << '\t' << mdz << '\t' << (target_idx - start_idx) << '\t' << score << std::endl;
+
     return score;
 }
 
