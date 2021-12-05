@@ -258,9 +258,9 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
             op = cigar[c];
             numeric_num = std::stoi(num.c_str());
             if((op == "M") or (op == "=")) {
+                std::cout << "\t\t" << m_num << '\t' << m_idx << '\t' << mdz.size() << '\t' << mdz << std::endl;
                 while(m_bp != numeric_num) {
                     if(m_idx == mdz.size()) {
-                        std::cout << "\t\t" << m_num << '\t' << m_idx << '\t' << mdz << std::endl;
                         if(m_num.empty()) {
                             break;
                         }
