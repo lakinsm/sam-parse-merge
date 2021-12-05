@@ -131,9 +131,9 @@ void ConcurrentBufferQueue::runCombine()
 
 
 bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lines,
-                                    const std::string &barcode,
-                                    const long &reads_processed,
-                                    const long &reads_aligned)
+                                           const std::string &barcode,
+                                           const long &reads_processed,
+                                           const long &reads_aligned)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(!_args.final_file.empty()) {
