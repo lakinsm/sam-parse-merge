@@ -38,6 +38,7 @@ ScoreJob::ScoreJob(Args &args,
             _select_children.insert(genome_select);
         }
     }
+    printInfo();
 }
 
 
@@ -64,6 +65,8 @@ void ScoreJob::run()
     if(!ifs.good()) {
         return;
     }
+
+    std::cout << "Check1" << std::endl;
 
     this_header = "";
     bool headers = false;
@@ -98,6 +101,8 @@ void ScoreJob::run()
 
     while(!_buffer_q->tryPushGenomeLengths(_ref_names, _ref_lens)) {}
 
+    std::cout << "Check2" << std::endl;
+
     if(_args.illumina) {
         _samScoreIllumina(ifs, line);
     }
@@ -105,6 +110,8 @@ void ScoreJob::run()
         _samScoreNanopore(ifs, line);
     }
     ifs.close();
+
+    std::cout << "Check3" << std::endl;
 
     while(!_buffer_q->tryPushScore(barcode, timepoint, target_idx_scores, target_idx_coverage)) {}
 }
