@@ -595,13 +595,14 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
     }
 
-    if(!_args.db_parent_map.empty()) {
-        if(!barcode_top_genomes.count(barcode)) {
-            barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);
+    for(auto &x : target_idx_coverage) {
+        if (!_args.db_parent_map.empty()) {
+            if (!barcode_top_genomes.count(barcode)) {
+                barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);
+            }
+        } else {
+            barcode_top_genomes[barcode] = x.first;
         }
-    }
-    else {
-        barcode_top_genomes[barcode] = x.first;
     }
 
     if((!_args.final_file.empty()) && (!_args.illumina)) {
