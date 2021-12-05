@@ -193,13 +193,14 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
     std::vector< int > *local_scores = &target_idx_scores.at(target);
     std::vector< int > *local_cov = &target_idx_coverage.at(target);
     int target_idx = start_idx;
+    int numeric_num;
     for(int c = 0; c < cigar.size(); ++c) {
         if(std::isdigit(cigar[c])) {
             num += cigar[c];
         }
         else {
             op = cigar[c];
-            int numeric_num = std::stoi(num.c_str());
+            numeric_num = std::stoi(num.c_str());
             if((op == "M") or (op == "=")) {
                 for(int i = 0; i < numeric_num; ++i) {
                     if((target_idx + i) < this_target_len) {
@@ -239,17 +240,24 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
                    const std::string &target,
                    const int &start_idx)
 {
+    // Whoever designed the first iteration of CIGAR strings with this MD:Z field nonsense ought to buy the
+    // entire bioinformatics field some coffee to make up for the hours lost to debugging this horrible file spec.
+    // First, parse CIGAR to determine deletion length (because MD:Z is ambiguous to number of deletion chars following
+    // the ^ char).  While parsing CIGAR, calculate indel scores.  Then, parse MD:Z field to calculate match/mismatch
+    // idx and scores.  These file specs are located here:
+    // SAM (base spec): https://samtools.github.io/hts-specs/SAMv1.pdf
+    // SAM (tag spec): https://samtools.github.io/hts-specs/SAMtags.pdf
+    // BWA-MEM1: http://bio-bwa.sourceforge.net/bwa.shtml
     int score = 0;
     int this_target_len = _ref_lens[_ref_idx_map.at(target)];
     std::string num = "";
-    std::string m_num = "";
     std::string op = "";
+    std::string var = "";
     std::vector< int > *local_scores = &target_idx_scores.at(target);
     std::vector< int > *local_cov = &target_idx_coverage.at(target);
     int target_idx = start_idx;
-    int m_idx = 0;
-    int m_bp = 0;
-    int numeric_num, m_numeric_num;
+    int numeric_num;
+    std::vector< int > deletions;
     for(int c = 0; c < cigar.size(); ++c) {
         if(std::isdigit(cigar[c])) {
             num += cigar[c];
@@ -257,64 +265,55 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
         else {
             op = cigar[c];
             numeric_num = std::stoi(num.c_str());
-            std::cout << "\t\t" << numeric_num << op << '\t' << m_idx << '\t' << mdz.size() << '\t' << mdz << std::endl;
-            if((op == "M") or (op == "=")) {
-                m_bp = 0;
-                while(m_bp != numeric_num) {
-                    if(m_idx == mdz.size()) {
-                        if(m_num.empty()) {
-                            break;
-                        }
-                        m_numeric_num = std::stoi(m_num.c_str());
-                        for(int i = 0; i < m_numeric_num; ++i) {
-                            if((target_idx + i) < this_target_len) {
-                                (*local_scores)[target_idx + i] += _args.match;
-                                (*local_cov)[target_idx + i] += 1;
-                            }
-                        }
-                        score += _args.match * m_numeric_num;
-                        target_idx += m_numeric_num;
-                        m_bp += m_numeric_num;
-                        m_num = "";
-                    }
-                    else if(std::isdigit(mdz[m_idx])) {
-                        while(std::isdigit(mdz[m_idx])) {
-                            m_num += mdz[m_idx];
-                            m_idx++;
-                        }
-                        m_numeric_num = std::stoi(m_num.c_str());
-                        for(int i = 0; i < m_numeric_num; ++i) {
-                            if((target_idx + i) < this_target_len) {
-                                (*local_scores)[target_idx + i] += _args.match;
-                                (*local_cov)[target_idx + i] += 1;
-                            }
-                        }
-                        score += _args.match * m_numeric_num;
-                        target_idx += m_numeric_num;
-                        m_bp += m_numeric_num;
-                        m_num = "";
-                    }
-                    else {
-                        if(target_idx < this_target_len) {
-                            (*local_scores)[target_idx] += _args.mismatch;
-                            (*local_cov)[target_idx]++;
-                        }
-                        score += _args.mismatch;
-                        target_idx++;
-                        m_bp++;
-                        m_idx++;
-                    }
-                }
-            }
-            else if(op == "D") {
-                m_idx += numeric_num + 1;
+            if(op == "D") {
                 score += (_args.indel_extend * (numeric_num - 1)) + _args.indel_start;
+                deletions.push_back(numeric_num);
             }
             else if(op == "I") {
                 score += (_args.indel_extend * (numeric_num - 1)) + _args.indel_start;
             }
             num = "";
         }
+    }
+
+    num = "";
+    int incrementer;
+    int del_idx = 0;
+    for(int m = 0; m < mdz.size(); m += incrementer) {
+        incrementer = 1;
+        if(std::isdigit(mdz[m])) {
+            num += mdz[m];
+        }
+        else {
+            if(!num.empty()) {
+                numeric_num = std::stoi(num.c_str());
+                for(int i = 0; i < numeric_num; ++i) {
+                    if((target_idx + i) < this_target_len) {
+                        (*local_scores)[target_idx + i] += _args.match;
+                        (*local_cov)[target_idx + i] += 1;
+                    }
+                }
+                score += _args.match * numeric_num;
+                target_idx += numeric_num;
+            }
+            num = "";
+            var = mdz[m];
+            if(var == "^") {
+                incrementer = deletions[del_idx] + 1;
+                del_idx++;
+            }
+            else {
+                (*local_scores)[target_idx] += _args.mismatch;
+                (*local_cov)[target_idx] += 1;
+                score += _args.mismatch;
+                target_idx++;
+            }
+        }
+    }
+    // Handle remaining num on end of mdz
+    if(!num.empty()) {
+        numeric_num = std::stoi(num.c_str());
+        score += _args.match * numeric_num;
     }
     return score;
 }
@@ -358,6 +357,7 @@ int ScoreJob::_totalScoreCigar(const std::string &cigar, const std::string &mdz)
     std::string num = "";
     std::string op = "";
     std::vector< int > deletions;
+    int numeric_num;
     for(int c = 0; c < cigar.size(); ++c) {
         if(std::isdigit(cigar[c])) {
             num += cigar[c];
@@ -387,18 +387,24 @@ int ScoreJob::_totalScoreCigar(const std::string &cigar, const std::string &mdz)
         }
         else {
             if(!num.empty()) {
-                int numeric_num = std::stoi(num.c_str());
+                numeric_num = std::stoi(num.c_str());
                 score += _args.match * numeric_num;
             }
             num = "";
             var = mdz[m];
             if(var == "^") {
                 incrementer = deletions[del_idx] + 1;
+                del_idx++;
             }
             else {
                 score += _args.mismatch;
             }
         }
+    }
+    // Handle remaining num on end of mdz
+    if(!num.empty()) {
+        numeric_num = std::stoi(num.c_str());
+        score += _args.match * numeric_num;
     }
     return score;
 }
