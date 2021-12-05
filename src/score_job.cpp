@@ -38,7 +38,6 @@ ScoreJob::ScoreJob(Args &args,
             _select_children.insert(genome_select);
         }
     }
-    printInfo();
 }
 
 

@@ -594,7 +594,16 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
             }
         }
     }
-    
+
+    if(!_args.db_parent_map.empty()) {
+        if(!barcode_top_genomes.count(barcode)) {
+            barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);
+        }
+    }
+    else {
+        barcode_top_genomes[barcode] = x.first;
+    }
+
     if((!_args.final_file.empty()) && (!_args.illumina)) {
         if(!timeseries_cov.count(barcode)) {
             timeseries_cov[barcode];
@@ -603,14 +612,6 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
             for(auto &x : target_idx_coverage) {
                 if(!timeseries_cov.at(barcode).count(x.first)) {
                     timeseries_cov.at(barcode)[x.first] = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
-                }
-                if(!_args.db_parent_map.empty()) {
-                    if(!barcode_top_genomes.count(barcode)) {
-                        barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);
-                    }
-                }
-                else {
-                    barcode_top_genomes[barcode] = x.first;
                 }
                 for(int i = 0; i < x.second.size(); ++i) {
                     if(x.second[i] != 0) {
