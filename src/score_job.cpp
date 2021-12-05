@@ -259,7 +259,20 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
             numeric_num = std::stoi(num.c_str());
             if((op == "M") or (op == "=")) {
                 while(m_bp != numeric_num) {
-                    if(std::isdigit(mdz[m_idx])) {
+                    if(m_idx == mdz.size()) {
+                        m_numeric_num = std::stoi(m_num.c_str());
+                        for(int i = 0; i < m_numeric_num; ++i) {
+                            if((target_idx + i) < this_target_len) {
+                                (*local_scores)[target_idx + i] += _args.match;
+                                (*local_cov)[target_idx + i] += 1;
+                            }
+                        }
+                        score += _args.match * m_numeric_num;
+                        target_idx += m_numeric_num;
+                        m_bp += m_numeric_num;
+                        m_num = "";
+                    }
+                    else if(std::isdigit(mdz[m_idx])) {
                         while(std::isdigit(mdz[m_idx])) {
                             m_num += mdz[m_idx];
                             m_idx++;
@@ -348,7 +361,7 @@ int ScoreJob::_totalScoreCigar(const std::string &cigar, const std::string &mdz)
             op = cigar[c];
             int numeric_num = std::stoi(num.c_str());
             if(op == "D") {
-                score += _args.mismatch * numeric_num;
+                score += (_args.indel_extend * (numeric_num - 1)) + _args.indel_start;
                 deletions.push_back(numeric_num);
             }
             else if(op == "I") {
