@@ -316,9 +316,6 @@ int ScoreJob::_idxScoreCigar(const std::string &cigar,
         score += _args.match * numeric_num;
         target_idx += numeric_num;
     }
-
-    std::cout << cigar << '\t' << mdz << '\t' << (target_idx - start_idx) << '\t' << score << std::endl;
-
     return score;
 }
 
