@@ -66,8 +66,6 @@ void ScoreJob::run()
         return;
     }
 
-    std::cout << "Check1" << std::endl;
-
     this_header = "";
     bool headers = false;
     while(!headers) {
@@ -101,8 +99,6 @@ void ScoreJob::run()
 
     while(!_buffer_q->tryPushGenomeLengths(_ref_names, _ref_lens)) {}
 
-    std::cout << "Check2" << std::endl;
-
     if(_args.illumina) {
         _samScoreIllumina(ifs, line);
     }
@@ -110,8 +106,6 @@ void ScoreJob::run()
         _samScoreNanopore(ifs, line);
     }
     ifs.close();
-
-    std::cout << "Check3" << std::endl;
 
     while(!_buffer_q->tryPushScore(barcode, timepoint, target_idx_scores, target_idx_coverage)) {}
 }
@@ -439,13 +433,6 @@ void ScoreJob::_samScoreIllumina(std::ifstream &ifs, const std::string &initial_
     }
     sam_flag = std::stoi(res[1].c_str());
     if((sam_flag & 4) == 0) {
-
-        std::cout << std::endl;
-        for(auto &x: res) {
-            std::cout << '\t' << x;
-        }
-        std::cout << std::endl;
-
         this_ref = res[2];
         if(_select) {
             if(_select_children.count(res[2])) {
@@ -471,10 +458,6 @@ void ScoreJob::_samScoreIllumina(std::ifstream &ifs, const std::string &initial_
         res = _parseSamLineIllumina(line);
         sam_flag = std::stoi(res[1].c_str());
         if((sam_flag & 4) == 0) {
-            for(auto &x: res) {
-                std::cout << '\t' << x;
-            }
-            std::cout << std::endl;
             this_ref = res[2];
             if(_select) {
                 if(_select_children.count(this_ref)) {
