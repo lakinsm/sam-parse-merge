@@ -91,8 +91,6 @@ void ParserJob::run()
 
 void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first_line)
 {
-    // TODO: Modify fields as necessary for output to final SAM file.  Need to find the primary alignment and save
-    // that information for transfer to alternate alignments if selected as the best genome.
     std::string line = first_line;
     std::string illumina_readname;
     std::vector< std::string > res;
@@ -224,9 +222,12 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                     opt_val = x.second[k].first;
                 }
                 else if(x.second[k].first == opt_val) {
-                    std::cout << "EQUALS FOUND:" << std::endl;
-                    std::cout << "\t" << x.second[opt_idx].second << std::endl;
-                    std::cout << "\t" << x.second[k].second << std::endl;
+                    int match1 = _calcMatchLength(_extractCigar(x.second[opt_idx].second));
+                    int match2 = _calcMatchLength(_extractCigar(x.second[k].second));
+                    if(match2 > match1) {
+                        opt_idx = k;
+                        opt_val = x.second[k].first;
+                    }
                 }
             }
             _first_pass_optimals[x.first] = opt_idx;
@@ -427,9 +428,12 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                     opt_val = x.second[k].first;
                 }
                 else if(x.second[k].first == opt_val) {
-                    std::cout << "EQUALS FOUND:" << std::endl;
-                    std::cout << "\t" << x.second[opt_idx].second << std::endl;
-                    std::cout << "\t" << x.second[k].second << std::endl;
+                    int match1 = _calcMatchLength(_extractCigar(x.second[opt_idx].second));
+                    int match2 = _calcMatchLength(_extractCigar(x.second[k].second));
+                    if(match2 > match1) {
+                        opt_idx = k;
+                        opt_val = x.second[k].first;
+                    }
                 }
             }
             _first_pass_optimals[x.first] = opt_idx;
@@ -525,4 +529,44 @@ std::vector< std::string > ParserJob::_parseSamLineNanopore(const std::string &s
     std::getline(this_ss, this_entry, '\t');
     ret.push_back(this_entry);
     return ret;
+}
+
+
+int ParserJob::_calcMatchLength(const std::string &cigar)
+{
+    int len = 0;
+    std::string num = "";
+    std::string op = "";
+    int numeric_num;
+    for(int c = 0; c < cigar.size(); ++c) {
+        if(std::isdigit(cigar[c])) {
+            num += cigar[c];
+        }
+        else {
+            op = cigar[c];
+            numeric_num = std::stoi(num.c_str());
+            if((op == "M") or (op == "=")) {
+                len += numeric_num;
+            }
+            else if((op == "N") or (op == "X")) {
+                len += numeric_num;
+            }
+            num = "";
+        }
+    }
+    return len;
+}
+
+std::string ParserJob::_extractCigar(const std::string &this_line)
+{
+    std::string this_entry;
+    std::stringstream ss;
+    ss.str(this_line);
+    std::getline(ss, this_entry, '\t');
+    std::getline(ss, this_entry, '\t');
+    std::getline(ss, this_entry, '\t');
+    std::getline(ss, this_entry, '\t');
+    std::getline(ss, this_entry, '\t');
+    std::getline(ss, this_entry, '\t');
+    return this_entry;
 }

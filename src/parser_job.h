@@ -44,6 +44,8 @@ private:
     std::vector< std::string > _parseSamLineNanopore(const std::string &sam_line);
     void _illuminaSubroutine(std::ifstream &ifs, const std::string &first_line);
     void _nanoporeSubroutine(std::ifstream &ifs, const std::string &first_line);
+    std::string _extractCigar(const std::string &this_line);
+    int _calcMatchLength(const std::string &cigar);
 };
 
 #endif //ASFFAST_PARSER_JOB_H
