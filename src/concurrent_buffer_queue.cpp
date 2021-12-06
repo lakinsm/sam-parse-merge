@@ -55,10 +55,22 @@ void ConcurrentBufferQueue::runCombine()
                 std::stringstream header_ss;
                 header_ss.str(_headers.at(barcode));
                 std::string header_line;
+                std::string ref_select;
                 while(std::getline(header_ss, header_line)) {
-                    if(header_line.substr(0, 3) == "@SQ") {
-                        std::size_t found = header_line.find(_args.best_genome_map.at(barcode));
-                        if(found != std::string::npos) {
+                    if(!_args.final_file.empty()) {
+                        if(header_line.substr(0, 3) == "@SQ") {
+                            if(!_args.forced_reference_acc.empty()) {
+                                ref_select = _args.forced_reference_acc;
+                            }
+                            else {
+                                ref_select = _args.best_genome_map.at(barcode);
+                            }
+                            std::size_t found = header_line.find(ref_select);
+                            if(found != std::string::npos) {
+                                _ofs_out[idx] << header_line << std::endl;
+                            }
+                        }
+                        else {
                             _ofs_out[idx] << header_line << std::endl;
                         }
                     }
@@ -103,10 +115,22 @@ void ConcurrentBufferQueue::runCombine()
             std::stringstream header_ss;
             header_ss.str(_headers.at(barcode));
             std::string header_line;
+            std::string ref_select;
             while(std::getline(header_ss, header_line)) {
-                if(header_line.substr(0, 3) == "@SQ") {
-                    std::size_t found = header_line.find(_args.best_genome_map.at(barcode));
-                    if(found != std::string::npos) {
+                if(!_args.final_file.empty()) {
+                    if(header_line.substr(0, 3) == "@SQ") {
+                        if(!_args.forced_reference_acc.empty()) {
+                            ref_select = _args.forced_reference_acc;
+                        }
+                        else {
+                            ref_select = _args.best_genome_map.at(barcode);
+                        }
+                        std::size_t found = header_line.find(ref_select);
+                        if(found != std::string::npos) {
+                            _ofs_out[idx] << header_line << std::endl;
+                        }
+                    }
+                    else {
                         _ofs_out[idx] << header_line << std::endl;
                     }
                 }
