@@ -1,6 +1,7 @@
 #include "parser_job.h"
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 
 ParserJob::ParserJob(Args &args,
@@ -89,6 +90,8 @@ void ParserJob::run()
 
 void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first_line)
 {
+    // TODO: Modify fields as necessary for output to final SAM file.  Need to find the primary alignment and save
+    // that information for transfer to alternate alignments if selected as the best genome.
     std::string line = first_line;
     std::string illumina_readname;
     std::vector< std::string > res;
@@ -97,7 +100,6 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
-
 
     illumina_readname = res[0];
     sam_flag = std::stoi(res[1].c_str());
@@ -113,10 +115,18 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
     }
 
     if((sam_flag & 4) == 0) {
+        if(res[3] != "*") {
+            _primary_alignments[illumina_readname] = std::vector< std::string >({res[3], res[4]});
+        }
         if(_select) {
             if(_select_children.count(res[2])) {
                 if(!_args.final_file.empty()) {
-                    contents.push_back(barcode + '|' + line);
+                    if(res[3] == "*") {
+                        _reads_need_primary[illumina_readname] = line;
+                    }
+                    else {
+                        contents.push_back(barcode + '|' + line);
+                    }
                 }
                 if(!aligned_headers.count(illumina_readname)) {
                     reads_aligned++;
@@ -151,9 +161,17 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                 seen_headers.insert(illumina_readname);
             }
             if((sam_flag & 4) == 0) {
+                if(res[3] != "*") {
+                    _primary_alignments[illumina_readname] = std::vector< std::string >({res[3], res[4]});
+                }
                 if(_select) {
                     if(_select_children.count(res[2])) {
-                        contents.push_back(barcode + '|' + line);
+                        if(res[3] == "*") {
+                            _reads_need_primary[illumina_readname] = line;
+                        }
+                        else {
+                            contents.push_back(barcode + '|' + line);
+                        }
                         if(!aligned_headers.count(illumina_readname)) {
                             reads_aligned++;
                             aligned_headers.insert(illumina_readname);
@@ -169,6 +187,45 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                 }
             }
         }
+
+        for(auto &x : _reads_need_primary) {
+            std::stringstream ss;
+            std::string this_entry;
+            std::string out_data = "";
+
+            ss.str(x.second);
+            std::getline(ss, this_entry, '\t');  // read name
+            out_data += this_entry + '\t';
+            std::getline(ss, this_entry, '\t');  // sam flag
+            int sam_flag = std::stoi(this_entry.c_str());
+            sam_flag &= ~(256);  // Unset "not primary alignment" bit
+            sam_flag &= ~(2048);  // Unset "supplementary alignment" bit
+            out_data += std::to_string(sam_flag) + '\t';
+            std::getline(ss, this_entry, '\t');  // target
+            out_data += this_entry + '\t';
+            std::getline(ss, this_entry, '\t');  // start pos
+            out_data += this_entry + '\t';
+            std::getline(ss, this_entry, '\t');  // mapq
+            out_data += this_entry + '\t';
+            std::getline(ss, this_entry, '\t');  // cigar
+            out_data += this_entry + '\t';
+            std::getline(ss, this_entry, '\t');  // rnext
+            out_data += "*\t";
+            std::getline(ss, this_entry, '\t');  // pnext
+            out_data += this_entry + '\t';
+            std::getline(ss, this_entry, '\t');  // tlen
+            out_data += this_entry + '\t';
+            std::getline(ss, this_entry, '\t');  // seq
+            out_data += _primary_alignments.at(x.first)[0] + '\t';
+            std::getline(ss, this_entry, '\t');  // qual
+            out_data += _primary_alignments.at(x.first)[1] + '\t';
+            std::getline(ss, this_entry);  // rest of data
+            out_data += this_entry;
+
+            contents.push_back(barcode + '|' + line);
+        }
+
+        std::sort(contents.begin(), contents.end());
     }
     else {
         while(std::getline(ifs, line)) {
@@ -302,12 +359,24 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
 
 std::vector< std::string > ParserJob::_parseSamLineIllumina(const std::string &sam_line)
 {
+    //      0          1        2      3    4
+    // < read_name, sam flag, target, seq, qual >
     std::vector< std::string > ret;
     std::stringstream this_ss;
     this_ss.str(sam_line);
     std::string this_entry;
     std::getline(this_ss, this_entry, '\t');
     ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');
+    ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');
+    ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');
     std::getline(this_ss, this_entry, '\t');
     ret.push_back(this_entry);
     std::getline(this_ss, this_entry, '\t');
