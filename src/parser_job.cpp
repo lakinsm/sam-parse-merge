@@ -279,7 +279,6 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
 
             contents.push_back(barcode + '|' + out_data);
         }
-
         std::sort(contents.begin(), contents.end());
     }
     else {
@@ -336,8 +335,8 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
         if(_select) {
             if(_select_children.count(res[2])) {
                 if(!_args.final_file.empty()) {
-                    if(!_first_pass_reads.count(illumina_readname)) {
-                        _first_pass_reads[illumina_readname];
+                    if(!_first_pass_reads.count(res[0])) {
+                        _first_pass_reads[res[0]];
                     }
                     std::stringstream ss;
                     std::string this_entry;
@@ -354,11 +353,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         exit(EXIT_FAILURE);
                     }
                     int score = std::stoi(this_entry.substr(6));
-                    _first_pass_reads.at(illumina_readname).push_back({score, line});
-                    if(!aligned_headers.count(illumina_readname)) {
-                        reads_aligned++;
-                        aligned_headers.insert(illumina_readname);
-                    }
+                    _first_pass_reads.at(res[0]).push_back({score, line});
                 }
                 if(!aligned_headers.count(res[0])) {
                     reads_aligned++;
@@ -388,8 +383,8 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
             if((sam_flag & 4) == 0) {
                 if(_select) {
                     if(_select_children.count(res[2])) {
-                        if(!_first_pass_reads.count(illumina_readname)) {
-                            _first_pass_reads[illumina_readname];
+                        if(!_first_pass_reads.count(res[0])) {
+                            _first_pass_reads[res[0]];
                         }
                         std::stringstream ss;
                         std::string this_entry;
@@ -406,11 +401,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                             exit(EXIT_FAILURE);
                         }
                         int score = std::stoi(this_entry.substr(6));
-                        _first_pass_reads.at(illumina_readname).push_back({score, line});
-                        if(!aligned_headers.count(illumina_readname)) {
-                            reads_aligned++;
-                            aligned_headers.insert(illumina_readname);
-                        }
+                        _first_pass_reads.at(res[0]).push_back({score, line});
                         if(!aligned_headers.count(res[0])) {
                             reads_aligned++;
                             aligned_headers.insert(res[0]);
@@ -462,6 +453,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
 
             contents.push_back(barcode + '|' + out_data);
         }
+        std::sort(contents.begin(), contents.end());
     }
     else {
         while(std::getline(ifs, line)) {
