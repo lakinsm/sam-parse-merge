@@ -222,7 +222,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
             std::getline(ss, this_entry);  // rest of data
             out_data += this_entry;
 
-            contents.push_back(barcode + '|' + line);
+            contents.push_back(barcode + '|' + out_data);
         }
 
         std::sort(contents.begin(), contents.end());
