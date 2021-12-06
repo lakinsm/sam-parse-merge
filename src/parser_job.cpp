@@ -139,7 +139,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    int score = std::stoi(this_entry.substr(6));
+                    int score = std::stoi(this_entry.substr(5));
                     _first_pass_reads.at(illumina_readname).push_back({score, line});
                 }
                 if(!aligned_headers.count(illumina_readname)) {
@@ -197,7 +197,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
-                        int score = std::stoi(this_entry.substr(6));
+                        int score = std::stoi(this_entry.substr(5));
                         _first_pass_reads.at(illumina_readname).push_back({score, line});
                         if(!aligned_headers.count(illumina_readname)) {
                             reads_aligned++;
@@ -352,7 +352,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    int score = std::stoi(this_entry.substr(6));
+                    int score = std::stoi(this_entry.substr(5));
                     _first_pass_reads.at(res[0]).push_back({score, line});
                 }
                 if(!aligned_headers.count(res[0])) {
@@ -400,7 +400,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
-                        int score = std::stoi(this_entry.substr(6));
+                        int score = std::stoi(this_entry.substr(5));
                         _first_pass_reads.at(res[0]).push_back({score, line});
                         if(!aligned_headers.count(res[0])) {
                             reads_aligned++;
