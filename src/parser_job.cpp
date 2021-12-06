@@ -102,10 +102,10 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
 
     illumina_readname = res[0];
     sam_flag = std::stoi(res[1].c_str());
-    if((sam_flag & 40) != 0) {
+    if((sam_flag & 64) != 0) {
         illumina_readname += "-f";
     }
-    else if((sam_flag & 80) != 0) {
+    else if((sam_flag & 128) != 0) {
         illumina_readname += "-r";
     }
     if(!seen_headers.count(illumina_readname)) {
@@ -162,10 +162,10 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
             res = _parseSamLineIllumina(line);
             illumina_readname = res[0];
             sam_flag = std::stoi(res[1].c_str());
-            if((sam_flag & 40) != 0) {
+            if((sam_flag & 64) != 0) {
                 illumina_readname += "-f";
             }
-            else if((sam_flag & 80) != 0) {
+            else if((sam_flag & 128) != 0) {
                 illumina_readname += "-r";
             }
             if(!seen_headers.count(illumina_readname)) {
@@ -290,10 +290,10 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
             res = _parseSamLineIllumina(line);
             illumina_readname = res[0];
             sam_flag = std::stoi(res[1].c_str());
-            if((sam_flag & 40) != 0) {
+            if((sam_flag & 64) != 0) {
                 illumina_readname += "-f";
             }
-            else if((sam_flag & 80) != 0) {
+            else if((sam_flag & 128) != 0) {
                 illumina_readname += "-r";
             }
             if(!seen_headers.count(illumina_readname)) {
