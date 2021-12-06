@@ -255,11 +255,11 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
             std::getline(ss, this_entry, '\t');  // cigar
             out_data += this_entry + '\t';
             std::getline(ss, this_entry, '\t');  // rnext
-            out_data += this_entry + '\t';
+            out_data += "=\t";
             std::getline(ss, this_entry, '\t');  // pnext
-            out_data += this_entry + '\t';
+            out_data += "*\t";
             std::getline(ss, this_entry, '\t');  // tlen
-            out_data += this_entry + '\t';
+            out_data += "*\t";
             std::getline(ss, this_entry, '\t');  // seq
             if(this_entry == "*") {
                 if(!_primary_alignments.count(x.first)) {
