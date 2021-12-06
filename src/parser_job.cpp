@@ -262,6 +262,9 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
             out_data += this_entry + '\t';
             std::getline(ss, this_entry, '\t');  // seq
             if(this_entry == "*") {
+                if(!_primary_alignments.count(x.first)) {
+                    std::cerr << "Primary alignment not found for barcode " << barcode << ": " << x.first << std::endl;
+                }
                 out_data += _primary_alignments.at(x.first)[0] + '\t';
             }
             else {
