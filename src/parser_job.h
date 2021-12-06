@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <utility>
 #include "concurrent_buffer_queue.h"
 #include "args.h"
 
@@ -37,7 +38,8 @@ private:
     bool _select;
     std::set< std::string > _select_children;
     std::map< std::string, std::vector< std::string > > _primary_alignments;
-    std::map< std::string, std::string > _reads_need_primary;
+    std::map< std::string, std::vector< std::pair< int, std::string > > > _first_pass_reads;
+    std::map< std::string, int > _first_pass_optimals;
     std::vector< std::string > _parseSamLineIllumina(const std::string &sam_line);
     std::vector< std::string > _parseSamLineNanopore(const std::string &sam_line);
     void _illuminaSubroutine(std::ifstream &ifs, const std::string &first_line);
