@@ -55,10 +55,22 @@ void ConcurrentBufferQueue::runCombine()
                 std::stringstream header_ss;
                 header_ss.str(_headers.at(barcode));
                 std::string header_line;
+                std::string ref_select;
                 while(std::getline(header_ss, header_line)) {
-                    if(header_line.substr(0, 3) == "@SQ") {
-                        std::size_t found = header_line.find(_args.best_genome_map.at(barcode));
-                        if(found != std::string::npos) {
+                    if(!_args.final_file.empty()) {
+                        if(header_line.substr(0, 3) == "@SQ") {
+                            if(!_args.forced_reference_acc.empty()) {
+                                ref_select = _args.forced_reference_acc;
+                            }
+                            else {
+                                ref_select = _args.best_genome_map.at(barcode);
+                            }
+                            std::size_t found = header_line.find(ref_select);
+                            if(found != std::string::npos) {
+                                _ofs_out[idx] << header_line << std::endl;
+                            }
+                        }
+                        else {
                             _ofs_out[idx] << header_line << std::endl;
                         }
                     }
@@ -103,10 +115,22 @@ void ConcurrentBufferQueue::runCombine()
             std::stringstream header_ss;
             header_ss.str(_headers.at(barcode));
             std::string header_line;
+            std::string ref_select;
             while(std::getline(header_ss, header_line)) {
-                if(header_line.substr(0, 3) == "@SQ") {
-                    std::size_t found = header_line.find(_args.best_genome_map.at(barcode));
-                    if(found != std::string::npos) {
+                if(!_args.final_file.empty()) {
+                    if(header_line.substr(0, 3) == "@SQ") {
+                        if(!_args.forced_reference_acc.empty()) {
+                            ref_select = _args.forced_reference_acc;
+                        }
+                        else {
+                            ref_select = _args.best_genome_map.at(barcode);
+                        }
+                        std::size_t found = header_line.find(ref_select);
+                        if(found != std::string::npos) {
+                            _ofs_out[idx] << header_line << std::endl;
+                        }
+                    }
+                    else {
                         _ofs_out[idx] << header_line << std::endl;
                     }
                 }
@@ -131,9 +155,9 @@ void ConcurrentBufferQueue::runCombine()
 
 
 bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lines,
-                                    const std::string &barcode,
-                                    const long &reads_processed,
-                                    const long &reads_aligned)
+                                           const std::string &barcode,
+                                           const long &reads_processed,
+                                           const long &reads_aligned)
 {
     std::unique_lock< std::mutex > lock(_mtx);
     if(!_args.final_file.empty()) {
@@ -595,6 +619,16 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
         }
     }
 
+    for(auto &x : target_idx_coverage) {
+        if (!_args.db_parent_map.empty()) {
+            if (!barcode_top_genomes.count(barcode)) {
+                barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);
+            }
+        } else {
+            barcode_top_genomes[barcode] = x.first;
+        }
+    }
+
     if((!_args.final_file.empty()) && (!_args.illumina)) {
         if(!timeseries_cov.count(barcode)) {
             timeseries_cov[barcode];
@@ -603,14 +637,6 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
             for(auto &x : target_idx_coverage) {
                 if(!timeseries_cov.at(barcode).count(x.first)) {
                     timeseries_cov.at(barcode)[x.first] = std::vector< std::set< int > >(_args.max_timepoints, std::set< int >());
-                }
-                if(!_args.db_parent_map.empty()) {
-                    if(!barcode_top_genomes.count(barcode)) {
-                        barcode_top_genomes[barcode] = _args.rev_db_parent_map.at(x.first);
-                    }
-                }
-                else {
-                    barcode_top_genomes[barcode] = x.first;
                 }
                 for(int i = 0; i < x.second.size(); ++i) {
                     if(x.second[i] != 0) {

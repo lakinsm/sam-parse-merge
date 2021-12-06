@@ -42,17 +42,23 @@ private:
     std::set< int > _seen_targets;
     std::set< std::string > _select_children;
 
-    std::vector< std::string > _parseSamLine(const std::string &sam_line);
+    std::vector< std::string > _parseSamLineIllumina(const std::string &sam_line);
+    std::vector< std::string > _parseSamLineNanopore(const std::string &sam_line);
     int _totalScoreCigar(const std::string &cigar);
+    int _totalScoreCigar(const std::string &cigar, const std::string &mdz);
     int _idxScoreCigar(const std::string &cigar,
                        const std::string &target,
                        const int &start_idx);
-    void _samScore(std::ifstream &ifs, const std::string &initial_line);
+    int _idxScoreCigar(const std::string &cigar,
+                       const std::string &mdz,
+                       const std::string &target,
+                       const int &start_idx);
+    void _samScoreIllumina(std::ifstream &ifs, const std::string &initial_line);
+    void _samScoreNanopore(std::ifstream &ifs, const std::string &initial_line);
     void _firstPassRoutine(const std::string &read_name,
                            const std::string &target,
                            const std::string &cigar,
                            const int &read_idx);
-    void _finalSamScore(std::ifstream &ifs);
 };
 
 
