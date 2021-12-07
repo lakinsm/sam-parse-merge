@@ -417,7 +417,7 @@ void ScoreJob::_samScoreIllumina(std::ifstream &ifs, const std::string &initial_
     std::vector< std::string > res;
     int read_idx = 0;
     int sam_flag;
-    std::string this_ref;
+    std::string illumina_readname;
     res = _parseSamLineIllumina(initial_line);
     if((res.size() == 0) || (res[0].empty())) {
         return;
