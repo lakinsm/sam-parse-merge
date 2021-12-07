@@ -59,6 +59,12 @@ private:
                            const std::string &target,
                            const std::string &cigar,
                            const int &read_idx);
+    void _firstPassRoutine(const std::string &read_name,
+                           const std::string &target,
+                           const std::string &cigar,
+                           const std::string &mdz,
+                           const int &read_idx);
+    int _calcMatchLength(const std::string &cigar);
 };
 
 

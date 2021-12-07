@@ -412,39 +412,33 @@ int ScoreJob::_totalScoreCigar(const std::string &cigar, const std::string &mdz)
 
 void ScoreJob::_samScoreIllumina(std::ifstream &ifs, const std::string &initial_line)
 {
-    // BWA-MEM outputs only maximal alignments per read, so there is no need to determine best alignments within
-    // references. With the options -h 1 -a, BWA-MEM will not output XA alternative hit fields, and will instead
-    // output all alternative reference alignments with >= 80% of the maximal alignment score as separate records
-    // for each read.  So as far as I can tell, the combination of read_name + target_name + forward/reverse bit in the
-    // sam flag are unique.  This means the "first pass routine" is performed automatically for us by BWA, so we can
-    // compute scores on the first pass over the SAM file instead of performing multiple passes as is required for
-    // Minimap2.
+    // First pass calculate max total read score and max read idx (overall read position in sam file)
+    // This determines the max read by alignment score WITHIN each target, for ALL targets
     std::vector< std::string > res;
     int read_idx = 0;
     int sam_flag;
-    std::string this_ref;
+    std::string illumina_readname;
     res = _parseSamLineIllumina(initial_line);
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
+
+    illumina_readname = res[0];
     sam_flag = std::stoi(res[1].c_str());
+    if((sam_flag & 64) != 0) {
+        illumina_readname += "-f";
+    }
+    else if((sam_flag & 128) != 0) {
+        illumina_readname += "-r";
+    }
     if((sam_flag & 4) == 0) {
-        this_ref = res[2];
         if(_select) {
             if(_select_children.count(res[2])) {
-                if(!target_idx_scores.count(this_ref)) {
-                    target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-                    target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-                }
-                _idxScoreCigar(res[4], res[5], this_ref, std::stoi(res[3].c_str()) - 1);
+                _firstPassRoutine(res[0], res[2], res[4], res[5], read_idx);
             }
         }
         else {
-            if(!target_idx_scores.count(this_ref)) {
-                target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-                target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-            }
-            _idxScoreCigar(res[4], res[5], this_ref, std::stoi(res[3].c_str()) - 1);
+            _firstPassRoutine(res[0], res[2], res[4], res[5], read_idx);
         }
     }
     read_idx++;
@@ -452,25 +446,61 @@ void ScoreJob::_samScoreIllumina(std::ifstream &ifs, const std::string &initial_
     std::string line;
     while(std::getline(ifs, line)) {
         res = _parseSamLineIllumina(line);
+        illumina_readname = res[0];
         sam_flag = std::stoi(res[1].c_str());
+        if((sam_flag & 64) != 0) {
+            illumina_readname += "-f";
+        }
+        else if((sam_flag & 128) != 0) {
+            illumina_readname += "-r";
+        }
         if((sam_flag & 4) == 0) {
-            this_ref = res[2];
             if(_select) {
-                if(_select_children.count(this_ref)) {
-                    if(!target_idx_scores.count(this_ref)) {
-                        target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-                        target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-                    }
-                    _idxScoreCigar(res[4], res[5], this_ref, std::stoi(res[3].c_str()) - 1);
+                if(_select_children.count(res[2])) {
+                    _firstPassRoutine(res[0], res[2], res[4], res[5], read_idx);
                 }
             }
             else {
-                if(!target_idx_scores.count(this_ref)) {
-                    target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-                    target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
-                }
-                _idxScoreCigar(res[4], res[5], this_ref, std::stoi(res[3].c_str()) - 1);
+                _firstPassRoutine(res[0], res[2], res[4], res[5], read_idx);
             }
+        }
+        read_idx++;
+    }
+
+    // Find sam file read idxs that contain optimal reads WITHIN each target for ALL targets
+    for(auto &x : _read_first_pass) {
+        for(int i = 0; i < x.second.size(); ++i) {
+            _optimal_read_idxs.insert(x.second[i][1]);
+            _seen_targets.insert(x.second[i][0]);
+        }
+    }
+
+    for( auto &ref : _seen_targets ) {
+        std::string this_ref = _ref_names[ref];
+        target_idx_scores[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
+        target_idx_coverage[this_ref] = std::vector< int >(_ref_lens[_ref_idx_map.at(this_ref)], 0);
+    }
+
+    // Second pass calculate idx scores and idx coverage per target
+    ifs.clear();
+    ifs.seekg(0);
+    read_idx = 0;
+    while(std::getline(ifs, line)) {
+        if(line[0] != '@') {
+            break;
+        }
+    }
+
+    if(_optimal_read_idxs.count(read_idx)) {
+        res = _parseSamLineIllumina(line);
+        _idxScoreCigar(res[4], res[5], res[2], std::stoi(res[3].c_str()) - 1);
+    }
+    read_idx++;
+
+    while(std::getline(ifs, line)) {
+        if(_optimal_read_idxs.count(read_idx)) {
+            res = _parseSamLineIllumina(line);
+            _idxScoreCigar(res[4], res[5], res[2], std::stoi(res[3].c_str()) - 1);
         }
         read_idx++;
     }
@@ -564,7 +594,8 @@ void ScoreJob::_firstPassRoutine(const std::string &read_name,
                                  const int &read_idx)
 {
     int read_score = _totalScoreCigar(cigar);
-    std::vector< int > this_data = {_ref_idx_map.at(target), read_idx, read_score};
+    int read_length = _calcMatchLength(cigar);
+    std::vector< int > this_data = {_ref_idx_map.at(target), read_idx, read_score, read_length};
     if(!_read_first_pass.count(read_name)) {
         std::vector< std::vector< int> > outer_vec;
         outer_vec.push_back(this_data);
@@ -585,9 +616,84 @@ void ScoreJob::_firstPassRoutine(const std::string &read_name,
         }
         else {
             // Found
-            if(this_data[2] > _read_first_pass.at(read_name)[target_iter][2]) {
-                _read_first_pass.at(read_name)[target_iter] = this_data;
+            std::vector< int > *target_vec = &_read_first_pass.at(read_name)[target_iter];
+            if(this_data[2] > (*target_vec)[2]) {
+                (*target_vec) = this_data;
+            }
+            else if(this_data[2] == (*target_vec)[2]) {
+                if(this_data[3] > (*target_vec)[3]) {
+                    (*target_vec) = this_data;
+                }
             }
         }
     }
+}
+
+
+void ScoreJob::_firstPassRoutine(const std::string &read_name,
+                                 const std::string &target,
+                                 const std::string &cigar,
+                                 const std::string &mdz,
+                                 const int &read_idx)
+{
+    int read_score = _totalScoreCigar(cigar, mdz);
+    int read_length = _calcMatchLength(cigar);
+    std::vector< int > this_data = {_ref_idx_map.at(target), read_idx, read_score, read_length};
+    if(!_read_first_pass.count(read_name)) {
+        std::vector< std::vector< int> > outer_vec;
+        outer_vec.push_back(this_data);
+        _read_first_pass[read_name] = outer_vec;
+    }
+    else {
+        int target_iter = 0;
+        int this_ref_idx = _ref_idx_map.at(target);
+        for(int i = 0; i < _read_first_pass.at(read_name).size(); ++i) {
+            if(this_ref_idx == _read_first_pass.at(read_name)[i][0]) {
+                break;
+            }
+            target_iter++;
+        }
+        if(target_iter == _read_first_pass.at(read_name).size()) {
+            // Not found
+            _read_first_pass.at(read_name).push_back(this_data);
+        }
+        else {
+            // Found
+            std::vector< int > *target_vec = &_read_first_pass.at(read_name)[target_iter];
+            if(this_data[2] > (*target_vec)[2]) {
+                (*target_vec) = this_data;
+            }
+            else if(this_data[2] == (*target_vec)[2]) {
+                if(this_data[3] > (*target_vec)[3]) {
+                    (*target_vec) = this_data;
+                }
+            }
+        }
+    }
+}
+
+
+int ScoreJob::_calcMatchLength(const std::string &cigar)
+{
+    int len = 0;
+    std::string num = "";
+    std::string op = "";
+    int numeric_num;
+    for(int c = 0; c < cigar.size(); ++c) {
+        if(std::isdigit(cigar[c])) {
+            num += cigar[c];
+        }
+        else {
+            op = cigar[c];
+            numeric_num = std::stoi(num.c_str());
+            if((op == "M") or (op == "=")) {
+                len += numeric_num;
+            }
+            else if((op == "N") or (op == "X")) {
+                len += numeric_num;
+            }
+            num = "";
+        }
+    }
+    return len;
 }
