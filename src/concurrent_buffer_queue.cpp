@@ -694,10 +694,11 @@ void ConcurrentBufferQueue::_strReplaceAll(std::string &s, const std::string &ol
 {
     std::size_t start_pos = 0;
     if(!old_str.empty()) {
-//        std::cout << old_str << '\t' << s << std::endl;
         while((start_pos = s.find(old_str, start_pos)) != std::string::npos) {
+            std::cout << old_str << '\t' << new_str << '\t' << std::to_string(start_pos) << '\t' << std::flush;
             s.replace(start_pos, old_str.length(), new_str);
             start_pos += new_str.length();
+            std::cout << std::to_string(start_pos) << std::endl;
             if(start_pos >= old_str.length()) {
                 break;
             }
