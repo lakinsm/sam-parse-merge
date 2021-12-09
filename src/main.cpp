@@ -149,6 +149,10 @@ int main(int argc, const char *argv[]) {
         ifs8.close();
     }
 
+    for(auto &x : args.barcode_sample_map) {
+        std::cout << x.first << '\t' << x.second << std::endl;
+    }
+
     if(!args.final_file.empty()) {
         // Load Barcode to top genome mapping
         std::ifstream ifs2(args.final_file, std::ios::in);
