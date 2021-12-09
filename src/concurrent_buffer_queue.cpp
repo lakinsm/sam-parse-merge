@@ -35,7 +35,7 @@ void ConcurrentBufferQueue::runCombine()
             std::vector< std::string >::iterator iter;
             iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
             int idx;
-            std::cout << "Check1.1\t" << std::to_string(iter) << std::endl;
+            std::cout << "Check1.1\t" << std::to_string(std::distance(_barcode_out_list.begin(), iter)) << std::endl;
             if(iter != _barcode_out_list.end()) {
                 idx = std::distance(_barcode_out_list.begin(), iter);
             }
