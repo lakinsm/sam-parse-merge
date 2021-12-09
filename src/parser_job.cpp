@@ -127,17 +127,23 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                     std::string this_entry;
                     ss.str(line);
                     std::getline(ss, this_entry, '\t');
-                    while(this_entry.substr(0, 5) != "AS:i:") {
+                    while(this_entry.substr(0, 3) != "AS:") {
                         if((!ss.good()) or (this_entry.empty())) {
                             break;
                         }
                         std::getline(ss, this_entry, '\t');
                     }
-                    if(this_entry.substr(0, 5) != "AS:i:") {
+                    if(this_entry.substr(0, 3) != "AS:") {
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    int score = std::stoi(this_entry.substr(5));
+                    int score;
+                    if(this_entry[5] == "-") {
+                        score = (-1) * std::stoi(this_entry.substr(6));
+                    }
+                    else {
+                        score = std::stoi(this_entry.substr(5));
+                    }
                     _first_pass_reads.at(illumina_readname).push_back({score, line});
                 }
                 if(!aligned_headers.count(illumina_readname)) {
@@ -182,17 +188,23 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                         std::string this_entry;
                         ss.str(line);
                         std::getline(ss, this_entry, '\t');
-                        while(this_entry.substr(0, 5) != "AS:i:") {
+                        while(this_entry.substr(0, 3) != "AS:") {
                             if((!ss.good()) or (this_entry.empty())) {
                                 break;
                             }
                             std::getline(ss, this_entry, '\t');
                         }
-                        if(this_entry.substr(0, 5) != "AS:i:") {
+                        if(this_entry.substr(0, 3) != "AS:") {
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
-                        int score = std::stoi(this_entry.substr(5));
+                        int score;
+                        if(this_entry[5] == "-") {
+                            score = (-1) * std::stoi(this_entry.substr(6));
+                        }
+                        else {
+                            score = std::stoi(this_entry.substr(5));
+                        }
                         if(!_first_pass_reads.count(illumina_readname)) {
                             _first_pass_reads[illumina_readname];
                         }
@@ -344,17 +356,23 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                     std::string this_entry;
                     ss.str(line);
                     std::getline(ss, this_entry, '\t');
-                    while(this_entry.substr(0, 5) != "AS:i:") {
+                    while(this_entry.substr(0, 3) != "AS:") {
                         if((!ss.good()) or (this_entry.empty())) {
                             break;
                         }
                         std::getline(ss, this_entry, '\t');
                     }
-                    if(this_entry.substr(0, 5) != "AS:i:") {
+                    if(this_entry.substr(0, 3) != "AS:") {
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    int score = std::stoi(this_entry.substr(5));
+                    int score;
+                    if(this_entry[5] == "-") {
+                        score = (-1) * std::stoi(this_entry.substr(6));
+                    }
+                    else {
+                        score = std::stoi(this_entry.substr(5));
+                    }
                     if(!_first_pass_reads.count(res[0])) {
                         _first_pass_reads[res[0]];
                     }
@@ -397,21 +415,23 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         std::string this_entry;
                         ss.str(line);
                         std::getline(ss, this_entry, '\t');
-                        if(this_entry.length() < 5) {
-                            std::cerr << "ERROR: Field too small: " << res[0] << '\t' << this_entry << std::endl;
-                            exit(EXIT_FAILURE);
-                        }
-                        while(this_entry.substr(0, 5) != "AS:i:") {
+                        while(this_entry.substr(0, 3) != "AS:") {
                             if((!ss.good()) or (this_entry.empty())) {
                                 break;
                             }
                             std::getline(ss, this_entry, '\t');
                         }
-                        if(this_entry.substr(0, 5) != "AS:i:") {
+                        if(this_entry.substr(0, 3) != "AS:") {
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
-                        int score = std::stoi(this_entry.substr(5));
+                        int score;
+                        if(this_entry[5] == "-") {
+                            score = (-1) * std::stoi(this_entry.substr(6));
+                        }
+                        else {
+                            score = std::stoi(this_entry.substr(5));
+                        }
                         _first_pass_reads.at(res[0]).push_back({score, line});
                         if(!aligned_headers.count(res[0])) {
                             reads_aligned++;

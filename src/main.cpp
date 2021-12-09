@@ -69,8 +69,8 @@ int main(int argc, const char *argv[]) {
             }
             names_ss.clear();
             names_ss.str(names_line);
-            std::getline(names_ss, names_parent, '\t');
-            std::getline(names_ss, names_alias, '\t');
+            std::getline(names_ss, names_parent, ',');
+            std::getline(names_ss, names_alias, ',');
             std::size_t div_pos = names_parent.find(':');
             if(div_pos == std::string::npos) {
                 // No children are present
@@ -108,10 +108,10 @@ int main(int argc, const char *argv[]) {
                     exit(EXIT_FAILURE);
                 }
                 if(!args.db_parent_name_map.count(names_parent)) {
-                    std::size_t parent_found = names_alias.find_last_of('\t');
+                    std::size_t parent_found = names_alias.find_last_of(',');
                     args.db_parent_name_map[names_parent] = names_alias.substr(0, parent_found - 1);
                 }
-                std::size_t child_found = names_alias.find_last_of('\t');
+                std::size_t child_found = names_alias.find_last_of(',');
                 args.db_child_name_map[names_child] = names_alias.substr(child_found + 1);
             }
         }
