@@ -366,7 +366,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
+//                    std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
                     int score;
                     if(this_entry[5] == '-') {
                         score = (-1) * std::stoi(this_entry.substr(6));
@@ -374,7 +374,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                     else {
                         score = std::stoi(this_entry.substr(5));
                     }
-                    std::cout << std::to_string(score) << std::endl << std::flush;
+//                    std::cout << std::to_string(score) << std::endl << std::flush;
 
                     if(!_first_pass_reads.count(res[0])) {
                         _first_pass_reads[res[0]];
@@ -428,7 +428,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
-                        std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
+//                        std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
                         int score;
                         if(this_entry[5] == '-') {
                             score = (-1) * std::stoi(this_entry.substr(6));
@@ -437,7 +437,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                             score = std::stoi(this_entry.substr(5));
                         }
 
-                        std::cout << std::to_string(score) << std::endl << std::flush;
+//                        std::cout << std::to_string(score) << std::endl << std::flush;
 
                         _first_pass_reads.at(res[0]).push_back({score, line});
                         if(!aligned_headers.count(res[0])) {
@@ -525,6 +525,8 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
             }
         }
     }
+
+    std::cout << "CheckJobEnd" << std::endl;
 }
 
 

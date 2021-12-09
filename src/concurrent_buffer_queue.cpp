@@ -82,11 +82,13 @@ void ConcurrentBufferQueue::runCombine()
                 }
             }
 //            std::cout << "Check1.2\t" << std::to_string(idx) << '\t' << std::to_string(_barcode_out_list.size());
-            std::cout << '\t' << std::to_string(_ofs_out.size()) << std::endl;
+            std::cout << '\t' << std::to_string(_ofs_out.size()) << '\t' << barcode << '\t' data_line << std::endl;
 
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
             }
+
+            std::cout << "Check3.5" << std::endl;
             _ofs_out[idx] << data_line << std::endl;
         }
     }
