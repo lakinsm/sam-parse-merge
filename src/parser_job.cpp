@@ -377,6 +377,8 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
         }
     }
 
+    std::cout << "Check1\t" << sam_filepath << std::endl;
+
     if(!_args.final_file.empty()) {
         while(std::getline(ifs, line)) {
             res = _parseSamLineNanopore(line);
@@ -395,6 +397,10 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         std::string this_entry;
                         ss.str(line);
                         std::getline(ss, this_entry, '\t');
+                        if(this_entry.length() < 5) {
+                            std::cerr << "ERROR: Field too small: " << res[0] << '\t' << this_entry << std::endl;
+                            exit(EXIT_FAILURE);
+                        }
                         while(this_entry.substr(0, 5) != "AS:i:") {
                             if((!ss.good()) or (this_entry.empty())) {
                                 break;
@@ -422,6 +428,8 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                 }
             }
         }
+
+        std::cout << "Check2\t" << sam_filepath << std::endl;
 
         for(auto &x : _first_pass_reads) {
             int opt_idx;

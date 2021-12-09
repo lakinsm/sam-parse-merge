@@ -23,7 +23,7 @@ void ConcurrentBufferQueue::runCombine()
 {
     std::string output_line, data_line, barcode;
     std::stringstream ss;
-    std::cout << "Check1" << std::endl;
+//    std::cout << "Check1" << std::endl;
     while((!all_jobs_enqueued) or (!all_jobs_consumed)) {
         while((!tryPopCombine(output_line)) and (!all_jobs_consumed)) {}
         if(!all_jobs_consumed) {
@@ -35,7 +35,7 @@ void ConcurrentBufferQueue::runCombine()
             std::vector< std::string >::iterator iter;
             iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
             int idx;
-            std::cout << "Check1.1\t" << std::to_string(std::distance(_barcode_out_list.begin(), iter)) << std::endl;
+//            std::cout << "Check1.1\t" << std::to_string(std::distance(_barcode_out_list.begin(), iter)) << std::endl;
             if(iter != _barcode_out_list.end()) {
                 idx = std::distance(_barcode_out_list.begin(), iter);
             }
@@ -81,7 +81,7 @@ void ConcurrentBufferQueue::runCombine()
                     }
                 }
             }
-            std::cout << "Check1.2\t" << std::to_string(idx) << '\t' << std::to_string(_barcode_out_list.size());
+//            std::cout << "Check1.2\t" << std::to_string(idx) << '\t' << std::to_string(_barcode_out_list.size());
             std::cout << '\t' << std::to_string(_ofs_out.size()) << std::endl;
 
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
