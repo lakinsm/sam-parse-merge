@@ -178,9 +178,6 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                 }
                 if(_select) {
                     if(_select_children.count(res[2])) {
-                        if(!_first_pass_reads.count(illumina_readname)) {
-                            _first_pass_reads[illumina_readname];
-                        }
                         std::stringstream ss;
                         std::string this_entry;
                         ss.str(line);
@@ -196,6 +193,9 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                             exit(EXIT_FAILURE);
                         }
                         int score = std::stoi(this_entry.substr(5));
+                        if(!_first_pass_reads.count(illumina_readname)) {
+                            _first_pass_reads[illumina_readname];
+                        }
                         _first_pass_reads.at(illumina_readname).push_back({score, line});
                         if(!aligned_headers.count(illumina_readname)) {
                             reads_aligned++;
@@ -238,6 +238,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
             std::string this_entry;
             std::string out_data = "";
 
+            ss.clear();
             ss.str(_first_pass_reads.at(x.first)[x.second].second);
             std::getline(ss, this_entry, '\t');  // read name
             out_data += this_entry + '\t';
@@ -339,9 +340,6 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
         if(_select) {
             if(_select_children.count(res[2])) {
                 if(!_args.final_file.empty()) {
-                    if(!_first_pass_reads.count(res[0])) {
-                        _first_pass_reads[res[0]];
-                    }
                     std::stringstream ss;
                     std::string this_entry;
                     ss.str(line);
@@ -357,6 +355,9 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         exit(EXIT_FAILURE);
                     }
                     int score = std::stoi(this_entry.substr(5));
+                    if(!_first_pass_reads.count(res[0])) {
+                        _first_pass_reads[res[0]];
+                    }
                     _first_pass_reads.at(res[0]).push_back({score, line});
                 }
                 if(!aligned_headers.count(res[0])) {
@@ -447,6 +448,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
             std::string this_entry;
             std::string out_data = "";
 
+            ss.clear();
             ss.str(_first_pass_reads.at(x.first)[x.second].second);
             std::getline(ss, this_entry, '\t');  // read name
             out_data += this_entry + '\t';
