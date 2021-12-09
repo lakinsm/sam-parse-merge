@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <limits>
 
 
 ParserJob::ParserJob(Args &args,
@@ -227,7 +228,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
 
         for(auto &x : _first_pass_reads) {
             int opt_idx;
-            int opt_val = -1;
+            int opt_val = std::numeric_limits<int>::min();
             for(int k = 0; k < x.second.size(); ++k) {
                 if(x.second[k].first > opt_val) {
                     opt_idx = k;
@@ -357,10 +358,10 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                     ss.str(line);
                     std::getline(ss, this_entry, '\t');
                     while(this_entry.substr(0, 3) != "AS:") {
+                        std::getline(ss, this_entry, '\t');
                         if((!ss.good()) or (this_entry.empty())) {
                             break;
                         }
-                        std::getline(ss, this_entry, '\t');
                     }
                     if(this_entry.substr(0, 3) != "AS:") {
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
@@ -368,22 +369,20 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                     }
 //                    std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
                     int score;
-                    if(this_entry[5] == '-') {
-                        score = (-1) * std::stoi(this_entry.substr(6));
-                    }
-                    else {
-                        score = std::stoi(this_entry.substr(5));
-                    }
+//                    if(this_entry[5] == '-') {
+//                        score = (-1) * std::stoi(this_entry.substr(6));
+//                    }
+//                    else {
+//                        score = std::stoi(this_entry.substr(5));
+//                    }
+                    score = std::stoi(this_entry.substr(5));
 //                    std::cout << std::to_string(score) << std::endl << std::flush;
 
                     if(!_first_pass_reads.count(res[0])) {
                         _first_pass_reads[res[0]];
+                        reads_aligned++;
                     }
                     _first_pass_reads.at(res[0]).push_back({score, line});
-                }
-                if(!aligned_headers.count(res[0])) {
-                    reads_aligned++;
-                    aligned_headers.insert(res[0]);
                 }
             }
         }
@@ -413,16 +412,17 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                     if(_select_children.count(res[2])) {
                         if(!_first_pass_reads.count(res[0])) {
                             _first_pass_reads[res[0]];
+                            reads_aligned++;
                         }
                         std::stringstream ss;
                         std::string this_entry;
                         ss.str(line);
                         std::getline(ss, this_entry, '\t');
                         while(this_entry.substr(0, 3) != "AS:") {
+                            std::getline(ss, this_entry, '\t');
                             if((!ss.good()) or (this_entry.empty())) {
                                 break;
                             }
-                            std::getline(ss, this_entry, '\t');
                         }
                         if(this_entry.substr(0, 3) != "AS:") {
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
@@ -430,20 +430,17 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         }
 //                        std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
                         int score;
-                        if(this_entry[5] == '-') {
-                            score = (-1) * std::stoi(this_entry.substr(6));
-                        }
-                        else {
-                            score = std::stoi(this_entry.substr(5));
-                        }
+//                        if(this_entry[5] == '-') {
+//                            score = (-1) * std::stoi(this_entry.substr(6));
+//                        }
+//                        else {
+//                            score = std::stoi(this_entry.substr(5));
+//                        }
+                        score = std::stoi(this_entry.substr(5));
 
 //                        std::cout << std::to_string(score) << std::endl << std::flush;
 
                         _first_pass_reads.at(res[0]).push_back({score, line});
-                        if(!aligned_headers.count(res[0])) {
-                            reads_aligned++;
-                            aligned_headers.insert(res[0]);
-                        }
                     }
                 }
                 else {
@@ -460,7 +457,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
 
         for(auto &x : _first_pass_reads) {
             int opt_idx;
-            int opt_val = -1;
+            int opt_val = std::numeric_limits<int>::min();
             for(int k = 0; k < x.second.size(); ++k) {
                 if(x.second[k].first > opt_val) {
                     opt_idx = k;
