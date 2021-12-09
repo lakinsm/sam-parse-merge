@@ -138,7 +138,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                         exit(EXIT_FAILURE);
                     }
                     int score;
-                    if(this_entry.at(5) == "-") {
+                    if(this_entry[5] == '-') {
                         score = (-1) * std::stoi(this_entry.substr(6));
                     }
                     else {
@@ -199,7 +199,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                             exit(EXIT_FAILURE);
                         }
                         int score;
-                        if(this_entry.at(5) == "-") {
+                        if(this_entry[5] == '-') {
                             score = (-1) * std::stoi(this_entry.substr(6));
                         }
                         else {
@@ -367,7 +367,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         exit(EXIT_FAILURE);
                     }
                     int score;
-                    if(this_entry.at(5) == "-") {
+                    if(this_entry[5] == '-') {
                         score = (-1) * std::stoi(this_entry.substr(6));
                     }
                     else {
@@ -426,7 +426,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                             exit(EXIT_FAILURE);
                         }
                         int score;
-                        if(this_entry.at(5) == "-") {
+                        if(this_entry[5] == '-') {
                             score = (-1) * std::stoi(this_entry.substr(6));
                         }
                         else {
