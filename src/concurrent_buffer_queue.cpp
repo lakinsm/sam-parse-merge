@@ -35,6 +35,7 @@ void ConcurrentBufferQueue::runCombine()
             std::vector< std::string >::iterator iter;
             iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
             int idx;
+            std::cout << "Check1.1\t" << std::to_string(iter) << std::endl;
             if(iter != _barcode_out_list.end()) {
                 idx = std::distance(_barcode_out_list.begin(), iter);
             }
@@ -80,6 +81,8 @@ void ConcurrentBufferQueue::runCombine()
                     }
                 }
             }
+            std::cout << "Check1.2\t" << std::to_string(idx) << '\t' << std::to_string(_barcode_out_list.size());
+            std::cout << '\t' << std::to_string(_ofs_out.size()) << std::endl;
 
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
