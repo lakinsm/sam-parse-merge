@@ -91,7 +91,7 @@ void ConcurrentBufferQueue::runCombine()
         }
     }
 
-    std::cout << "Check2" << std::endl;
+    std::cout << "Check4" << std::endl;
 
     while(tryPopCombine(output_line)) {
         ss.clear();
@@ -157,7 +157,7 @@ void ConcurrentBufferQueue::runCombine()
         _ofs_out[i].close();
     }
 
-    std::cout << "Check3" << std::endl;
+    std::cout << "Check5" << std::endl;
 
     work_completed = true;
 }
