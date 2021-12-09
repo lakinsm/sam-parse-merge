@@ -693,6 +693,7 @@ void ConcurrentBufferQueue::_wait()
 void ConcurrentBufferQueue::_strReplaceAll(std::string &s, const std::string &old_str, const std::string &new_str)
 {
     std::size_t start_pos = 0;
+    std::cout << old_str << '\t' << new_str << std::endl;
     if(!old_str.empty()) {
         while((start_pos = s.find(old_str, start_pos)) != std::string::npos) {
             std::cout << old_str << '\t' << new_str << '\t' << std::to_string(start_pos) << '\t' << std::flush;
