@@ -188,8 +188,14 @@ bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lin
         }
     }
 
-    aligned_reads_processed[barcode] += reads_aligned;
-    total_reads_processed[barcode] += reads_processed;
+    if(!aligned_reads_processed.count(barcode)) {
+        aligned_reads_processed[barcode] = reads_aligned;
+        total_reads_processed[barcode] = reads_processed;
+    }
+    else {
+        aligned_reads_processed[barcode] += reads_aligned;
+        total_reads_processed[barcode] += reads_processed;
+    }
     return true;
 }
 
