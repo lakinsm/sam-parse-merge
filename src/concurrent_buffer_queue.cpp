@@ -23,6 +23,7 @@ void ConcurrentBufferQueue::runCombine()
 {
     std::string output_line, data_line, barcode;
     std::stringstream ss;
+    std::cout << "Check1" << std::endl;
     while((!all_jobs_enqueued) or (!all_jobs_consumed)) {
         while((!tryPopCombine(output_line)) and (!all_jobs_consumed)) {}
         if(!all_jobs_consumed) {
@@ -86,6 +87,9 @@ void ConcurrentBufferQueue::runCombine()
             _ofs_out[idx] << data_line << std::endl;
         }
     }
+
+    std::cout << "Check2" << std::endl;
+
     while(tryPopCombine(output_line)) {
         ss.clear();
         ss.str(output_line);
@@ -149,6 +153,8 @@ void ConcurrentBufferQueue::runCombine()
     for(int i = 0; i < _ofs_out.size(); ++i) {
         _ofs_out[i].close();
     }
+
+    std::cout << "Check3" << std::endl;
 
     work_completed = true;
 }
