@@ -94,7 +94,7 @@ void ConcurrentBufferQueue::runCombine()
                 _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
             }
 
-            std::cout << "Check3.5" << std::endl;
+            std::cout << "Check3.5" << '\t' << std::to_string(idx) << '\t' << std::to_string(_ofs_out.size()) << std::endl;
             _ofs_out[idx] << data_line << std::endl;
         }
     }
