@@ -27,6 +27,7 @@ void ConcurrentBufferQueue::runCombine()
     while((!all_jobs_enqueued) or (!all_jobs_consumed)) {
         while((!tryPopCombine(output_line)) and (!all_jobs_consumed)) {}
         if(!all_jobs_consumed) {
+            std::cout << output_line << std::endl;
             ss.clear();
             ss.str(output_line);
             std::getline(ss, barcode, '|');
