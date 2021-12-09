@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <limits>
 
 
 ParserJob::ParserJob(Args &args,
@@ -127,17 +128,23 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                     std::string this_entry;
                     ss.str(line);
                     std::getline(ss, this_entry, '\t');
-                    while(this_entry.substr(0, 5) != "AS:i:") {
+                    while(this_entry.substr(0, 3) != "AS:") {
                         if((!ss.good()) or (this_entry.empty())) {
                             break;
                         }
                         std::getline(ss, this_entry, '\t');
                     }
-                    if(this_entry.substr(0, 5) != "AS:i:") {
+                    if(this_entry.substr(0, 3) != "AS:") {
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    int score = std::stoi(this_entry.substr(5));
+                    int score;
+                    if(this_entry[5] == '-') {
+                        score = (-1) * std::stoi(this_entry.substr(6));
+                    }
+                    else {
+                        score = std::stoi(this_entry.substr(5));
+                    }
                     _first_pass_reads.at(illumina_readname).push_back({score, line});
                 }
                 if(!aligned_headers.count(illumina_readname)) {
@@ -178,24 +185,30 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
                 }
                 if(_select) {
                     if(_select_children.count(res[2])) {
-                        if(!_first_pass_reads.count(illumina_readname)) {
-                            _first_pass_reads[illumina_readname];
-                        }
                         std::stringstream ss;
                         std::string this_entry;
                         ss.str(line);
                         std::getline(ss, this_entry, '\t');
-                        while(this_entry.substr(0, 5) != "AS:i:") {
+                        while(this_entry.substr(0, 3) != "AS:") {
                             if((!ss.good()) or (this_entry.empty())) {
                                 break;
                             }
                             std::getline(ss, this_entry, '\t');
                         }
-                        if(this_entry.substr(0, 5) != "AS:i:") {
+                        if(this_entry.substr(0, 3) != "AS:") {
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
-                        int score = std::stoi(this_entry.substr(5));
+                        int score;
+                        if(this_entry[5] == '-') {
+                            score = (-1) * std::stoi(this_entry.substr(6));
+                        }
+                        else {
+                            score = std::stoi(this_entry.substr(5));
+                        }
+                        if(!_first_pass_reads.count(illumina_readname)) {
+                            _first_pass_reads[illumina_readname];
+                        }
                         _first_pass_reads.at(illumina_readname).push_back({score, line});
                         if(!aligned_headers.count(illumina_readname)) {
                             reads_aligned++;
@@ -215,7 +228,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
 
         for(auto &x : _first_pass_reads) {
             int opt_idx;
-            int opt_val = -1;
+            int opt_val = std::numeric_limits<int>::min();
             for(int k = 0; k < x.second.size(); ++k) {
                 if(x.second[k].first > opt_val) {
                     opt_idx = k;
@@ -238,6 +251,7 @@ void ParserJob::_illuminaSubroutine(std::ifstream &ifs, const std::string &first
             std::string this_entry;
             std::string out_data = "";
 
+            ss.clear();
             ss.str(_first_pass_reads.at(x.first)[x.second].second);
             std::getline(ss, this_entry, '\t');  // read name
             out_data += this_entry + '\t';
@@ -339,29 +353,26 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
         if(_select) {
             if(_select_children.count(res[2])) {
                 if(!_args.final_file.empty()) {
-                    if(!_first_pass_reads.count(res[0])) {
-                        _first_pass_reads[res[0]];
-                    }
                     std::stringstream ss;
                     std::string this_entry;
                     ss.str(line);
                     std::getline(ss, this_entry, '\t');
-                    while(this_entry.substr(0, 5) != "AS:i:") {
+                    while(this_entry.substr(0, 3) != "AS:") {
+                        std::getline(ss, this_entry, '\t');
                         if((!ss.good()) or (this_entry.empty())) {
                             break;
                         }
-                        std::getline(ss, this_entry, '\t');
                     }
-                    if(this_entry.substr(0, 5) != "AS:i:") {
+                    if(this_entry.substr(0, 3) != "AS:") {
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
                     int score = std::stoi(this_entry.substr(5));
+                    if(!_first_pass_reads.count(res[0])) {
+                        _first_pass_reads[res[0]];
+                        reads_aligned++;
+                    }
                     _first_pass_reads.at(res[0]).push_back({score, line});
-                }
-                if(!aligned_headers.count(res[0])) {
-                    reads_aligned++;
-                    aligned_headers.insert(res[0]);
                 }
             }
         }
@@ -389,27 +400,24 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                     if(_select_children.count(res[2])) {
                         if(!_first_pass_reads.count(res[0])) {
                             _first_pass_reads[res[0]];
+                            reads_aligned++;
                         }
                         std::stringstream ss;
                         std::string this_entry;
                         ss.str(line);
                         std::getline(ss, this_entry, '\t');
-                        while(this_entry.substr(0, 5) != "AS:i:") {
+                        while(this_entry.substr(0, 3) != "AS:") {
+                            std::getline(ss, this_entry, '\t');
                             if((!ss.good()) or (this_entry.empty())) {
                                 break;
                             }
-                            std::getline(ss, this_entry, '\t');
                         }
-                        if(this_entry.substr(0, 5) != "AS:i:") {
+                        if(this_entry.substr(0, 3) != "AS:") {
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
                         int score = std::stoi(this_entry.substr(5));
                         _first_pass_reads.at(res[0]).push_back({score, line});
-                        if(!aligned_headers.count(res[0])) {
-                            reads_aligned++;
-                            aligned_headers.insert(res[0]);
-                        }
                     }
                 }
                 else {
@@ -424,7 +432,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
 
         for(auto &x : _first_pass_reads) {
             int opt_idx;
-            int opt_val = -1;
+            int opt_val = std::numeric_limits<int>::min();
             for(int k = 0; k < x.second.size(); ++k) {
                 if(x.second[k].first > opt_val) {
                     opt_idx = k;
@@ -447,6 +455,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
             std::string this_entry;
             std::string out_data = "";
 
+            ss.clear();
             ss.str(_first_pass_reads.at(x.first)[x.second].second);
             std::getline(ss, this_entry, '\t');  // read name
             out_data += this_entry + '\t';

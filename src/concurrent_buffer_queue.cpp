@@ -79,13 +79,13 @@ void ConcurrentBufferQueue::runCombine()
                     }
                 }
             }
-
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
             }
             _ofs_out[idx] << data_line << std::endl;
         }
     }
+
     while(tryPopCombine(output_line)) {
         ss.clear();
         ss.str(output_line);
@@ -169,8 +169,14 @@ bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lin
         }
     }
 
-    aligned_reads_processed[barcode] += reads_aligned;
-    total_reads_processed[barcode] += reads_processed;
+    if(!aligned_reads_processed.count(barcode)) {
+        aligned_reads_processed[barcode] = reads_aligned;
+        total_reads_processed[barcode] = reads_processed;
+    }
+    else {
+        aligned_reads_processed.at(barcode) += reads_aligned;
+        total_reads_processed.at(barcode) += reads_processed;
+    }
     return true;
 }
 
@@ -680,6 +686,9 @@ void ConcurrentBufferQueue::_strReplaceAll(std::string &s, const std::string &ol
         while((start_pos = s.find(old_str, start_pos)) != std::string::npos) {
             s.replace(start_pos, old_str.length(), new_str);
             start_pos += new_str.length();
+            if(start_pos >= old_str.length()) {
+                break;
+            }
         }
     }
 }
