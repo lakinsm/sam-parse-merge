@@ -425,6 +425,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
+                        std::cout << barcode << '\t' << score << std::endl;
                         int score;
                         if(this_entry[5] == '-') {
                             score = (-1) * std::stoi(this_entry.substr(6));
