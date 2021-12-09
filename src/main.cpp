@@ -149,10 +149,6 @@ int main(int argc, const char *argv[]) {
         ifs8.close();
     }
 
-    for(auto &x : args.barcode_sample_map) {
-        std::cout << x.first << '\t' << x.second << std::endl;
-    }
-
     if(!args.final_file.empty()) {
         // Load Barcode to top genome mapping
         std::ifstream ifs2(args.final_file, std::ios::in);
@@ -228,11 +224,7 @@ int main(int argc, const char *argv[]) {
         while(concurrent_q->num_completed_jobs != sam_files.size()) {}
         concurrent_q->all_jobs_enqueued = true;
 
-        std::cout << "CHECK1" << std::endl;
-
         while(!concurrent_q->work_completed) {}
-
-        std::cout << "CHECK2" << std::endl;
 
         std::ofstream ofs(args.output_readcount_file);
         ofs << "Barcode,Samplename,TotalReadsProcessed,ReadsAligned,PercentReadsAligned" << std::endl;
@@ -251,7 +243,6 @@ int main(int argc, const char *argv[]) {
         }
         ofs.close();
 
-        std::cout << "CHECK3" << std::endl;
 
         delete job_dispatcher;
         delete concurrent_q;

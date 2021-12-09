@@ -367,17 +367,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                         std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                         exit(EXIT_FAILURE);
                     }
-//                    std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
-                    int score;
-//                    if(this_entry[5] == '-') {
-//                        score = (-1) * std::stoi(this_entry.substr(6));
-//                    }
-//                    else {
-//                        score = std::stoi(this_entry.substr(5));
-//                    }
-                    score = std::stoi(this_entry.substr(5));
-//                    std::cout << std::to_string(score) << std::endl << std::flush;
-
+                    int score = std::stoi(this_entry.substr(5));
                     if(!_first_pass_reads.count(res[0])) {
                         _first_pass_reads[res[0]];
                         reads_aligned++;
@@ -396,8 +386,6 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
             }
         }
     }
-
-//    std::cout << "Check1\t" << sam_filepath << std::endl;
 
     if(!_args.final_file.empty()) {
         while(std::getline(ifs, line)) {
@@ -428,18 +416,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                             std::cerr << "ERROR: Alignment score field not found for read: " << res[0] << std::endl;
                             exit(EXIT_FAILURE);
                         }
-//                        std::cout << barcode << '\t' << this_entry << '\t' << std::flush;
-                        int score;
-//                        if(this_entry[5] == '-') {
-//                            score = (-1) * std::stoi(this_entry.substr(6));
-//                        }
-//                        else {
-//                            score = std::stoi(this_entry.substr(5));
-//                        }
-                        score = std::stoi(this_entry.substr(5));
-
-//                        std::cout << std::to_string(score) << std::endl << std::flush;
-
+                        int score = std::stoi(this_entry.substr(5));
                         _first_pass_reads.at(res[0]).push_back({score, line});
                     }
                 }
@@ -452,8 +429,6 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
                 }
             }
         }
-
-//        std::cout << "Check2\t" << sam_filepath << std::endl;
 
         for(auto &x : _first_pass_reads) {
             int opt_idx;
@@ -522,8 +497,6 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
             }
         }
     }
-
-//    std::cout << "CheckJobEnd" << std::endl;
 }
 
 

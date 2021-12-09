@@ -23,25 +23,17 @@ void ConcurrentBufferQueue::runCombine()
 {
     std::string output_line, data_line, barcode;
     std::stringstream ss;
-//    std::cout << "Check1" << std::endl;
     while((!all_jobs_enqueued) or (!all_jobs_consumed)) {
         while((!tryPopCombine(output_line)) and (!all_jobs_consumed)) {}
         if(!all_jobs_consumed) {
-            std::cout << output_line << std::endl;
             ss.clear();
             ss.str(output_line);
             std::getline(ss, barcode, '|');
             std::getline(ss, data_line);
 
-            std::size_t dfound1= data_line.find_first_of('\t');
-            std::string debug1 = data_line.substr(0, (int)dfound1);
-
-            std::cout << debug1 << std::endl;
-
             std::vector< std::string >::iterator iter;
             iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
             int idx;
-//            std::cout << "Check1.1\t" << std::to_string(std::distance(_barcode_out_list.begin(), iter)) << std::endl;
             if(iter != _barcode_out_list.end()) {
                 idx = std::distance(_barcode_out_list.begin(), iter);
             }
@@ -87,21 +79,12 @@ void ConcurrentBufferQueue::runCombine()
                     }
                 }
             }
-//            std::cout << "Check1.2\t" << std::to_string(idx) << '\t' << std::to_string(_barcode_out_list.size());
-//            std::cout << '\t' << std::to_string(_ofs_out.size()) << '\t' << barcode << '\t' << data_line << std::endl;
-            std::cout << debug1 << '\t' << std::to_string(_ofs_out.size()) << '\t' << barcode;
-            std::cout << '\t' << _args.barcode_sample_map.at(barcode) << std::endl;
-
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
             }
-
-            std::cout << "Check3.5" << '\t' << std::to_string(idx) << '\t' << std::to_string(_ofs_out.size()) << std::endl;
             _ofs_out[idx] << data_line << std::endl;
         }
     }
-
-    std::cout << "Check4" << std::endl;
 
     while(tryPopCombine(output_line)) {
         ss.clear();
@@ -166,8 +149,6 @@ void ConcurrentBufferQueue::runCombine()
     for(int i = 0; i < _ofs_out.size(); ++i) {
         _ofs_out[i].close();
     }
-
-    std::cout << "Check5" << std::endl;
 
     work_completed = true;
 }
@@ -701,13 +682,10 @@ void ConcurrentBufferQueue::_wait()
 void ConcurrentBufferQueue::_strReplaceAll(std::string &s, const std::string &old_str, const std::string &new_str)
 {
     std::size_t start_pos = 0;
-    std::cout << old_str << '\t' << new_str << std::endl;
     if(!old_str.empty()) {
         while((start_pos = s.find(old_str, start_pos)) != std::string::npos) {
-            std::cout << old_str << '\t' << new_str << '\t' << std::to_string(start_pos) << '\t' << std::flush;
             s.replace(start_pos, old_str.length(), new_str);
             start_pos += new_str.length();
-            std::cout << std::to_string(start_pos) << std::endl;
             if(start_pos >= old_str.length()) {
                 break;
             }
