@@ -32,8 +32,8 @@ void ConcurrentBufferQueue::runCombine()
             std::getline(ss, barcode, '|');
             std::getline(ss, data_line);
 
-            std::size_t = data_line.find_first_of('\t');
-            std::string debug1 = data_line.substr(0, std::distance(data_line.begin(), size_t));
+            std::size_t dfound1= data_line.find_first_of('\t');
+            std::string debug1 = data_line.substr(0, std::distance(data_line.begin(), dfound1));
 
             std::cout << debug1 << std::endl;
 
