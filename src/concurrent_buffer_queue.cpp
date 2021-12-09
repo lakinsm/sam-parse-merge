@@ -32,6 +32,11 @@ void ConcurrentBufferQueue::runCombine()
             std::getline(ss, barcode, '|');
             std::getline(ss, data_line);
 
+            std::size_t = data_line.find_first_of('\t');
+            std::string debug1 = data_line.substr(0, std::distance(data_line.begin(), size_t));
+
+            std::cout << debug1 << std::endl;
+
             std::vector< std::string >::iterator iter;
             iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
             int idx;
@@ -83,7 +88,7 @@ void ConcurrentBufferQueue::runCombine()
             }
 //            std::cout << "Check1.2\t" << std::to_string(idx) << '\t' << std::to_string(_barcode_out_list.size());
 //            std::cout << '\t' << std::to_string(_ofs_out.size()) << '\t' << barcode << '\t' << data_line << std::endl;
-            std::cout << '\t' << std::to_string(_ofs_out.size()) << '\t' << barcode << std::endl;
+            std::cout << debug1 << '\t' << std::to_string(_ofs_out.size()) << '\t' << barcode << std::endl;
 
             if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
                 _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));

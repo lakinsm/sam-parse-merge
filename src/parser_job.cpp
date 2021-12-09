@@ -398,7 +398,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
         }
     }
 
-    std::cout << "Check1\t" << sam_filepath << std::endl;
+//    std::cout << "Check1\t" << sam_filepath << std::endl;
 
     if(!_args.final_file.empty()) {
         while(std::getline(ifs, line)) {
@@ -456,7 +456,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
             }
         }
 
-        std::cout << "Check2\t" << sam_filepath << std::endl;
+//        std::cout << "Check2\t" << sam_filepath << std::endl;
 
         for(auto &x : _first_pass_reads) {
             int opt_idx;
@@ -526,7 +526,7 @@ void ParserJob::_nanoporeSubroutine(std::ifstream &ifs, const std::string &first
         }
     }
 
-    std::cout << "CheckJobEnd" << std::endl;
+//    std::cout << "CheckJobEnd" << std::endl;
 }
 
 
