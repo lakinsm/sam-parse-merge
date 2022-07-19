@@ -314,6 +314,7 @@ void ConcurrentBufferQueue::runScore()
 
     if((!_args.final_file.empty()) && (!_args.illumina)) {
         std::ofstream ofs3(_args.output_dir + "/final_timeseries_coverage.csv");
+
         for (auto &x : timeseries_cov) {
             std::string parent = barcode_top_genomes.at(x.first);
             // Barcode, Sample, Parent
@@ -326,49 +327,59 @@ void ConcurrentBufferQueue::runScore()
                 samplename = x.first;
             }
             ofs3 << samplename << ',' << parent;
-            std::vector <std::set<int>> cumulative_cov;
-            long cumul_ref_len = 0;
-            double perc_cov = 0;
-            if (!_args.db_parent_map.empty()) {
-                cumulative_cov.resize(_args.db_parent_map.at(parent).size(), std::set<int>());
-                for (int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
-                    std::string child = _args.db_parent_map.at(parent)[j];
-                    cumul_ref_len += (long) ref_len_map.at(child);
-                    cumulative_cov[j].insert(x.second.at(child)[0].begin(), x.second.at(child)[0].end());
-                    perc_cov += (double) cumulative_cov[j].size();
-                }
-                perc_cov = 100 * perc_cov / (double) cumul_ref_len;
-            }
-            else {
-                cumul_ref_len = (long) ref_len_map.at(parent);
-                cumulative_cov.resize(1, std::set<int>());
-                cumulative_cov[0].insert(x.second.at(parent)[0].begin(), x.second.at(parent)[0].end());
-                perc_cov = 100 * (double) cumulative_cov.size() / (double) cumul_ref_len;
-            }
-            ofs3 << ',' << std::to_string(perc_cov);
 
-            if (!_args.db_parent_map.empty()) {
-                for (int i = 1; i < _args.max_timepoints; ++i) {
-                    perc_cov = 0;
-                    for (int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
-                        std::string child = _args.db_parent_map.at(parent)[j];
-                        cumulative_cov[j].insert(x.second.at(child)[i].begin(), x.second.at(child)[i].end());
-                        perc_cov += (double) cumulative_cov[j].size();
+			if(x.second.size() == 0) {
+				ofs3 << "0";
+				for(int i = 1; i < _args.max_timepoints; ++i) {
+					ofs3 << ",0";
+				}
+				ofs3 << std::endl;
+			}
+			else {
+				std::vector <std::set<int>> cumulative_cov;
+				long cumul_ref_len = 0;
+				double perc_cov = 0;
+				if (!_args.db_parent_map.empty()) {
+					cumulative_cov.resize(_args.db_parent_map.at(parent).size(), std::set<int>());
+					for (int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+						std::string child = _args.db_parent_map.at(parent)[j];
+						cumul_ref_len += (long) ref_len_map.at(child);
+						cumulative_cov[j].insert(x.second.at(child)[0].begin(), x.second.at(child)[0].end());
+						perc_cov += (double) cumulative_cov[j].size();
+					}
+					perc_cov = 100 * perc_cov / (double) cumul_ref_len;
+				}
+				else {
+					cumul_ref_len = (long) ref_len_map.at(parent);
+					cumulative_cov.resize(1, std::set<int>());
+					cumulative_cov[0].insert(x.second.at(parent)[0].begin(), x.second.at(parent)[0].end());
+					perc_cov = 100 * (double) cumulative_cov.size() / (double) cumul_ref_len;
+				}
+				ofs3 << ',' << std::to_string(perc_cov);
 
-                    }
-                    perc_cov = 100 * perc_cov / (double) cumul_ref_len;
-                    ofs3 << ',' << std::to_string(perc_cov);
-                }
-                ofs3 << std::endl;
-            }
-            else {
-                for (int i = 1; i < _args.max_timepoints; ++i) {
-                    cumulative_cov[0].insert(x.second.at(parent)[i].begin(), x.second.at(parent)[i].end());
-                    perc_cov = 100 * (double) cumulative_cov[0].size() / (double) cumul_ref_len;
-                    ofs3 << ',' << std::to_string(perc_cov);
-                }
-                ofs3 << std::endl;
-            }
+				if (!_args.db_parent_map.empty()) {
+					for (int i = 1; i < _args.max_timepoints; ++i) {
+						perc_cov = 0;
+						for (int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+							std::string child = _args.db_parent_map.at(parent)[j];
+							cumulative_cov[j].insert(x.second.at(child)[i].begin(), x.second.at(child)[i].end());
+							perc_cov += (double) cumulative_cov[j].size();
+
+						}
+						perc_cov = 100 * perc_cov / (double) cumul_ref_len;
+						ofs3 << ',' << std::to_string(perc_cov);
+					}
+					ofs3 << std::endl;
+				}
+				else {
+					for (int i = 1; i < _args.max_timepoints; ++i) {
+						cumulative_cov[0].insert(x.second.at(parent)[i].begin(), x.second.at(parent)[i].end());
+						perc_cov = 100 * (double) cumulative_cov[0].size() / (double) cumul_ref_len;
+						ofs3 << ',' << std::to_string(perc_cov);
+					}
+					ofs3 << std::endl;
+				}
+			}
         }
         ofs3.close();
     }
@@ -592,6 +603,7 @@ bool ConcurrentBufferQueue::tryPushScore(const std::string &barcode,
                                          const std::map< std::string, std::vector< int > > target_idx_coverage)
 {
     std::unique_lock< std::mutex > lock(_mtx);
+
     if(!barcode_target_idx_scores.count(barcode)) {
         barcode_target_idx_scores[barcode] = target_idx_scores;
         barcode_target_idx_coverage[barcode] = target_idx_coverage;
