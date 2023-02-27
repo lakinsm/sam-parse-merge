@@ -26,7 +26,7 @@ public:
                  const std::string &barcode,
                  const long &reads_processed,
                  const long &reads_aligned);
-    bool tryPopCombine(std::string &item);
+    bool tryPopCombine(std::vector< std::string > &items);
     bool tryPushScore(const std::string &barcode,
                       const int &timepoint,
                       const std::map< std::string, std::vector< int > > target_idx_scores,
@@ -41,6 +41,7 @@ public:
     std::atomic< bool > ref_len_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);
     std::atomic< int > num_completed_jobs = ATOMIC_VAR_INIT(0);
+	std::atomic< int > q_size = ATOMIC_VAR_INIT(0);
     std::condition_variable cv;
     std::mutex cv_m;
 

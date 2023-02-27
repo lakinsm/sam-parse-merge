@@ -30,6 +30,7 @@ public:
     int indel_start = -2;
     int indel_extend = -2;
     int max_timepoints = 100;
+	int combine_buffer_limit = 10000;
     bool illumina = false;
 
     std::map< std::string, std::string > barcode_sample_map;

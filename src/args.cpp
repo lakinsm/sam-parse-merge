@@ -69,6 +69,8 @@ Args::Args(int argc,
             sample_to_barcode_file = _findFullPath(arg_list[++i]);
         else if(arg_list[i] == "-z")
             forced_reference_acc = arg_list[++i];
+		else if(arg_list[i] == "-L")
+			combine_buffer_limit = std::stoi(arg_list[++i]);
     }
     if(illumina) {
         max_timepoints = 1;
@@ -105,6 +107,7 @@ void Args::_usage()
     std::cout << std::endl;
     std::cout << "\t-f\tFILE\tTab-separated file linking barcode to best genome, indicates final run" << std::endl;
     std::cout << "\t-i\tFLAG\tFlag indicating Illumina data, so don't compute time series" << std::endl;
+	std::cout << "\t-L\tINT\tMaximum reads for combine pipeline to hold in memory at once [10000]" << std::endl;
     std::cout << "\t-m\tINT\tMaximum number of timepoints to plot for coverage, requires -f be set [50]" << std::endl;
     std::cout << "\t-t\tINT\tThreads to use, minimum 2 [2]" << std::endl;
     std::cout << "\t-z\tSTR\tForce use of this reference (must match a parent accession if used with -d)" << std::endl;

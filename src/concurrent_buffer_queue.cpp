@@ -21,129 +21,137 @@ ConcurrentBufferQueue::~ConcurrentBufferQueue()
 
 void ConcurrentBufferQueue::runCombine()
 {
-    std::string output_line, data_line, barcode;
+    std::string data_line, barcode;
+	std::vector< std::string > output_lines;
     std::stringstream ss;
-    while((!all_jobs_enqueued) or (!all_jobs_consumed)) {
-        while((!tryPopCombine(output_line)) and (!all_jobs_consumed)) {}
-        if(!all_jobs_consumed) {
-            ss.clear();
-            ss.str(output_line);
-            std::getline(ss, barcode, '|');
-            std::getline(ss, data_line);
+    while(!all_jobs_consumed) {
+		output_lines.clear();
+        while((!tryPopCombine(output_lines)) and (!all_jobs_consumed)) {}
 
-            std::vector< std::string >::iterator iter;
-            iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
-            int idx;
-            if(iter != _barcode_out_list.end()) {
-                idx = std::distance(_barcode_out_list.begin(), iter);
-            }
-            else {
-                idx = _barcode_out_list.size();
-                _barcode_out_list.push_back(barcode);
-                std::string out_prefix;
-                if(!_args.sample_to_barcode_file.empty()) {
-                    out_prefix = _args.barcode_sample_map.at(barcode);
-                }
-                else {
-                    out_prefix = barcode;
-                }
-                std::string out_filepath = out_prefix + ".sam";
-                _ofs_out.emplace_back(std::ofstream{out_filepath});
-                if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
-                    _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
-                }
-                std::stringstream header_ss;
-                header_ss.str(_headers.at(barcode));
-                std::string header_line;
-                std::string ref_select;
-                while(std::getline(header_ss, header_line)) {
-                    if(!_args.final_file.empty()) {
-                        if(header_line.substr(0, 3) == "@SQ") {
-                            if(!_args.forced_reference_acc.empty()) {
-                                ref_select = _args.forced_reference_acc;
-                            }
-                            else {
-                                ref_select = _args.best_genome_map.at(barcode);
-                            }
-                            std::size_t found = header_line.find(ref_select);
-                            if(found != std::string::npos) {
-                                _ofs_out[idx] << header_line << std::endl;
-                            }
-                        }
-                        else {
-                            _ofs_out[idx] << header_line << std::endl;
-                        }
-                    }
-                    else {
-                        _ofs_out[idx] << header_line << std::endl;
-                    }
-                }
-            }
-            if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
-                _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
-            }
-            _ofs_out[idx] << data_line << std::endl;
+        if(!all_jobs_consumed) {
+			for(int i = 0; i < output_lines.size(); ++i) {
+				ss.clear();
+				ss.str(output_lines[i]);
+				std::getline(ss, barcode, '|');
+				std::getline(ss, data_line);
+
+				std::vector< std::string >::iterator iter;
+				iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
+				int idx;
+				if(iter != _barcode_out_list.end()) {
+					idx = std::distance(_barcode_out_list.begin(), iter);
+				}
+				else {
+					idx = _barcode_out_list.size();
+					_barcode_out_list.push_back(barcode);
+					std::string out_prefix;
+					if(!_args.sample_to_barcode_file.empty()) {
+						out_prefix = _args.barcode_sample_map.at(barcode);
+					}
+					else {
+						out_prefix = barcode;
+					}
+					std::string out_filepath = out_prefix + ".sam";
+					_ofs_out.emplace_back(std::ofstream{out_filepath});
+					if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
+						_strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
+					}
+					std::stringstream header_ss;
+					header_ss.str(_headers.at(barcode));
+					std::string header_line;
+					std::string ref_select;
+					while(std::getline(header_ss, header_line)) {
+						if(!_args.final_file.empty()) {
+							if(header_line.substr(0, 3) == "@SQ") {
+								if(!_args.forced_reference_acc.empty()) {
+									ref_select = _args.forced_reference_acc;
+								}
+								else {
+									ref_select = _args.best_genome_map.at(barcode);
+								}
+								std::size_t found = header_line.find(ref_select);
+								if(found != std::string::npos) {
+									_ofs_out[idx] << header_line << std::endl;
+								}
+							}
+							else {
+								_ofs_out[idx] << header_line << std::endl;
+							}
+						}
+						else {
+							_ofs_out[idx] << header_line << std::endl;
+						}
+					}
+				}
+				if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
+					_strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
+				}
+				_ofs_out[idx] << data_line << std::endl;
+			}
         }
     }
 
-    while(tryPopCombine(output_line)) {
-        ss.clear();
-        ss.str(output_line);
-        std::getline(ss, barcode, '|');
-        std::getline(ss, data_line);
+    while(tryPopCombine(output_lines)) {
+		for(int i = 0; i < output_lines.size(); ++i) {
+			ss.clear();
+			ss.str(output_lines[i]);
+			std::getline(ss, barcode, '|');
+			std::getline(ss, data_line);
 
-        std::vector< std::string >::iterator iter;
-        iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
-        int idx;
-        if(iter != _barcode_out_list.end()) {
-            idx = std::distance(_barcode_out_list.begin(), iter);
-        }
-        else {
-            idx = _barcode_out_list.size();
-            _barcode_out_list.push_back(barcode);
-            std::string out_prefix;
-            if(!_args.sample_to_barcode_file.empty()) {
-                out_prefix = _args.barcode_sample_map.at(barcode);
-            }
-            else {
-                out_prefix = barcode;
-            }
-            _ofs_out.emplace_back(std::ofstream{out_prefix + ".sam"});
-            if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
-                _strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
-            }
-            std::stringstream header_ss;
-            header_ss.str(_headers.at(barcode));
-            std::string header_line;
-            std::string ref_select;
-            while(std::getline(header_ss, header_line)) {
-                if(!_args.final_file.empty()) {
-                    if(header_line.substr(0, 3) == "@SQ") {
-                        if(!_args.forced_reference_acc.empty()) {
-                            ref_select = _args.forced_reference_acc;
-                        }
-                        else {
-                            ref_select = _args.best_genome_map.at(barcode);
-                        }
-                        std::size_t found = header_line.find(ref_select);
-                        if(found != std::string::npos) {
-                            _ofs_out[idx] << header_line << std::endl;
-                        }
-                    }
-                    else {
-                        _ofs_out[idx] << header_line << std::endl;
-                    }
-                }
-                else {
-                    _ofs_out[idx] << header_line << std::endl;
-                }
-            }
-        }
+			std::vector< std::string >::iterator iter;
+			iter = std::find(_barcode_out_list.begin(), _barcode_out_list.end(), barcode);
+			int idx;
+			if(iter != _barcode_out_list.end()) {
+				idx = std::distance(_barcode_out_list.begin(), iter);
+			}
+			else {
+				idx = _barcode_out_list.size();
+				_barcode_out_list.push_back(barcode);
+				std::string out_prefix;
+				if(!_args.sample_to_barcode_file.empty()) {
+					out_prefix = _args.barcode_sample_map.at(barcode);
+				}
+				else {
+					out_prefix = barcode;
+				}
+				_ofs_out.emplace_back(std::ofstream{out_prefix + ".sam"});
+				if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
+					_strReplaceAll(_headers.at(barcode), barcode, _args.barcode_sample_map.at(barcode));
+				}
+				std::stringstream header_ss;
+				header_ss.str(_headers.at(barcode));
+				std::string header_line;
+				std::string ref_select;
+				while(std::getline(header_ss, header_line)) {
+					if(!_args.final_file.empty()) {
+						if(header_line.substr(0, 3) == "@SQ") {
+							if(!_args.forced_reference_acc.empty()) {
+								ref_select = _args.forced_reference_acc;
+							}
+							else {
+								ref_select = _args.best_genome_map.at(barcode);
+							}
+							std::size_t found = header_line.find(ref_select);
+							if(found != std::string::npos) {
+								_ofs_out[idx] << header_line << std::endl;
+							}
+						}
+						else {
+							_ofs_out[idx] << header_line << std::endl;
+						}
+					}
+					else {
+						_ofs_out[idx] << header_line << std::endl;
+					}
+				}
+			}
 
-        if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
-            _strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
-        }
-        _ofs_out[idx] << data_line << std::endl;
+			if((!_args.sample_to_barcode_file.empty()) and (_args.barcode_sample_map.count(barcode))) {
+				_strReplaceAll(data_line, barcode, _args.barcode_sample_map.at(barcode));
+			}
+			_ofs_out[idx] << data_line << std::endl;
+		}
+		output_lines.clear();
     }
 
     for(int i = 0; i < _ofs_out.size(); ++i) {
@@ -167,6 +175,7 @@ bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lin
         for(int i = 0; i < lines.size(); ++i) {
             _q.push(lines[i]);
         }
+		q_size += lines.size();
     }
 
     if(!aligned_reads_processed.count(barcode)) {
@@ -181,18 +190,23 @@ bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lin
 }
 
 
-bool ConcurrentBufferQueue::tryPopCombine(std::string &item)
+bool ConcurrentBufferQueue::tryPopCombine(std::vector< std::string > &items)
 {
-    std::unique_lock< std::mutex > lock(_mtx);
-    if(_q.empty()) {
-        if(all_jobs_enqueued) {
+	// Assume that items is an empty vector
+    if(q_size == 0) {
+        if(all_jobs_enqueued && (num_active_jobs == 0)) {
             all_jobs_consumed = true;
         }
         return false;
     }
 
-    item = _q.front();
-    _q.pop();
+	int local_q_size = q_size;
+	
+	for(int i = 0; i < local_q_size; ++i) {
+		items.push_back(_q.front());
+		_q.pop();
+	}
+	q_size -= local_q_size;
 
     return true;
 }
