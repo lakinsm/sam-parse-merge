@@ -193,20 +193,23 @@ bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lin
 bool ConcurrentBufferQueue::tryPopCombine(std::vector< std::string > &items)
 {
 	// Assume that items is an empty vector
-    if(q_size == 0) {
+	std::unique_lock< std::mutex > lock(_mtx);
+    if(_q.size() == 0) {
         if(all_jobs_enqueued && (num_active_jobs == 0)) {
             all_jobs_consumed = true;
         }
         return false;
     }
 
-	int local_q_size = q_size;
+	// int local_q_size = q_size;
+
+	// std::cout << local_q_size << '\t' << q_size << std::endl;
 	
-	for(int i = 0; i < local_q_size; ++i) {
+	for(int i = 0; i < _q.size(); ++i) {
 		items.push_back(_q.front());
 		_q.pop();
 	}
-	q_size -= local_q_size;
+	// q_size -= local_q_size;
 
     return true;
 }

@@ -296,6 +296,10 @@ int main(int argc, const char *argv[]) {
         concurrent_q->cv.notify_all();
 
         while(!concurrent_q->work_completed) {}
+
+		delete job_dispatcher;
+        delete concurrent_q;
+        delete output_buffer_dispatcher;
     }
     return 0;
 }
