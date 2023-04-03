@@ -193,6 +193,24 @@ int main(int argc, const char *argv[]) {
 			std::string this_barcode = this_filename.substr(0, pos2);
 			std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
 
+			if(!args.sample_to_barcode_file.empty()) {
+				if(!args.barcode_sample_map.count(this_barcode)) {
+					args.barcode_sample_map[this_barcode] = this_barcode;
+				}
+			}
+
+			if(!args.forced_reference_acc.empty()) {
+				this_param_string += args.forced_reference_acc;
+			}
+			else {
+				if(args.best_genome_map.count(this_barcode)) {
+					this_param_string += args.best_genome_map.at(this_barcode);
+				}
+				else {
+					this_param_string += "None";
+				}
+			}
+
 			IlluminaParserJob illumina_parser_job(args, this_param_string);
 			illumina_parser_job.run();
 

@@ -32,6 +32,7 @@ IlluminaParserJob::IlluminaParserJob(Args &args,
     reads_aligned = 0;
 
 	std::string infile_path = barcode + ".sam";
+
 	_output_file.open(infile_path.c_str());
 }
 
@@ -76,7 +77,7 @@ void IlluminaParserJob::run()
         }
     }
 
-    _output_file << this_header << std::endl;
+    _output_file << this_header;
 
 	_parsingSubroutine(ifs, line);
     ifs.close();
