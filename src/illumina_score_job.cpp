@@ -2,6 +2,7 @@
 #include <sstream>
 #include <algorithm>
 #include <ctype.h>
+#include <limits>
 
 
 IlluminaScoreJob::IlluminaScoreJob(Args &args,
