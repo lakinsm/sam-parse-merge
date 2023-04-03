@@ -8,6 +8,7 @@
 #include "dispatch_queue.h"
 #include "concurrent_buffer_queue.h"
 #include "illumina_parser_job.h"
+#include "illumina_score_job.h"
 
 
 int main(int argc, const char *argv[]) {
@@ -288,61 +289,88 @@ int main(int argc, const char *argv[]) {
 			delete concurrent_q;
 			delete output_buffer_dispatcher;
 		}
-        
-        
     }
     else if(args.pipeline == "score") {
         // Main scoring routine
-        DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
-        DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
-        ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(args, 100000);
-        output_buffer_dispatcher->dispatch([concurrent_q] () {concurrent_q->runScore();});
+		if(args.illumina) {
+			std::string this_sam_fp = args.sam_file_list;
+			std::size_t pos1 = this_sam_fp.find_last_of('/');
+			std::string this_filename = this_sam_fp.substr(pos1 + 1);
+			std::size_t pos2 = this_filename.find_first_of('_');
+			std::string this_barcode = this_filename.substr(0, pos2);
+			std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
+			if(!args.sample_to_barcode_file.empty()) {
+				if(!args.barcode_sample_map.count(this_barcode)) {
+					args.barcode_sample_map[this_barcode] = this_barcode;
+				}
+			}
+			if((!args.final_file.empty()) && (args.best_genome_map.count(this_barcode))) {
+				this_param_string += args.best_genome_map.at(this_barcode);
+			}
+			else {
+				if(!args.forced_reference_acc.empty()) {
+					this_param_string += args.forced_reference_acc;
+				}
+				else {
+					this_param_string += "None";
+				}
+			}
 
-        int total_jobs = 0;
-        for(int i = 0; i < sam_files.size(); ++i) {
-            std::string this_sam_fp = sam_files[i];
-            std::size_t pos1 = this_sam_fp.find_last_of('/');
-            std::string this_filename = this_sam_fp.substr(pos1 + 1);
-            std::size_t pos2 = this_filename.find_first_of('_');
-            std::string this_barcode = this_filename.substr(0, pos2);
-            std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
-            if(!args.sample_to_barcode_file.empty()) {
-                if(!args.barcode_sample_map.count(this_barcode)) {
-                    args.barcode_sample_map[this_barcode] = this_barcode;
-                }
-            }
-            if(!args.final_file.empty()) {
-                if(!args.best_genome_map.count(this_barcode)) {
-                    continue;
-                }
-                this_param_string += args.best_genome_map.at(this_barcode);
-            }
-            else {
-                if(!args.forced_reference_acc.empty()) {
-                    this_param_string += args.forced_reference_acc;
-                }
-                else {
-                    this_param_string += "None";
-                }
-            }
+			IlluminaScoreJob illumina_score_job(args, this_param_string);
+			illumina_score_job.run();
+		}
+		else {
+			DispatchQueue* output_buffer_dispatcher = new DispatchQueue(args, 1, false);
+			DispatchQueue* job_dispatcher = new DispatchQueue(args, args.threads - 1, true);
+			ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(args, 100000);
+			output_buffer_dispatcher->dispatch([concurrent_q] () {concurrent_q->runScore();});
 
-            while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
+			int total_jobs = 0;
+			for(int i = 0; i < sam_files.size(); ++i) {
+				std::string this_sam_fp = sam_files[i];
+				std::size_t pos1 = this_sam_fp.find_last_of('/');
+				std::string this_filename = this_sam_fp.substr(pos1 + 1);
+				std::size_t pos2 = this_filename.find_first_of('_');
+				std::string this_barcode = this_filename.substr(0, pos2);
+				std::string this_param_string = this_sam_fp + '|' + this_barcode + '|';
+				if(!args.sample_to_barcode_file.empty()) {
+					if(!args.barcode_sample_map.count(this_barcode)) {
+						args.barcode_sample_map[this_barcode] = this_barcode;
+					}
+				}
+				if(!args.final_file.empty()) {
+					if(!args.best_genome_map.count(this_barcode)) {
+						continue;
+					}
+					this_param_string += args.best_genome_map.at(this_barcode);
+				}
+				else {
+					if(!args.forced_reference_acc.empty()) {
+						this_param_string += args.forced_reference_acc;
+					}
+					else {
+						this_param_string += "None";
+					}
+				}
 
-            total_jobs++;
-            std::unique_ptr< ScoreJob > job = std::make_unique< ScoreJob > (args, this_param_string, concurrent_q);
-            job_dispatcher->dispatch(std::move(job));
-            concurrent_q->num_active_jobs += 1;
-        }
+				while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
 
-        while(concurrent_q->num_completed_jobs != total_jobs) {}
-        concurrent_q->all_jobs_enqueued = true;
-        concurrent_q->cv.notify_all();
+				total_jobs++;
+				std::unique_ptr< ScoreJob > job = std::make_unique< ScoreJob > (args, this_param_string, concurrent_q);
+				job_dispatcher->dispatch(std::move(job));
+				concurrent_q->num_active_jobs += 1;
+			}
 
-        while(!concurrent_q->work_completed) {}
+			while(concurrent_q->num_completed_jobs != total_jobs) {}
+			concurrent_q->all_jobs_enqueued = true;
+			concurrent_q->cv.notify_all();
 
-		delete job_dispatcher;
-        delete concurrent_q;
-        delete output_buffer_dispatcher;
+			while(!concurrent_q->work_completed) {}
+
+			delete job_dispatcher;
+			delete concurrent_q;
+			delete output_buffer_dispatcher;
+		}
     }
     return 0;
 }
