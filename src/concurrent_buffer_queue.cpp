@@ -186,6 +186,7 @@ bool ConcurrentBufferQueue::tryPushCombine(const std::vector< std::string > &lin
         aligned_reads_processed.at(barcode) += reads_aligned;
         total_reads_processed.at(barcode) += reads_processed;
     }
+
     return true;
 }
 
@@ -200,16 +201,11 @@ bool ConcurrentBufferQueue::tryPopCombine(std::vector< std::string > &items)
         }
         return false;
     }
-
-	// int local_q_size = q_size;
-
-	// std::cout << local_q_size << '\t' << q_size << std::endl;
 	
 	for(int i = 0; i < _q.size(); ++i) {
 		items.push_back(_q.front());
 		_q.pop();
 	}
-	// q_size -= local_q_size;
 
     return true;
 }

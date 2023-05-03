@@ -132,6 +132,7 @@ void ParserJob::_parsingSubroutine(std::ifstream &ifs, const std::string &first_
 
 		std::vector< std::string > next_res = _parseSamLine(line);
 		next_line_read_group = next_res[0];
+
 		if(seen_headers.empty()) {
 			reads_processed++;
 			seen_headers.insert(next_line_read_group);
@@ -145,8 +146,6 @@ void ParserJob::_parsingSubroutine(std::ifstream &ifs, const std::string &first_
 			_parseReadGroupData(current_reads);
 			current_read_group = next_line_read_group;
 			current_reads.clear();
-			seen_headers.clear();
-			aligned_headers.clear();
 		}
 
 		int next_sam_flag = std::stoi(next_res[1]);
@@ -184,6 +183,8 @@ void ParserJob::_parsingSubroutine(std::ifstream &ifs, const std::string &first_
 		if(contents.size() >= _args.combine_buffer_limit) {
 			while(!_buffer_q->tryPushCombine(contents, barcode, reads_processed, reads_aligned)) {}
 			contents.clear();
+			seen_headers.clear();
+			aligned_headers.clear();
 		}
 	}
 

@@ -155,8 +155,6 @@ void IlluminaParserJob::_parsingSubroutine(std::ifstream &ifs, const std::string
 			_parseReadGroupData(current_reads);
 			current_read_group = next_line_read_group;
 			current_reads.clear();
-			seen_headers.clear();
-			aligned_headers.clear();
 		}
 
 		int next_sam_flag = std::stoi(next_res[1]);
@@ -193,6 +191,8 @@ void IlluminaParserJob::_parsingSubroutine(std::ifstream &ifs, const std::string
 
 		if(contents.size() >= _args.combine_buffer_limit) {
 			_writeCurrentContents();
+			seen_headers.clear();
+			aligned_headers.clear();
 		}
 	}
 
