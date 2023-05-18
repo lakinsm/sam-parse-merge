@@ -125,7 +125,12 @@ void IlluminaParserJob::_parsingSubroutine(std::ifstream &ifs, const std::string
 	std::set< std::string > seen_headers;
 	std::set< std::string > aligned_headers;
 
+	if(line.empty()) {
+		return;
+	}
+
     res = _parseSamLine(line);
+
 	std::string readname = res[0];
 	int sam_flag = std::stoi(res[1]);
 	if(!seen_headers.count(readname)) {
