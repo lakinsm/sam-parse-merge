@@ -66,7 +66,7 @@ void IlluminaParserJob::run()
         std::getline(ifs, line);
 
         if(line.empty()) {
-            return;
+            break;
         }
 
         if(line[0] == '@') {
@@ -77,7 +77,32 @@ void IlluminaParserJob::run()
         }
     }
 
-    _output_file << this_header;
+	std::stringstream header_ss;
+	header_ss.str(this_header);
+	std::string header_line;
+	std::string ref_select;
+	while(std::getline(header_ss, header_line)) {
+		if((!_args.final_file.empty()) && (_args.best_genome_map.count(barcode))) {
+			if(header_line.substr(0, 3) == "@SQ") {
+				if(!_args.forced_reference_acc.empty()) {
+					ref_select = _args.forced_reference_acc;
+				}
+				else {
+					ref_select = _args.best_genome_map.at(barcode);
+				}
+				std::size_t found = header_line.find(ref_select);
+				if(found != std::string::npos) {
+					_output_file << header_line << std::endl;
+				}
+			}
+			else {
+				_output_file << header_line << std::endl;
+			}
+		}
+		else {
+			_output_file << header_line << std::endl;
+		}
+	}
 
 	_parsingSubroutine(ifs, line);
     ifs.close();

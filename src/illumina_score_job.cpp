@@ -62,7 +62,7 @@ void IlluminaScoreJob::run()
         std::getline(ifs, line);
 
         if(line.empty()) {
-            return;
+            break;
         }
 
         if(line[0] == '@') {
@@ -99,10 +99,10 @@ void IlluminaScoreJob::_outputScoreIllumina()
 {
 	std::ofstream ofs1;
 	if(_args.final_file.empty()) {
-        ofs1.open(_args.output_dir + "/" + barcode + "_intermediate_coverage_results.csv");
+        ofs1.open(_args.output_dir + "/" + barcode + "_intermediate_coverage_results.csv", std::fstream::out);
     }
     else {
-        ofs1.open(_args.output_dir + "/" + barcode + "_final_coverage_results.csv");
+        ofs1.open(_args.output_dir + "/" + barcode + "_final_coverage_results.csv", std::fstream::out);
     }
 
 	std::string samplename;
@@ -193,95 +193,152 @@ void IlluminaScoreJob::_outputScoreIllumina()
     ofs1.close();
 
 	if(!_args.final_file.empty()) {
-        std::ofstream ofs4(_args.output_dir + "/" + barcode + "_final_genome_idx_coverage.csv");
-		std::string parent = _args.best_genome_map.at(barcode);
-		std::string samplename;
+        std::ofstream ofs4(_args.output_dir + "/" + barcode + "_final_genome_idx_coverage.csv", std::fstream::out);
+		std::ofstream ofs5(_args.output_dir + "/" + barcode + "_final_genome_idx_scores.csv", std::fstream::out);
+		std::string out_prefix;
 		if(!_args.sample_to_barcode_file.empty()) {
-			samplename = _args.barcode_sample_map.at(barcode);
-		}
-		else {
-			samplename = barcode;
-		}
-		ofs4 << barcode << ',' << samplename << ',';
-		if(!_args.db_parent_map.empty()) {
-			for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
-				std::string child = _args.db_parent_map.at(parent)[j];
-				if(parent == child) {
-					ofs4 << parent << ',' << _args.db_parent_name_map.at(parent);
+				out_prefix = _args.barcode_sample_map.at(barcode);
+			}
+			else {
+				out_prefix = barcode;
+			}
+		std::string local_out_path = _args.output_dir + "/" + out_prefix + "_region_idx_data.csv";
+		std::ofstream local_ofs(local_out_path, std::fstream::out);
+		if(_args.best_genome_map.count(barcode)) {
+			std::string parent = _args.best_genome_map.at(barcode);
+			std::string samplename;
+			if(!_args.sample_to_barcode_file.empty()) {
+				samplename = _args.barcode_sample_map.at(barcode);
+			}
+			else {
+				samplename = barcode;
+			}
+			ofs4 << barcode << ',' << samplename << ',';
+			if(!_args.db_parent_map.empty()) {
+				for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+					std::string child = _args.db_parent_map.at(parent)[j];
+					if(parent == child) {
+						ofs4 << parent << ',' << _args.db_parent_name_map.at(parent);
+					}
+					else {
+						ofs4 << parent << ':' << child;
+						ofs4 << ',' << _args.db_parent_name_map.at(parent);
+						ofs4 << '|' << _args.db_child_name_map.at(child);
+					}
+					std::vector< int > *local_vec = &target_idx_coverage.at(child);
+					ofs4 << ',' << std::to_string((*local_vec)[0]);
+					for(int i = 1; i < (*local_vec).size(); ++i) {
+						ofs4 << ',' << std::to_string((*local_vec)[i]);
+					}
+					ofs4 << std::endl;
 				}
-				else {
-					ofs4 << parent << ':' << child;
-					ofs4 << ',' << _args.db_parent_name_map.at(parent);
-					ofs4 << '|' << _args.db_child_name_map.at(child);
-				}
-				std::vector< int > *local_vec = &target_idx_coverage.at(child);
+			}
+			else {
+				ofs4 << parent << ',' << parent;
+				std::vector< int > *local_vec = &target_idx_coverage.at(parent);
 				ofs4 << ',' << std::to_string((*local_vec)[0]);
 				for(int i = 1; i < (*local_vec).size(); ++i) {
 					ofs4 << ',' << std::to_string((*local_vec)[i]);
 				}
 				ofs4 << std::endl;
 			}
-		}
-		else {
-			ofs4 << parent << ',' << parent;
-			std::vector< int > *local_vec = &target_idx_coverage.at(parent);
-			ofs4 << ',' << std::to_string((*local_vec)[0]);
-			for(int i = 1; i < (*local_vec).size(); ++i) {
-				ofs4 << ',' << std::to_string((*local_vec)[i]);
-			}
-			ofs4 << std::endl;
-		}
-        ofs4.close();
-
-        std::ofstream ofs5(_args.output_dir + "/" + barcode + "_final_genome_idx_scores.csv");
-		ofs5 << barcode << ',' << samplename << ',';
-		if(!_args.db_parent_map.empty()) {
-			for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
-				std::string child = _args.db_parent_map.at(parent)[j];
-				if(parent == child) {
-					ofs5 << parent << ',' << _args.db_parent_name_map.at(parent);
+			
+			ofs5 << barcode << ',' << samplename << ',';
+			if(!_args.db_parent_map.empty()) {
+				for(int j = 0; j < _args.db_parent_map.at(parent).size(); ++j) {
+					std::string child = _args.db_parent_map.at(parent)[j];
+					if(parent == child) {
+						ofs5 << parent << ',' << _args.db_parent_name_map.at(parent);
+					}
+					else {
+						ofs5 << parent << ':' << child;
+						ofs5 << ',' << _args.db_parent_name_map.at(parent);
+						ofs5 << '|' << _args.db_child_name_map.at(child);
+					}
+					if(target_idx_scores.count(child)) {
+						std::vector< int > *local_vec = &target_idx_scores.at(child);
+						ofs5 << ',' << std::to_string((*local_vec)[0]);
+						for(int i = 1; i < (*local_vec).size(); ++i) {
+							ofs5 << ',' << std::to_string((*local_vec)[i]);
+						}
+						ofs5 << std::endl;
+					}
 				}
-				else {
-					ofs5 << parent << ':' << child;
-					ofs5 << ',' << _args.db_parent_name_map.at(parent);
-					ofs5 << '|' << _args.db_child_name_map.at(child);
-				}
-				std::vector< int > *local_vec = &target_idx_scores.at(child);
-				ofs5 << ',' << std::to_string((*local_vec)[0]);
-				for(int i = 1; i < (*local_vec).size(); ++i) {
-					ofs5 << ',' << std::to_string((*local_vec)[i]);
-				}
-				ofs5 << std::endl;
 			}
-		}
-		else {
-			ofs5 << parent << ',' << parent;
-			std::vector< int > *local_vec = &target_idx_scores.at(parent);
-			ofs5 << ',' << std::to_string((*local_vec)[0]);
-			for(int i = 1; i < (*local_vec).size(); ++i) {
-				ofs5 << ',' << std::to_string((*local_vec)[i]);
+			else {
+				ofs5 << parent << ',' << parent;
+				if(target_idx_scores.count(parent)) {
+					std::vector< int > *local_vec = &target_idx_scores.at(parent);
+					ofs5 << ',' << std::to_string((*local_vec)[0]);
+					for(int i = 1; i < (*local_vec).size(); ++i) {
+						ofs5 << ',' << std::to_string((*local_vec)[i]);
+					}
+					ofs5 << std::endl;
+				}
 			}
-			ofs5 << std::endl;
-		}
-        ofs5.close();
 
-        // .ann subregion analyses
-		std::string out_prefix;
-		if(!_args.sample_to_barcode_file.empty()) {
-			out_prefix = _args.barcode_sample_map.at(barcode);
-		}
-		else {
-			out_prefix = barcode;
-		}
-		std::string local_out_path = _args.output_dir + "/" + out_prefix + "_region_idx_data.csv";
-		std::ofstream local_ofs(local_out_path);
+			// .ann subregion analyses
+			if(!_args.db_parent_map.empty()) {
+				for(int p = 0; p < _args.db_parent_map.at(parent).size(); ++p) {
+					std::string child = _args.db_parent_map.at(parent)[p];
+					if(_args.db_ann_map.count(child) and target_idx_coverage.count(child)) {
+						for(int i = 0; i < _args.db_ann_map.at(child).size(); ++i) {
+							std::vector< std::string > *ann_vec = &_args.db_ann_map.at(child)[i];
+							int start = std::stoi((*ann_vec)[0].c_str());
+							int stop = std::stoi((*ann_vec)[1].c_str());
+							std::string &gene = (*ann_vec)[3];
+							std::string &product = (*ann_vec)[4];
+							long total_region_cov = 0;
+							int min_region_cov = std::numeric_limits<int>::max();
+							int max_region_cov = 0;
+							int region_idxs_covered = 0;
+							long total_region_score = 0;
+							std::vector< int > *local_cov_vec = &target_idx_coverage.at(child);
+							std::vector< int > *local_score_vec = &target_idx_scores.at(child);
+							for(int j = (start - 1); j < stop; ++j) {
+								if((*local_cov_vec)[j] != 0) {
+									total_region_cov += (*local_cov_vec)[j];
+									region_idxs_covered++;
+								}
+								if((*local_cov_vec)[j] < min_region_cov) {
+									min_region_cov = (*local_cov_vec)[j];
+								}
+								if((*local_cov_vec)[j] > max_region_cov) {
+									max_region_cov = (*local_cov_vec)[j];
+								}
+								total_region_score += (*local_score_vec)[j];
+							}
+							double region_len = (double)(stop - start + 1);
+							double avg_region_cov = (double)total_region_cov / region_len;
+							double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
+							double perc_max_region_score = 100 * (double)total_region_score / (double)(total_region_cov * _args.match);
+							local_ofs << barcode << ',' << out_prefix << ',';
+							if(parent == child) {
+								local_ofs << parent << ',' << _args.db_parent_name_map.at(parent) << ',';
+							}
+							else {
+								local_ofs << parent << ':' << child << ',' << _args.db_parent_name_map.at(parent);
+								local_ofs << '|' << _args.db_child_name_map.at(child) << ',';
+							}
+							local_ofs << (*ann_vec)[0] << ',';
+							local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
+							local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
+							local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
+							if(total_region_score > 0) {
+								local_ofs << std::to_string(perc_max_region_score) << std::endl;
+							}
+							else {
+								local_ofs << std::to_string((double)0) << std::endl;
+							}
 
-		if(!_args.db_parent_map.empty()) {
-			for(int p = 0; p < _args.db_parent_map.at(parent).size(); ++p) {
-				std::string child = _args.db_parent_map.at(parent)[p];
-				if(_args.db_ann_map.count(child) and target_idx_coverage.count(child)) {
-					for(int i = 0; i < _args.db_ann_map.at(child).size(); ++i) {
-						std::vector< std::string > *ann_vec = &_args.db_ann_map.at(child)[i];
+						}
+					}
+				}
+			}
+			else {
+				if(_args.db_ann_map.count(parent) and target_idx_coverage.count(parent)) {
+					for(int i = 0; i < _args.db_ann_map.at(parent).size(); ++i) {
+						std::vector< std::string > *ann_vec = &_args.db_ann_map.at(parent)[i];
 						int start = std::stoi((*ann_vec)[0].c_str());
 						int stop = std::stoi((*ann_vec)[1].c_str());
 						std::string &gene = (*ann_vec)[3];
@@ -291,8 +348,8 @@ void IlluminaScoreJob::_outputScoreIllumina()
 						int max_region_cov = 0;
 						int region_idxs_covered = 0;
 						long total_region_score = 0;
-						std::vector< int > *local_cov_vec = &target_idx_coverage.at(child);
-						std::vector< int > *local_score_vec = &target_idx_scores.at(child);
+						std::vector< int > *local_cov_vec = &target_idx_coverage.at(parent);
+						std::vector< int > *local_score_vec = &target_idx_scores.at(parent);
 						for(int j = (start - 1); j < stop; ++j) {
 							if((*local_cov_vec)[j] != 0) {
 								total_region_cov += (*local_cov_vec)[j];
@@ -310,14 +367,7 @@ void IlluminaScoreJob::_outputScoreIllumina()
 						double avg_region_cov = (double)total_region_cov / region_len;
 						double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
 						double perc_max_region_score = 100 * (double)total_region_score / (double)(total_region_cov * _args.match);
-						local_ofs << barcode << ',' << out_prefix << ',';
-						if(parent == child) {
-							local_ofs << parent << ',' << _args.db_parent_name_map.at(parent) << ',';
-						}
-						else {
-							local_ofs << parent << ':' << child << ',' << _args.db_parent_name_map.at(parent);
-							local_ofs << '|' << _args.db_child_name_map.at(child) << ',';
-						}
+						local_ofs << barcode << ',' << out_prefix << ',' << parent << ',' << parent << ',';
 						local_ofs << (*ann_vec)[0] << ',';
 						local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
 						local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
@@ -328,57 +378,12 @@ void IlluminaScoreJob::_outputScoreIllumina()
 						else {
 							local_ofs << std::to_string((double)0) << std::endl;
 						}
-
 					}
 				}
 			}
 		}
-		else {
-			if(_args.db_ann_map.count(parent) and target_idx_coverage.count(parent)) {
-				for(int i = 0; i < _args.db_ann_map.at(parent).size(); ++i) {
-					std::vector< std::string > *ann_vec = &_args.db_ann_map.at(parent)[i];
-					int start = std::stoi((*ann_vec)[0].c_str());
-					int stop = std::stoi((*ann_vec)[1].c_str());
-					std::string &gene = (*ann_vec)[3];
-					std::string &product = (*ann_vec)[4];
-					long total_region_cov = 0;
-					int min_region_cov = std::numeric_limits<int>::max();
-					int max_region_cov = 0;
-					int region_idxs_covered = 0;
-					long total_region_score = 0;
-					std::vector< int > *local_cov_vec = &target_idx_coverage.at(parent);
-					std::vector< int > *local_score_vec = &target_idx_scores.at(parent);
-					for(int j = (start - 1); j < stop; ++j) {
-						if((*local_cov_vec)[j] != 0) {
-							total_region_cov += (*local_cov_vec)[j];
-							region_idxs_covered++;
-						}
-						if((*local_cov_vec)[j] < min_region_cov) {
-							min_region_cov = (*local_cov_vec)[j];
-						}
-						if((*local_cov_vec)[j] > max_region_cov) {
-							max_region_cov = (*local_cov_vec)[j];
-						}
-						total_region_score += (*local_score_vec)[j];
-					}
-					double region_len = (double)(stop - start + 1);
-					double avg_region_cov = (double)total_region_cov / region_len;
-					double perc_region_cov = 100 * (double)region_idxs_covered / region_len;
-					double perc_max_region_score = 100 * (double)total_region_score / (double)(total_region_cov * _args.match);
-					local_ofs << barcode << ',' << out_prefix << ',' << parent << ',' << parent << ',';
-					local_ofs << (*ann_vec)[0] << ',';
-					local_ofs << (*ann_vec)[1] << ',' << gene << ',' << product << ',';
-					local_ofs << std::to_string(min_region_cov) << ',' << std::to_string(max_region_cov) << ',';
-					local_ofs << std::to_string(avg_region_cov) << ',' << std::to_string(perc_region_cov) << ',';
-					if(total_region_score > 0) {
-						local_ofs << std::to_string(perc_max_region_score) << std::endl;
-					}
-					else {
-						local_ofs << std::to_string((double)0) << std::endl;
-					}
-				}
-			}
-		}
+		ofs4.close();
+		ofs5.close();
 		local_ofs.close();
     }
 }

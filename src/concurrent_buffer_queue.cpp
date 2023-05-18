@@ -229,10 +229,10 @@ void ConcurrentBufferQueue::runScore()
     std::ofstream ofs1;
 
     if(_args.final_file.empty()) {
-        ofs1.open(_args.output_dir + "/intermediate_coverage_results.csv");
+        ofs1.open(_args.output_dir + "/intermediate_coverage_results.csv", std::fstream::out);
     }
     else {
-        ofs1.open(_args.output_dir + "/final_coverage_results.csv");
+        ofs1.open(_args.output_dir + "/final_coverage_results.csv", std::fstream::out);
     }
     ofs1 << "barcode,samplename,accession,accession_name,genome_length,total_alignment_score,";
     ofs1 << "average_alignment_score,average_coverage,percent_coverage" << std::endl;
@@ -326,7 +326,7 @@ void ConcurrentBufferQueue::runScore()
     ofs1.close();
 
     if((!_args.final_file.empty()) && (!_args.illumina)) {
-        std::ofstream ofs3(_args.output_dir + "/final_timeseries_coverage.csv");
+        std::ofstream ofs3(_args.output_dir + "/final_timeseries_coverage.csv", std::fstream::out);
 
         for (auto &x : timeseries_cov) {
             std::string parent = barcode_top_genomes.at(x.first);
@@ -398,7 +398,7 @@ void ConcurrentBufferQueue::runScore()
     }
 
     if(!_args.final_file.empty()) {
-        std::ofstream ofs4(_args.output_dir + "/final_genome_idx_coverage.csv");
+        std::ofstream ofs4(_args.output_dir + "/final_genome_idx_coverage.csv", std::fstream::out);
         for(auto &x : barcode_target_idx_coverage) {
             std::string parent = barcode_top_genomes.at(x.first);
             std::string samplename;
@@ -440,7 +440,7 @@ void ConcurrentBufferQueue::runScore()
         }
         ofs4.close();
 
-        std::ofstream ofs5(_args.output_dir + "/final_genome_idx_scores.csv");
+        std::ofstream ofs5(_args.output_dir + "/final_genome_idx_scores.csv", std::fstream::out);
         for(auto &x : barcode_target_idx_scores) {
             std::string parent = barcode_top_genomes.at(x.first);
             std::string samplename;
@@ -493,7 +493,7 @@ void ConcurrentBufferQueue::runScore()
                 out_prefix = x.first;
             }
             std::string local_out_path = _args.output_dir + "/" + out_prefix + "_region_idx_data.csv";
-            std::ofstream local_ofs(local_out_path);
+            std::ofstream local_ofs(local_out_path, std::fstream::out);
 
             if(!_args.db_parent_map.empty()) {
                 local_ofs << "Barcode,Samplename,Reference,ReferenceName,Start,Stop,Gene,Product,";
